@@ -1,0 +1,7 @@
+*.swp
+*.pyproj
+*.pyproj.user
+*.sln
+*/__pycache__
+venv/*
+.vs/*
