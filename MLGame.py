@@ -23,7 +23,7 @@ if __name__ == "__main__":
 	optparser = create_optparser()
 	(options, args) = optparser.parse_args()
 
-	game_name = args[0]
+	game_name = args[0].lower()
 	game_options = args[1:]
 	game = importlib.import_module("{}.main".format(game_name))
 
