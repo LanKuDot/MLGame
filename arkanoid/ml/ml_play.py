@@ -23,7 +23,9 @@ class ML(MlABC):
 		4. Send the GameInstruction to the game process.
 		5. Back to 1.
 
-		Note that the game process won't wait for the ml process to generate the
+		Note that the game process will wait until ml process sends a READY command,
+		so remember to send a READY command before starting the loop.
+		The game process won't wait for the ml process to generate the
 		GameInstrcution. It is possible that the frame of the GameInstruction
 		is behind of the current frame in the game process. Try to decrease the fps
 		to avoid this situation.
@@ -31,6 +33,8 @@ class ML(MlABC):
 		@param instruct_pipe The sending-end of the GameInstruction to the game process
 		@param scene_info_pipe The receving-end of the SceneInfo from the game process
 		"""
+
+		instruct_pipe.send(GameInstruction(0, GameInstruction.CMD_READY))
 
 		while True:
 			scene_info = scene_info_pipe.recv()
