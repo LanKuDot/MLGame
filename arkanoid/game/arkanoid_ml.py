@@ -79,9 +79,9 @@ class Arkanoid(GameABC):
 		scene = gamecore.Scene(level, False)
 		scene_info = self._get_object_pos_info(scene, \
 			SceneInfo(self._frame, gamecore.GAME_ALIVE_MSG))
-		# Delay 0.1 seconds to wait for the initialization of
-		# the machine learning process
-		self._clock.tick(10)
+		# Wait for ready instruction
+		instruct_pipe.recv()
+		self._clock.tick(fps)
 
 		while True:
 			scene_info_pipe.send(scene_info)
