@@ -23,11 +23,17 @@ if __name__ == "__main__":
 	optparser = create_optparser()
 	(options, args) = optparser.parse_args()
 
-	game_name = args[0].lower()
-	game_options = args[1:]
-	game = importlib.import_module("{}.main".format(game_name))
-
-	if options.manual_mode:
-		game.manual_mode(options.fps, *game_options)
+	try:
+		game_name = args[0].lower()
+		game_options = args[1:]
+		game = importlib.import_module("{}.main".format(game_name))
+	except IndexError:
+		print("Error: <game> is not specified. Use -h to see help.")
+		print(optparser.get_usage()[:-1])
+	except ModuleNotFoundError:
+		print("Error: Game \"{}\" is not found.".format(game_name))
 	else:
-		game.ml_mode(options.fps, *game_options)
+		if options.manual_mode:
+			game.manual_mode(options.fps, *game_options)
+		else:
+			game.ml_mode(options.fps, *game_options)
