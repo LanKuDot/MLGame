@@ -61,3 +61,28 @@ class GameInstruction:
 
 	def __str__(self):
 		return "# Frame {}\n# Command {}".format(self.frame, self.command)
+
+# Communication pipes between ml and game processes
+# They are initialized before the ml process starts.
+_scene_info_pipe = None
+_instruct_pipe = None
+
+# ====== Helper functions ====== #
+def get_scene_info() -> SceneInfo:
+	"""Get the scene information from the game process
+	"""
+	return _scene_info_pipe.recv()
+
+def send_instruction(frame: int, command: str):
+	"""Send a game instruction to the game process
+
+	@param frame The frame number for the corresponding scene information
+	@param command The game command. It could only be the command defined
+	       in the class GameInstruction.
+	"""
+	_instruct_pipe.send(GameInstruction(frame, command))
+
+def ml_ready():
+	"""Inform the game process that ml process is ready
+	"""
+	send_instruction(0, GameInstruction.CMD_READY)

@@ -51,12 +51,20 @@ def start_game_process(*args):
 	except Exception as e:
 		print(e.with_traceback())
 
-def start_ml_process(*args):
+def start_ml_process(instruct_pipe, scene_info_pipe):
 	"""Start the custom machine learning process
+
+	@param instruct_pipe The sending-end of pipe for the game instruction
+	@param scene_info_pipe The receving-end of pipe for the scene information
 	"""
-	from .ml.ml_play import ML
+	# Initialize the pipe for helper functions in communication.py
+	from . import communication as comm
+	comm._instruct_pipe = instruct_pipe
+	comm._scene_info_pipe = scene_info_pipe
+
+	from .ml import ml_play
 	try:
-		ML().ml_loop(*args)
+		ml_play.ml_loop()
 	except Exception as e:
 		print(e.with_traceback())
 
