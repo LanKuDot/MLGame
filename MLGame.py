@@ -19,6 +19,14 @@ def create_optparser():
 	
 	return parser
 
+def has_ml_script(game_name: str):
+	import os.path
+
+	dir_path = os.path.dirname(__file__)
+	ml_script_path = os.path.join(dir_path, "{}/ml/ml_play.py".format(game_name))
+
+	return os.path.exists(ml_script_path)
+
 if __name__ == "__main__":
 	optparser = create_optparser()
 	(options, args) = optparser.parse_args()
@@ -27,11 +35,18 @@ if __name__ == "__main__":
 		game_name = args[0].lower()
 		game_options = args[1:]
 		game = importlib.import_module("{}.main".format(game_name))
+
+		if not options.manual_mode and not has_ml_script(game_name):
+			raise FileNotFoundError
+
 	except IndexError:
 		print("Error: <game> is not specified. Use -h to see help.")
 		print(optparser.get_usage()[:-1])
 	except ModuleNotFoundError:
 		print("Error: Game \"{}\" is not found.".format(game_name))
+	except FileNotFoundError:
+		print("Error: The script \"{}/ml/ml_play.py\" is not provided. " \
+			"Cannot start the machine learning mode.".format(game_name))
 	else:
 		if options.manual_mode:
 			game.manual_mode(options.fps, *game_options)
