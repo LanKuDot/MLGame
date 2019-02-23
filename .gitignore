@@ -6,3 +6,4 @@
 __pycache__/
 venv/*
 .vs/*
+ml_play.py
