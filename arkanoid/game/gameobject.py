@@ -102,12 +102,14 @@ class Ball(pygame.sprite.Sprite):
 		if collide_or_tangent(self, platform):
 			self._bounce(platform.rect)
 
-	def check_hit_brick(self, group_brick: pygame.sprite.RenderPlain) -> bool:
-		hitted_brick = pygame.sprite.spritecollide(self, group_brick, 1, \
+	def check_hit_brick(self, group_brick: pygame.sprite.RenderPlain) -> int:
+		hit_bricks = pygame.sprite.spritecollide(self, group_brick, 1, \
 			collide_or_tangent)
 
-		if len(hitted_brick) > 0:
-			self._bounce(hitted_brick[0].rect)
+		if len(hit_bricks) > 0:
+			self._bounce(hit_bricks[0].rect)
+
+		return len(hit_bricks)
 
 	def _print_rect(self, name, rect):
 		print("{0}: (T: {1}, B: {2}, L: {3}, R: {4})" \
