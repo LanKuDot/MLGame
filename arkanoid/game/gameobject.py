@@ -91,11 +91,18 @@ class Ball(pygame.sprite.Sprite):
 			return True
 
 	def _check_wall_bouncing(self):
-		if self.rect.left <= self._play_area_rect.left or \
-		   self.rect.right >= self._play_area_rect.right:
+		if self.rect.left <= self._play_area_rect.left:
+			self.rect.left = self._play_area_rect.left
 			self._speed[0] = -self._speed[0]
-		if self.rect.top <= self._play_area_rect.top or \
-		   self.rect.bottom >= self._play_area_rect.bottom:
+		elif self.rect.right >= self._play_area_rect.right:
+			self.rect.right = self._play_area_rect.right
+			self._speed[0] = -self._speed[0]
+
+		if self.rect.top <= self._play_area_rect.top:
+			self.rect.top = self._play_area_rect.top
+			self._speed[1] = -self._speed[1]
+		elif self.rect.bottom >= self._play_area_rect.bottom:
+			self.rect.bottom = self._play_area_rect.bottom
 			self._speed[1] = -self._speed[1]
 
 	def _check_platform_bouncing(self, platform: pygame.sprite.Sprite):
