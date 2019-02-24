@@ -32,6 +32,7 @@ class Platform(pygame.sprite.Sprite):
 
 		self._play_area_rect = play_area_rect
 		self._shift_speed = 5
+		self._speed = [0, 0]
 		self._init_pos = pygame.Rect(init_pos[0], init_pos[1], 50, 5)
 		self.rect = self._init_pos.copy()
 
@@ -46,10 +47,14 @@ class Platform(pygame.sprite.Sprite):
 	def move(self, move_action: str):
 		if move_action == "LEFT" and \
 		   self.rect.left > self._play_area_rect.left:
-			self.rect.move_ip(-self._shift_speed, 0)
+			self._speed[0] = -self._shift_speed
 		elif move_action == "RIGHT" and \
 		     self.rect.right < self._play_area_rect.right:
-			self.rect.move_ip(self._shift_speed, 0)
+			self._speed[0] = self._shift_speed
+		else:
+			self._speed[0] = 0
+
+		self.rect.move_ip(*self._speed)
 
 class Ball(pygame.sprite.Sprite):
 	def __init__(self, init_pos, play_area_rect: pygame.Rect, *groups):
@@ -99,7 +104,7 @@ class Ball(pygame.sprite.Sprite):
 			self.rect.right = target_rect.left
 			self._speed[0] = -self._speed[0]
 
-	def check_bouncing(self, platform: pygame.sprite.Sprite) -> bool:
+	def check_bouncing(self, platform: Platform) -> bool:
 		self._check_platform_bouncing(platform)
 		self._check_wall_bouncing()
 
@@ -124,9 +129,9 @@ class Ball(pygame.sprite.Sprite):
 			self.rect.bottom = self._play_area_rect.bottom
 			self._speed[1] = -self._speed[1]
 
-	def _check_platform_bouncing(self, platform: pygame.sprite.Sprite):
+	def _check_platform_bouncing(self, platform: Platform):
 		if collide_or_tangent(self, platform):
-			self._bounce(platform.rect, (0, 0))
+			self._bounce(platform.rect, platform._speed)
 
 	def check_hit_brick(self, group_brick: pygame.sprite.RenderPlain) -> int:
 		hit_bricks = pygame.sprite.spritecollide(self, group_brick, 1, \
