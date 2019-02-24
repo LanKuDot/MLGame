@@ -72,12 +72,31 @@ class Ball(pygame.sprite.Sprite):
 	def move(self):
 		self.rect.move_ip(self._speed)
 
-	def _bounce(self, target_rect: pygame.Rect):
-		if (self.rect.top == target_rect.bottom and self._speed[1] < 0) or \
-		   (self.rect.bottom == target_rect.top and self._speed[1] > 0):
+	def _bounce(self, target_rect: pygame.Rect, target_speed):
+		speed_diff_x = self._speed[0] - target_speed[0]
+		speed_diff_y = self._speed[1] - target_speed[1]
+
+		# The distance between top and bottom, or left and right of two objects
+		# in the last frame.
+		rect_diff_T_B = self.rect.top - target_rect.bottom - speed_diff_y
+		rect_diff_B_T = self.rect.bottom - target_rect.top - speed_diff_y
+		rect_diff_L_R = self.rect.left - target_rect.right - speed_diff_x
+		rect_diff_R_L = self.rect.right - target_rect.left - speed_diff_x
+
+		# Decide the relative position from the ball to the hit object
+		# to adjust the ball's position and change the moving direction
+		if rect_diff_T_B > 0 and rect_diff_B_T > 0:
+			self.rect.top = target_rect.bottom
 			self._speed[1] = -self._speed[1]
-		if (self.rect.right == target_rect.left and self._speed[0] > 0) or \
-		   (self.rect.left == target_rect.right and self._speed[0] < 0):
+		elif rect_diff_T_B < 0 and rect_diff_B_T < 0:
+			self.rect.bottom = target_rect.top
+			self._speed[1] = -self._speed[1]
+
+		if rect_diff_L_R > 0 and rect_diff_R_L > 0:
+			self.rect.left = target_rect.right
+			self._speed[0] = -self._speed[0]
+		elif rect_diff_L_R < 0 and rect_diff_R_L < 0:
+			self.rect.right = target_rect.left
 			self._speed[0] = -self._speed[0]
 
 	def check_bouncing(self, platform: pygame.sprite.Sprite) -> bool:
@@ -107,14 +126,14 @@ class Ball(pygame.sprite.Sprite):
 
 	def _check_platform_bouncing(self, platform: pygame.sprite.Sprite):
 		if collide_or_tangent(self, platform):
-			self._bounce(platform.rect)
+			self._bounce(platform.rect, (0, 0))
 
 	def check_hit_brick(self, group_brick: pygame.sprite.RenderPlain) -> int:
 		hit_bricks = pygame.sprite.spritecollide(self, group_brick, 1, \
 			collide_or_tangent)
 
 		if len(hit_bricks) > 0:
-			self._bounce(hit_bricks[0].rect)
+			self._bounce(hit_bricks[0].rect, (0, 0))
 
 		return len(hit_bricks)
 
