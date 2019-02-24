@@ -33,7 +33,7 @@ class Platform(pygame.sprite.Sprite):
 		self._play_area_rect = play_area_rect
 		self._shift_speed = 5
 		self._speed = [0, 0]
-		self._init_pos = pygame.Rect(init_pos[0], init_pos[1], 50, 5)
+		self._init_pos = pygame.Rect(init_pos[0], init_pos[1], 40, 5)
 		self.rect = self._init_pos.copy()
 
 	def create_surface(self):
@@ -61,7 +61,7 @@ class Ball(pygame.sprite.Sprite):
 		pygame.sprite.Sprite.__init__(self, *groups)
 
 		self._play_area_rect = play_area_rect
-		self._speed = [5, 5]	# (x, y)
+		self._speed = [7, 7]	# (x, y)
 		self._init_pos = pygame.Rect(init_pos[0], init_pos[1], 5, 5)
 		self.rect = self._init_pos.copy()
 
@@ -72,7 +72,7 @@ class Ball(pygame.sprite.Sprite):
 
 	def reset(self):
 		self.rect = self._init_pos.copy()
-		self._speed = [5, 5]
+		self._speed = [7, 7]
 
 	def move(self):
 		self.rect.move_ip(self._speed)
