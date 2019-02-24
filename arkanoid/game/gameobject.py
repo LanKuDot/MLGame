@@ -138,7 +138,13 @@ class Ball(pygame.sprite.Sprite):
 			collide_or_tangent)
 
 		if len(hit_bricks) > 0:
-			self._bounce(hit_bricks[0].rect, (0, 0))
+			# XXX: Bad multiple collision bouncing handling
+			if len(hit_bricks) == 2 and \
+				hit_bricks[0].rect.y == hit_bricks[1].rect.y:
+				combined_rect = hit_bricks[0].rect.union(hit_bricks[1].rect)
+				self._bounce(combined_rect, (0, 0))
+			else:
+				self._bounce(hit_bricks[0].rect, (0, 0))
 
 		return len(hit_bricks)
 
