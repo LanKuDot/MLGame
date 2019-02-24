@@ -147,7 +147,3 @@ class Ball(pygame.sprite.Sprite):
 				self._bounce(hit_bricks[0].rect, (0, 0))
 
 		return len(hit_bricks)
-
-	def _print_rect(self, name, rect):
-		print("{0}: (T: {1}, B: {2}, L: {3}, R: {4})" \
-			.format(name, rect.top, rect.bottom, rect.left, rect.right))
