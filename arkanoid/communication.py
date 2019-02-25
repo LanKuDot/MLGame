@@ -46,7 +46,7 @@ class GameInstruction:
 
 	@var frame The frame no. this GameInstruction for. It is recommended to set it
 	     as the SceneInfo.frame
-	@var command The command for controlling the platform. It could only be CMD_READY, 
+	@var command The command for controlling the platform. It could only be CMD_READY,
 	     CMD_LEFT, CMD_RIGHT, CMD_NONE.
 	"""
 

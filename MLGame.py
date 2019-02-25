@@ -16,7 +16,7 @@ def create_optparser():
 		action = "store_true", dest = "manual_mode", default = False, \
 		help = "start the game in the manual mode instead of " \
 		"the machine learning mode [default: %default]")
-	
+
 	return parser
 
 def has_ml_script(game_name: str):
