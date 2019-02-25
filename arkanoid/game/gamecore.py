@@ -88,3 +88,30 @@ class Scene:
 		self._screen.blit(self._background, (0, 0))
 		self._group_move.draw(self._screen)
 		self._group_brick.draw(self._screen)
+
+	def get_object_pos_info(self, scene_info_obj):
+		"""Fill the position information of gameobjects to the `scene_info_obj`
+
+		It is a helper function. `scene_info_obj` must have member "ball", "platform",
+		and "bricks". The position of the objects will be assigned to these members,
+		accroding to the name. Here are the data:
+		- scene_info_obj.ball: a (x, y) tuple, the position of the ball
+		- scene_info_obj.platform: a (x, y) tuple, the position of the platform
+		- scene_info_obj.bricks: a list whose elements are all (x, y) tuple,
+		  the position of remaining bricks.
+
+		@param scene The game scene containing the target gameobjects
+		@param scene_info_obj The instance of some class to be filled with the
+		       scene info.
+		@return The filled `scene_info_obj`
+		"""
+		def get_pivot_point(rect):
+			return (rect.x, rect.y)
+
+		scene_info_obj.ball = get_pivot_point(self._ball.rect)
+		scene_info_obj.platform = get_pivot_point(self._platform.rect)
+		scene_info_obj.bricks = []
+		for brick in self._group_brick:
+			scene_info_obj.bricks.append(get_pivot_point(brick.rect))
+
+		return scene_info_obj

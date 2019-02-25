@@ -18,26 +18,6 @@ class Arkanoid(GameABC):
 		pygame.mixer.quit()
 		self._clock = pygame.time.Clock()
 
-	def _get_object_pos_info(self, scene, scene_info: SceneInfo) -> SceneInfo:
-		"""Fill the position information of gameobjects to the `scene_info`
-
-		@param scene The game scene containing the target gameobjects
-		@param scene_info The SceneInfo instance whose position information is
-		       going to be updated
-		@return The filled `scene_info`
-		"""
-
-		def get_pivot_point(rect):
-			return (rect.x, rect.y)
-
-		scene_info.ball = get_pivot_point(scene._ball.rect)
-		scene_info.platform = get_pivot_point(scene._platform.rect)
-		scene_info.bricks = []
-		for brick in scene._group_brick:
-			scene_info.bricks.append(get_pivot_point(brick.rect))
-
-		return scene_info
-
 	def game_loop(self, fps: int, level: int, \
 		instruct_pipe: Connection, scene_info_pipe: Connection, main_pipe: Connection):
 		"""The main loop of the game in machine learning mode
@@ -94,8 +74,7 @@ class Arkanoid(GameABC):
 				.format(self._frame, instruction.frame, instruction.command))
 			game_status = scene.update(instruction.command)
 			self._frame += 1
-			scene_info = self._get_object_pos_info(scene, \
-				SceneInfo(self._frame, game_status))
+			scene_info = scene.get_object_pos_info(SceneInfo(self._frame, game_status))
 
 			if game_status == gamecore.GAME_OVER_MSG or \
 			   game_status == gamecore.GAME_PASS_MSG:
@@ -103,7 +82,7 @@ class Arkanoid(GameABC):
 				main_pipe.send(scene_info)
 				scene.reset()
 				self._frame = 0
-				scene_info = self._get_object_pos_info(scene, \
+				scene_info = scene.get_object_pos_info( \
 					SceneInfo(self._frame, gamecore.GAME_ALIVE_MSG))
 
 class Screen:
