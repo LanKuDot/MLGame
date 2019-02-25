@@ -1,4 +1,4 @@
-import pygame, os
+import pygame
 from . import gameobject
 
 display_area_size = (200, 500)	# (width, height)
@@ -44,10 +44,10 @@ class Scene:
 		def get_coordinate(string):
 			string = string.rstrip("\n").split(' ')
 			return int(string[0]), int(string[1])
-
 		self._group_brick = pygame.sprite.RenderPlain()
 		self._brick_container = []
 
+		import os.path
 		dir_path = os.path.dirname(__file__)
 		level_file_path = os.path.join(dir_path, "level_data/{0}.dat".format(level))
 		with open(level_file_path, 'r') as input_file:
