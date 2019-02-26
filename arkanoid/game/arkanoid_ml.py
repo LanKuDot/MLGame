@@ -130,8 +130,8 @@ class Screen:
 
 		while check_going():
 			scene_info = scene_info_pipe.recv()
-			if scene_info.status == gamecore.GAME_OVER_MSG or \
-			   scene_info.status == gamecore.GAME_PASS_MSG:
+			if scene_info.status == SceneInfo.STATUS_GAME_OVER or \
+			   scene_info.status == SceneInfo.STATUS_GAME_PASS:
 				print(scene_info.status)
 
 			self._screen.fill((0, 0, 0))
