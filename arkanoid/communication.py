@@ -1,4 +1,6 @@
-class SceneInfo:
+from essential.game_base import BasicSceneInfo
+
+class SceneInfo(BasicSceneInfo):
 	"""The data structure for the information of the scene
 
 	Containing the frame no, the status, and the position of the gameobjects.
@@ -13,13 +15,8 @@ class SceneInfo:
 	     the position of the remaining bricks.
 	"""
 
-	STATUS_GAME_ALIVE = "GAME_ALIVE"
-	STATUS_GAME_PASS = "GAME_PASS"
-	STATUS_GAME_OVER = "GAME_OVER"
-
 	def __init__(self, frame: int, status: str):
-		self.frame = frame
-		self.status = status
+		super().__init__(frame, status)
 		# These members will be filled in the game process.
 		self.ball = None
 		self.platform = None
