@@ -1,8 +1,8 @@
 """The template of the main script of the machine learning process
 """
 
-from .. import communication as comm
-from ..communication import SceneInfo, GameInstruction
+import arkanoid.communication as comm
+from arkanoid.communication import SceneInfo, GameInstruction
 
 def ml_loop():
 	"""The main loop of the machine learning process
