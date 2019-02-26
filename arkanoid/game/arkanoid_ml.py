@@ -57,7 +57,7 @@ class Arkanoid(GameABC):
 			return instruction
 
 		scene = gamecore.Scene(level, False)
-		scene_info = self._get_object_pos_info(scene, \
+		scene_info = scene.get_object_pos_info( \
 			SceneInfo(self._frame, gamecore.GAME_ALIVE_MSG))
 		# Wait for ready instruction
 		instruct_pipe.recv()
