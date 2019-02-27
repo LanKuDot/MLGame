@@ -113,12 +113,14 @@ class Screen:
 		self._platform_surface = platform_sprite.image
 		self._ball_surface = ball_sprite.image
 
-	def draw_loop(self, scene_info_pipe: Connection):
+	def draw_loop(self, scene_info_pipe: Connection, log_dir: str = None):
 		"""Receive the SceneInfo from the game process and draw on the window
 
 		Use ESC key or click X in the window bar to exit the drawing loop.
 
 		@param scene_info_pipe The receiving-end of the SceneInfo from the game process
+		@param log_dir Specify the root directory for saving the game progress file.
+		       If it is not specified, the game progress won't be saved.
 		"""
 
 		def check_going():
@@ -128,8 +130,16 @@ class Screen:
 					return False
 			return True
 
+		if log_dir is not None:
+			from essential.recorder import Recorder
+			recorder = Recorder(log_dir)
+			record_scene_info = recorder.record_scene_info
+		else:
+			record_scene_info = lambda x: None	# Dummy function
+
 		while check_going():
 			scene_info = scene_info_pipe.recv()
+			record_scene_info(scene_info)
 			if scene_info.status == SceneInfo.STATUS_GAME_OVER or \
 			   scene_info.status == SceneInfo.STATUS_GAME_PASS:
 				print(scene_info.status)

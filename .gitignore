@@ -3,6 +3,7 @@
 *.pyproj.user
 *.sln
 *.zip
+*.pickle
 __pycache__/
 venv/*
 .vs/*
