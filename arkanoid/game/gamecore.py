@@ -16,6 +16,8 @@ class Scene:
 		self._level = level
 		self._display_on_screen = display_on_screen
 		self._screen = screen
+		self._frame_count = 0
+		self._game_status = GAME_ALIVE_MSG
 
 		self._create_scene()
 
@@ -62,12 +64,16 @@ class Scene:
 					brick.create_surface()
 
 	def reset(self):
+		self._frame_count = 0
+		self._game_status = GAME_ALIVE_MSG
 		self._ball.reset()
 		self._platform.reset()
 		self._group_brick.empty()
 		self._group_brick.add(*self._brick_container)
 
 	def update(self, move_action: str) -> str:
+		self._frame_count += 1
+
 		self._ball.move()
 		self._platform.move(move_action)
 
@@ -75,11 +81,13 @@ class Scene:
 		is_alive = self._ball.check_bouncing(self._platform)
 
 		if len(self._group_brick) == 0:
-			return GAME_PASS_MSG
+			self._game_status = GAME_PASS_MSG
 		elif is_alive:
-			return GAME_ALIVE_MSG
+			self._game_status = GAME_ALIVE_MSG
 		else:
-			return GAME_OVER_MSG
+			self._game_status = GAME_OVER_MSG
+
+		return self._game_status
 
 	def draw(self):
 		if not self._display_on_screen:
@@ -89,12 +97,13 @@ class Scene:
 		self._group_move.draw(self._screen)
 		self._group_brick.draw(self._screen)
 
-	def get_object_pos_info(self, scene_info_obj):
-		"""Fill the position information of gameobjects to the `scene_info_obj`
+	def fill_scene_info_obj(self, scene_info_obj):
+		"""Fill the information of scene to the `scene_info_obj`
 
-		It is a helper function. `scene_info_obj` must have member "ball", "platform",
-		and "bricks". The position of the objects will be assigned to these members,
-		accroding to the name. Here are the data:
+		This is a helper function. `scene_info_obj` has the basic member "frame" and
+		"status", and it must have member "ball", "platform", and "bricks".
+		The position of the objects will be assigned to these members accroding to
+		the name. Here are the data:
 		- scene_info_obj.ball: a (x, y) tuple, the position of the ball
 		- scene_info_obj.platform: a (x, y) tuple, the position of the platform
 		- scene_info_obj.bricks: a list whose elements are all (x, y) tuple,
@@ -108,6 +117,8 @@ class Scene:
 		def get_pivot_point(rect):
 			return (rect.x, rect.y)
 
+		scene_info_obj.frame = self._frame_count
+		scene_info_obj.status = self._game_status
 		scene_info_obj.ball = get_pivot_point(self._ball.rect)
 		scene_info_obj.platform = get_pivot_point(self._platform.rect)
 		scene_info_obj.bricks = []

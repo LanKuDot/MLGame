@@ -4,7 +4,6 @@ from . import gamecore
 class Arkanoid():
 	def __init__(self):
 		self._init_pygame()
-		self._frame = 0
 
 	def _init_pygame(self):
 		pygame.init()
@@ -35,29 +34,23 @@ class Arkanoid():
 			from ..communication import SceneInfo
 			from essential.recorder import Recorder
 			recorder = Recorder(log_dir)
-			def __record_scene_info(game_status):
-				scene_info = scene.get_object_pos_info( \
-					SceneInfo(self._frame, game_status))
+			def __record_scene_info():
+				scene_info = scene.fill_scene_info_obj(SceneInfo())
 				recorder.record_scene_info(scene_info)
 			record_scene_info = __record_scene_info
 		else:
-			record_scene_info = lambda x: None
-
-		game_status = gamecore.GAME_ALIVE_MSG
+			record_scene_info = lambda: None	# Dummy function
 
 		while check_going():
-			record_scene_info(game_status)
+			record_scene_info()
 			control_action = keyboard_action()
 			game_status = scene.update(control_action)
-			self._frame += 1
 
 			if game_status == gamecore.GAME_OVER_MSG or \
 			   game_status == gamecore.GAME_PASS_MSG:
-				record_scene_info(game_status)
 				print(game_status)
+				record_scene_info()
 				scene.reset()
-				game_status = gamecore.GAME_ALIVE_MSG
-				self._frame = 0
 		
 			scene.draw()
 			pygame.display.flip()

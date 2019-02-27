@@ -15,8 +15,8 @@ class SceneInfo(BasicSceneInfo):
 	     the position of the remaining bricks.
 	"""
 
-	def __init__(self, frame: int, status: str):
-		super().__init__(frame, status)
+	def __init__(self):
+		super().__init__()
 		# These members will be filled in the game process.
 		self.ball = None
 		self.platform = None

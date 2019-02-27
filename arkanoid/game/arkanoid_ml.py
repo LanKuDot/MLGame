@@ -10,7 +10,6 @@ class Arkanoid(GameABC):
 	"""
 
 	def __init__(self):
-		self._frame = 0
 		self._init_pygame()
 
 	def _init_pygame(self):
@@ -57,8 +56,7 @@ class Arkanoid(GameABC):
 			return instruction
 
 		scene = gamecore.Scene(level, False)
-		scene_info = scene.get_object_pos_info( \
-			SceneInfo(self._frame, gamecore.GAME_ALIVE_MSG))
+		scene_info = scene.fill_scene_info_obj(SceneInfo())
 		# Wait for ready instruction
 		instruct_pipe.recv()
 		self._clock.tick(fps)
@@ -71,19 +69,16 @@ class Arkanoid(GameABC):
 
 			instruction = recv_instruction()
 			print("Frame: {}/{} Cmd: {}" \
-				.format(self._frame, instruction.frame, instruction.command))
+				.format(scene_info.frame, instruction.frame, instruction.command))
 			game_status = scene.update(instruction.command)
-			self._frame += 1
-			scene_info = scene.get_object_pos_info(SceneInfo(self._frame, game_status))
+			scene_info = scene.fill_scene_info_obj(SceneInfo())
 
 			if game_status == gamecore.GAME_OVER_MSG or \
 			   game_status == gamecore.GAME_PASS_MSG:
 				scene_info_pipe.send(scene_info)
 				main_pipe.send(scene_info)
 				scene.reset()
-				self._frame = 0
-				scene_info = scene.get_object_pos_info( \
-					SceneInfo(self._frame, gamecore.GAME_ALIVE_MSG))
+				scene_info = scene.fill_scene_info_obj(SceneInfo())
 
 class Screen:
 	"""The drawing process for the game in the machine leraning mode

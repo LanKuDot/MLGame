@@ -6,9 +6,9 @@ class BasicSceneInfo:
 	STATUS_GAME_PASS = "GAME_PASS"
 	STATUS_GAME_OVER = "GAME_OVER"
 
-	def __init__(self, frame: int, status: str):
-		self.frame = frame
-		self.status = status
+	def __init__(self):
+		self.frame = -1
+		self.status = BasicSceneInfo.STATUS_GAME_ALIVE
 
 	def __str__(self):
 		return "# Frame {}\n# Status {}".format(self.frame, self.status)
