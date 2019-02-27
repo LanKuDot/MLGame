@@ -1,4 +1,4 @@
-def ml_mode(fps: int, *game_options):
+def ml_mode(fps: int, record_progress: bool, *game_options):
 	"""Start the game in the machine learning mode
 
 	Create a game and a machine learning processes, and pipes for communicating.
@@ -7,6 +7,7 @@ def ml_mode(fps: int, *game_options):
 	the created processes will be terminated.
 
 	@param fps Specify the fps of the game
+	@param record_progress Whether to log the game progress or not
 	@param game_options Only one argument is needed. Specify the level of the game
 	"""
 
@@ -37,7 +38,11 @@ def ml_mode(fps: int, *game_options):
 	ml_process.start()
 	game_process.start()
 
-	screen.draw_loop(main_pipe_r, __get_log_path())
+	log_path = None
+	if record_progress:
+		log_path = __get_log_path()
+	
+	screen.draw_loop(main_pipe_r, log_path)
 
 	ml_process.terminate()
 	game_process.terminate()
@@ -68,10 +73,11 @@ def start_ml_process(instruct_pipe, scene_info_pipe):
 	except Exception as e:
 		print(e.with_traceback())
 
-def manual_mode(fps: int, *game_options):
+def manual_mode(fps: int, record_progress: bool, *game_options):
 	"""Play the game as a normal game
 
 	@param fps Specify the fps of the game
+	@param record_progress Whether to log the game progress or not
 	@param game_options Only one argument is needed. Specify the level of the game
 	"""
 	from .game.arkanoid import Arkanoid
@@ -87,7 +93,11 @@ def manual_mode(fps: int, *game_options):
 		print("Invalid level value. Set to 1.")
 		level = 1
 
-	Arkanoid().game_loop(fps, level, __get_log_path())
+	log_path = None
+	if record_progress:
+		log_path = __get_log_path()
+
+	Arkanoid().game_loop(fps, level, log_path)
 
 def __get_log_path():
 	import os.path
