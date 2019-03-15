@@ -2,6 +2,7 @@ import pygame, time
 from multiprocessing.connection import Connection
 
 from essential.game_base import GameABC
+from essential.exception import ExceptionMessage
 from . import gamecore, gameobject
 from ..communication import GameInstruction, SceneInfo
 
@@ -44,6 +45,11 @@ class Arkanoid(GameABC):
 		def recv_instruction():
 			if instruct_pipe.poll():
 				instruction = instruct_pipe.recv()
+
+				# Pass the exception to the main process
+				if isinstance(instruction, ExceptionMessage):
+					main_pipe.send(instruction)
+
 				if not isinstance(instruction, GameInstruction):
 					return GameInstruction(-1, gamecore.ACTION_NONE)
 
@@ -134,6 +140,10 @@ class Screen:
 
 		while check_going():
 			scene_info = scene_info_pipe.recv()
+			# If receive an exception, pass the exception and quit the game.
+			if isinstance(scene_info, ExceptionMessage):
+				return scene_info
+
 			record_scene_info(scene_info)
 			if scene_info.status == SceneInfo.STATUS_GAME_OVER or \
 			   scene_info.status == SceneInfo.STATUS_GAME_PASS:

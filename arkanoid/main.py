@@ -42,7 +42,10 @@ def ml_mode(fps: int, record_progress: bool, *game_options):
 	if record_progress:
 		log_path = __get_log_path()
 	
-	screen.draw_loop(main_pipe_r, log_path)
+	exception_msg = screen.draw_loop(main_pipe_r, log_path)
+	if exception_msg is not None:
+		print("Exception occurred in the {} process:".format(exception_msg.process_name))
+		print(exception_msg.exc_msg)
 
 	ml_process.terminate()
 	game_process.terminate()
@@ -54,7 +57,10 @@ def start_game_process(*args):
 	try:
 		Arkanoid().game_loop(*args)
 	except Exception as e:
-		print(e.with_traceback())
+		import traceback
+		from essential.exception import ExceptionMessage
+		exc_msg = ExceptionMessage("game", traceback.format_exc())
+		args[-1].send(exc_msg)
 
 def start_ml_process(instruct_pipe, scene_info_pipe):
 	"""Start the custom machine learning process
@@ -71,7 +77,10 @@ def start_ml_process(instruct_pipe, scene_info_pipe):
 	try:
 		ml_play.ml_loop()
 	except Exception as e:
-		print(e.with_traceback())
+		import traceback
+		from essential.exception import ExceptionMessage
+		exc_msg = ExceptionMessage("ml", traceback.format_exc(limit = -1))
+		comm._instruct_pipe.send(exc_msg)
 
 def manual_mode(fps: int, record_progress: bool, *game_options):
 	"""Play the game as a normal game
