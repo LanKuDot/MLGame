@@ -29,9 +29,9 @@ def ml_mode(fps: int, record_progress: bool, *game_options):
 	scene_info_pipe_r, scene_info_pipe_s = Pipe(False)
 	main_pipe_r, main_pipe_s = Pipe(False)
 
-	game_process = Process(target = start_game_process, \
+	game_process = Process(target = start_game_process, name = "game process", \
 		args = (fps, level, instruct_pipe_r, scene_info_pipe_s, main_pipe_s))
-	ml_process = Process(target = start_ml_process, \
+	ml_process = Process(target = start_ml_process, name = "ml process", \
 		args = (instruct_pipe_s, scene_info_pipe_r))
 	screen = Screen()
 
