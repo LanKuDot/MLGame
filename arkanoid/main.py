@@ -1,4 +1,4 @@
-def ml_mode(fps: int, record_progress: bool, one_shot_mode: bool, *game_options):
+def ml_mode(fps: int, record_progress: bool, one_shot_mode: bool, *game_params):
 	"""Start the game in the machine learning mode
 
 	Create a game and a machine learning processes, and pipes for communicating.
@@ -9,14 +9,14 @@ def ml_mode(fps: int, record_progress: bool, one_shot_mode: bool, *game_options)
 	@param fps Specify the fps of the game
 	@param record_progress Whether to log the game progress or not
 	@param one_shot_mode Whether to run the game for only once or not
-	@param game_options Only one argument is needed. Specify the level of the game
+	@param game_params Only one parameter is needed. Specify the level of the game
 	"""
 
 	from multiprocessing import Process, Pipe
 	from .game.arkanoid_ml import Screen
 
 	try:
-		level = int(game_options[0])
+		level = int(game_params[0])
 		if level < 1:
 			raise ValueError
 	except IndexError:
@@ -83,17 +83,17 @@ def start_ml_process(instruct_pipe, scene_info_pipe):
 		exc_msg = ExceptionMessage("ml", traceback.format_exc(limit = -1))
 		comm._instruct_pipe.send(exc_msg)
 
-def manual_mode(fps: int, record_progress: bool, *game_options):
+def manual_mode(fps: int, record_progress: bool, *game_params):
 	"""Play the game as a normal game
 
 	@param fps Specify the fps of the game
 	@param record_progress Whether to log the game progress or not
-	@param game_options Only one argument is needed. Specify the level of the game
+	@param game_params Only one parameter is needed. Specify the level of the game
 	"""
 	from .game.arkanoid import Arkanoid
 	
 	try:
-		level = int(game_options[0])
+		level = int(game_params[0])
 		if level < 1:
 			raise ValueError
 	except IndexError:

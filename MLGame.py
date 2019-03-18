@@ -2,11 +2,11 @@ from optparse import OptionParser
 import importlib
 
 def create_optparser():
-	usage_str = "python %prog [options] <game> [game_level]"
+	usage_str = "python %prog [options] <game> [game_params]"
 	description_str = \
 		"\"game\" is the name of the game. " \
-		"\"game_level\" is an optional argument (not needed " \
-		"by every game) to specify the level of the game."
+		"\"game_params\" is an optional parameter (not needed " \
+		"by every game) to specify the additional setting for the game."
 
 	parser = OptionParser(usage = usage_str, description = description_str)
 	parser.add_option("-f", "--fps", \
@@ -41,7 +41,7 @@ if __name__ == "__main__":
 
 	try:
 		game_name = args[0].lower()
-		game_options = args[1:]
+		game_params = args[1:]
 		game = importlib.import_module("{}.main".format(game_name))
 
 		if not options.manual_mode and not has_ml_script(game_name):
@@ -57,6 +57,6 @@ if __name__ == "__main__":
 			"Cannot start the machine learning mode.".format(game_name))
 	else:
 		if options.manual_mode:
-			game.manual_mode(options.fps, options.record, *game_options)
+			game.manual_mode(options.fps, options.record, *game_params)
 		else:
-			game.ml_mode(options.fps, options.record, options.one_shot, *game_options)
+			game.ml_mode(options.fps, options.record, options.one_shot, *game_params)
