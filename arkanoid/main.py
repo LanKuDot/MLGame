@@ -1,4 +1,4 @@
-def ml_mode(fps: int, record_progress: bool, one_shot_mode: bool, *game_params):
+def ml_mode(options, *game_params):
 	"""Start the game in the machine learning mode
 
 	Create a game and a machine learning processes, and pipes for communicating.
@@ -6,14 +6,16 @@ def ml_mode(fps: int, record_progress: bool, one_shot_mode: bool, *game_params):
 	sent from the game process to the window. After quit from the drawing loop,
 	the created processes will be terminated.
 
-	@param fps Specify the fps of the game
-	@param record_progress Whether to log the game progress or not
-	@param one_shot_mode Whether to run the game for only once or not
+	@param options Specify the game settings
 	@param game_params Only one parameter is needed. Specify the level of the game
 	"""
 
 	from multiprocessing import Process, Pipe
 	from .game.arkanoid_ml import Screen
+
+	fps = options.fps
+	record_progress = options.record
+	one_shot_mode = options.one_shot
 
 	try:
 		level = int(game_params[0])
@@ -83,15 +85,17 @@ def start_ml_process(instruct_pipe, scene_info_pipe):
 		exc_msg = ExceptionMessage("ml", traceback.format_exc(limit = -1))
 		comm._instruct_pipe.send(exc_msg)
 
-def manual_mode(fps: int, record_progress: bool, *game_params):
+def manual_mode(options, *game_params):
 	"""Play the game as a normal game
 
-	@param fps Specify the fps of the game
-	@param record_progress Whether to log the game progress or not
+	@param options Specify the game settings
 	@param game_params Only one parameter is needed. Specify the level of the game
 	"""
 	from .game.arkanoid import Arkanoid
-	
+
+	fps = options.fps
+	record_progress = options.record
+
 	try:
 		level = int(game_params[0])
 		if level < 1:

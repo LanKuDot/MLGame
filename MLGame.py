@@ -57,6 +57,6 @@ if __name__ == "__main__":
 			"Cannot start the machine learning mode.".format(game_name))
 	else:
 		if options.manual_mode:
-			game.manual_mode(options.fps, options.record, *game_params)
+			game.manual_mode(options, *game_params)
 		else:
-			game.ml_mode(options.fps, options.record, options.one_shot, *game_params)
+			game.ml_mode(options, *game_params)
