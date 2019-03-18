@@ -8,7 +8,8 @@ def create_optparser():
 		"\"game_params\" is an optional parameter (not needed " \
 		"by every game) to specify the additional setting for the game."
 
-	parser = OptionParser(usage = usage_str, description = description_str)
+	parser = OptionParser(usage = usage_str, description = description_str, \
+		version = "MLGame Beta 2.1")
 	parser.add_option("-f", "--fps", \
 		action = "store", type = "int", dest = "fps", default = 30, \
 		help = "the updating rate of the game process [default: %default]")
