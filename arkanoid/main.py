@@ -1,4 +1,4 @@
-def ml_mode(fps: int, record_progress: bool, *game_options):
+def ml_mode(fps: int, record_progress: bool, one_shot_mode: bool, *game_options):
 	"""Start the game in the machine learning mode
 
 	Create a game and a machine learning processes, and pipes for communicating.
@@ -8,6 +8,7 @@ def ml_mode(fps: int, record_progress: bool, *game_options):
 
 	@param fps Specify the fps of the game
 	@param record_progress Whether to log the game progress or not
+	@param one_shot_mode Whether to run the game for only once or not
 	@param game_options Only one argument is needed. Specify the level of the game
 	"""
 
@@ -33,7 +34,7 @@ def ml_mode(fps: int, record_progress: bool, *game_options):
 		args = (fps, level, instruct_pipe_r, scene_info_pipe_s, main_pipe_s))
 	ml_process = Process(target = start_ml_process, name = "ml process", \
 		args = (instruct_pipe_s, scene_info_pipe_r))
-	screen = Screen()
+	screen = Screen(one_shot_mode)
 
 	ml_process.start()
 	game_process.start()

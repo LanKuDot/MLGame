@@ -90,7 +90,9 @@ class Screen:
 	"""The drawing process for the game in the machine leraning mode
 	"""
 
-	def __init__(self):
+	def __init__(self, one_shot_mode = False):
+		self._one_shot_mode = one_shot_mode
+
 		self._init_pygame()
 		self._create_surface()
 
@@ -148,6 +150,8 @@ class Screen:
 			if scene_info.status == SceneInfo.STATUS_GAME_OVER or \
 			   scene_info.status == SceneInfo.STATUS_GAME_PASS:
 				print(scene_info.status)
+				if self._one_shot_mode:
+					return
 
 			self._screen.fill((0, 0, 0))
 			self._screen.blit(self._ball_surface, scene_info.ball)
