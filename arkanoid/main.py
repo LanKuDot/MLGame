@@ -83,7 +83,7 @@ def start_ml_process(instruct_pipe, scene_info_pipe):
 	except Exception as e:
 		import traceback
 		from essential.exception import ExceptionMessage
-		exc_msg = ExceptionMessage("ml", traceback.format_exc(limit = -1))
+		exc_msg = ExceptionMessage("ml", traceback.format_exc())
 		comm._instruct_pipe.send(exc_msg)
 
 def manual_mode(options, *game_params):
