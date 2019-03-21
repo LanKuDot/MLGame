@@ -44,7 +44,7 @@ def ml_mode(options, *game_params):
 	log_path = None
 	if record_progress:
 		log_path = __get_log_path()
-	
+
 	exception_msg = screen.draw_loop(main_pipe_r, log_path)
 	if exception_msg is not None:
 		print("Exception occurred in the {} process:".format(exception_msg.process_name))
@@ -63,7 +63,8 @@ def start_game_process(*args):
 		import traceback
 		from essential.exception import ExceptionMessage
 		exc_msg = ExceptionMessage("game", traceback.format_exc())
-		args[-1].send(exc_msg)
+		main_pipe = args[-1]
+		main_pipe.send(exc_msg)
 
 def start_ml_process(instruct_pipe, scene_info_pipe):
 	"""Start the custom machine learning process
