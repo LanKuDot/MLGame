@@ -35,7 +35,7 @@ def ml_mode(options, *game_params):
 	game_process = Process(target = start_game_process, name = "game process", \
 		args = (fps, level, instruct_pipe_r, scene_info_pipe_s, main_pipe_s))
 	ml_process = Process(target = start_ml_process, name = "ml process", \
-		args = (instruct_pipe_s, scene_info_pipe_r))
+		args = (options.input_script, instruct_pipe_s, scene_info_pipe_r))
 	screen = Screen(one_shot_mode)
 
 	ml_process.start()
@@ -66,9 +66,12 @@ def start_game_process(*args):
 		main_pipe = args[-1]
 		main_pipe.send(exc_msg)
 
-def start_ml_process(instruct_pipe, scene_info_pipe):
+def start_ml_process(target_script, instruct_pipe, scene_info_pipe):
 	"""Start the custom machine learning process
 
+	@param target_script Specify the name of the script to be used
+	       The Script must have function `ml_loop()` and be put in the "ml"
+	       directory of the game.
 	@param instruct_pipe The sending-end of pipe for the game instruction
 	@param scene_info_pipe The receving-end of pipe for the scene information
 	"""
@@ -77,9 +80,12 @@ def start_ml_process(instruct_pipe, scene_info_pipe):
 	comm._instruct_pipe = instruct_pipe
 	comm._scene_info_pipe = scene_info_pipe
 
-	from .ml import ml_play
 	try:
-		ml_play.ml_loop()
+		script_name = target_script.split('.')[0]
+
+		import importlib
+		ml = importlib.import_module(".ml.{}".format(script_name), __package__)
+		ml.ml_loop()
 	except Exception as e:
 		import traceback
 		from essential.exception import ExceptionMessage

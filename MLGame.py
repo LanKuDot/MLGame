@@ -26,14 +26,19 @@ def create_optparser():
 		action = "store_true", dest = "one_shot", default = False, \
 		help = "quit the game when the game is passed or over. " \
 		"Only supported in the ml mode. [default: %default]")
+	parser.add_option("-i", "--input-script", \
+		action = "store", type = "str", dest = "input_script", default = "ml_play.py", \
+		help = "specify the script used in the machine learning mode. " \
+		"The script must have function `ml_loop()` and " \
+		"be put in the <game>/ml directory. [default: %default]")
 
 	return parser
 
-def has_ml_script(game_name: str):
+def has_ml_script(game_name: str, script_name: str):
 	import os.path
 
 	dir_path = os.path.dirname(__file__)
-	ml_script_path = os.path.join(dir_path, "{}/ml/ml_play.py".format(game_name))
+	ml_script_path = os.path.join(dir_path, "{}/ml/{}".format(game_name, script_name))
 
 	return os.path.exists(ml_script_path)
 
@@ -46,7 +51,8 @@ if __name__ == "__main__":
 		game_params = args[1:]
 		game = importlib.import_module("{}.main".format(game_name))
 
-		if not options.manual_mode and not has_ml_script(game_name):
+		if not options.manual_mode and \
+		   not has_ml_script(game_name, options.input_script):
 			raise FileNotFoundError
 
 	except IndexError:
@@ -55,8 +61,9 @@ if __name__ == "__main__":
 	except ModuleNotFoundError:
 		print("Error: Game \"{}\" is not found.".format(game_name))
 	except FileNotFoundError:
-		print("Error: The script \"{}/ml/ml_play.py\" is not provided. " \
-			"Cannot start the machine learning mode.".format(game_name))
+		print("Error: The script \"{}/ml/{}\" is not provided. " \
+			"Cannot start the machine learning mode." \
+			.format(game_name, options.input_script))
 	else:
 		if options.manual_mode:
 			game.manual_mode(options, *game_params)
