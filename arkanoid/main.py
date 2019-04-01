@@ -39,7 +39,7 @@ def ml_mode(options, *game_params):
 	ml_process.start()
 	game_process.start()
 
-	start_main_process(main_pipe_r, record_progress, one_shot_mode)
+	start_display_process(main_pipe_r, record_progress, one_shot_mode)
 
 	ml_process.terminate()
 	game_process.terminate()
@@ -85,10 +85,8 @@ def start_ml_process(target_script, instruct_pipe, scene_info_pipe):
 		exc_msg = ExceptionMessage("ml", traceback.format_exc())
 		comm._instruct_pipe.send(exc_msg)
 
-def start_main_process(main_pipe, record_progress, one_shot_mode):
-	"""Start the main process
-
-	The main procress is used to display the game progress here.
+def start_display_process(main_pipe, record_progress, one_shot_mode):
+	"""Start the process for displaying the game progress
 
 	@param main_pipe The receving-end of pipe for the scene information
 	@param record_progress Whether to record the game progress or not
