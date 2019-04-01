@@ -90,9 +90,7 @@ class Screen:
 	"""The drawing process for the game in the machine leraning mode
 	"""
 
-	def __init__(self, one_shot_mode = False):
-		self._one_shot_mode = one_shot_mode
-
+	def __init__(self):
 		self._init_pygame()
 		self._create_surface()
 
@@ -116,7 +114,8 @@ class Screen:
 		self._platform_surface = platform_sprite.image
 		self._ball_surface = ball_sprite.image
 
-	def draw_loop(self, scene_info_pipe: Connection, log_dir: str = None):
+	def draw_loop(self, scene_info_pipe: Connection, log_dir: str = None, \
+		one_shot_mode: bool = False):
 		"""Receive the SceneInfo from the game process and draw on the window
 
 		Use ESC key or click X in the window bar to exit the drawing loop.
@@ -124,6 +123,9 @@ class Screen:
 		@param scene_info_pipe The receiving-end of the SceneInfo from the game process
 		@param log_dir Specify the root directory for saving the game progress file.
 		       If it is not specified, the game progress won't be saved.
+		@param one_shot_mode Run the draw loop in one_shot mode. The draw loop will
+		       be exited once the game is over or is passed.
+		@return None or ExceptionMessage if it receives the exception from the main pipe
 		"""
 
 		def check_going():
@@ -150,7 +152,7 @@ class Screen:
 			if scene_info.status == SceneInfo.STATUS_GAME_OVER or \
 			   scene_info.status == SceneInfo.STATUS_GAME_PASS:
 				print(scene_info.status)
-				if self._one_shot_mode:
+				if one_shot_mode:
 					return
 
 			self._screen.fill((0, 0, 0))

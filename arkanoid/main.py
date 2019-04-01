@@ -11,7 +11,6 @@ def ml_mode(options, *game_params):
 	"""
 
 	from multiprocessing import Process, Pipe
-	from .game.arkanoid_ml import Screen
 
 	fps = options.fps
 	record_progress = options.record
@@ -36,25 +35,19 @@ def ml_mode(options, *game_params):
 		args = (fps, level, instruct_pipe_r, scene_info_pipe_s, main_pipe_s))
 	ml_process = Process(target = start_ml_process, name = "ml process", \
 		args = (options.input_script, instruct_pipe_s, scene_info_pipe_r))
-	screen = Screen(one_shot_mode)
 
 	ml_process.start()
 	game_process.start()
 
-	log_path = None
-	if record_progress:
-		log_path = __get_log_path()
-
-	exception_msg = screen.draw_loop(main_pipe_r, log_path)
-	if exception_msg is not None:
-		print("Exception occurred in the {} process:".format(exception_msg.process_name))
-		print(exception_msg.exc_msg)
+	start_main_process(main_pipe_r, record_progress, one_shot_mode)
 
 	ml_process.terminate()
 	game_process.terminate()
 
 def start_game_process(*args):
 	"""Start the Arkanoid in the machine learning mode
+
+	@param args The arguments to be passed to the game loop
 	"""
 	from .game.arkanoid_ml import Arkanoid
 	try:
@@ -91,6 +84,28 @@ def start_ml_process(target_script, instruct_pipe, scene_info_pipe):
 		from essential.exception import ExceptionMessage
 		exc_msg = ExceptionMessage("ml", traceback.format_exc())
 		comm._instruct_pipe.send(exc_msg)
+
+def start_main_process(main_pipe, record_progress, one_shot_mode):
+	"""Start the main process
+
+	The main procress is used to display the game progress here.
+
+	@param main_pipe The receving-end of pipe for the scene information
+	@param record_progress Whether to record the game progress or not
+	@param one_shot_mode Whether to execute the game for only once or not
+	"""
+	from .game.arkanoid_ml import Screen
+	
+	log_path = None
+	if record_progress:
+		log_path = __get_log_path()
+
+	screen = Screen()
+	exception_msg = screen.draw_loop(main_pipe, log_path, one_shot_mode)
+
+	if exception_msg is not None:
+		print("Exception occurred in the {} process:".format(exception_msg.process_name))
+		print(exception_msg.exc_msg)
 
 def manual_mode(options, *game_params):
 	"""Play the game as a normal game
