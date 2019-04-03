@@ -9,6 +9,7 @@ def create_optparser():
 		"\"game_params\" is an optional parameter (not needed " \
 		"by every game) to specify the additional setting for the game."
 
+	# TODO Use argparser instead, because optparse is deprecated.
 	parser = OptionParser(usage = usage_str, description = description_str, \
 		version = version)
 	parser.add_option("-f", "--fps", \
@@ -31,6 +32,10 @@ def create_optparser():
 		help = "specify the script used in the machine learning mode. " \
 		"The script must have function `ml_loop()` and " \
 		"be put in the <game>/ml directory. [default: %default]")
+	parser.add_option("--online-channel", \
+		action = "store", type = "str", dest = "online_channel", default = None, \
+		help = "specify the channel name of remote server and " \
+		"start the game in the online mode [default : %default]")
 
 	return parser
 

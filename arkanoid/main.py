@@ -16,19 +16,24 @@ def execute(options, *game_params):
 		print("Invalid level value. Set to 1.")
 		level = 1
 
-	if options.manual_mode:
+	if options.online_channel:
+		_ml_mode(options.fps, level, options.input_script, \
+			online_channel = options.online_channel)
+	elif options.manual_mode:
 		_manual_mode(options.fps, level, options.record_progress)
 	else:
 		_ml_mode(options.fps, level, options.input_script, \
 			options.record_progress, options.one_shot_mode)
 
 def _ml_mode(fps, level, input_script = "ml_play.py", \
-	record_progress = False, one_shot_mode = False):
+	record_progress = False, one_shot_mode = False, online_channel = None):
 	"""Start the game in the machine learning mode
 
 	Create a game and a machine learning processes, and pipes for communicating.
 	The main process is the drawing process, which will draw the game progress
 	accroding to the information sent from the game process.
+	If the `online_mode` is True, the main process will be the transition process,
+	which will pass the game progress to the remote server.
 
 	After quit from the drawing loop,
 	the created processeswill be terminated.
@@ -38,6 +43,7 @@ def _ml_mode(fps, level, input_script = "ml_play.py", \
 	@param input_script Specify the script for the ml process
 	@param record_progress Specify whether to record the game progress or not
 	@param one_shot_mode Specify whether to run the game only once or not
+	@param online_mode Specify the channel name of the remote server
 	"""
 
 	from multiprocessing import Process, Pipe
@@ -54,7 +60,10 @@ def _ml_mode(fps, level, input_script = "ml_play.py", \
 	ml_process.start()
 	game_process.start()
 
-	_start_display_process(main_pipe_r, record_progress, one_shot_mode)
+	if online_channel:
+		_start_transition_process(main_pipe_r, online_channel)
+	else:
+		_start_display_process(main_pipe_r, record_progress, one_shot_mode)
 
 	ml_process.terminate()
 	game_process.terminate()
@@ -121,6 +130,18 @@ def _start_display_process(main_pipe, record_progress, one_shot_mode):
 	if exception_msg is not None:
 		print("Exception occurred in the {} process:".format(exception_msg.process_name))
 		print(exception_msg.exc_msg)
+
+def _start_transition_process(main_pipe, channel_name: str):
+	"""Start the transition process for pass the scene info to the remote server
+
+	@param main_pipe The pipe for receving the scene info sent from the game process
+	@param channel_name The name of the channel of remote server
+	       to send the scene info.
+	"""
+	from .game.arkanoid_ml import TransitionServer
+
+	transition_server = TransitionServer(channel_name)
+	transition_server.transition_loop(main_pipe)
 
 def _manual_mode(fps, level, record_progress = False):
 	"""Play the game as a normal game

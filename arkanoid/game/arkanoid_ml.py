@@ -3,6 +3,8 @@ from multiprocessing.connection import Connection
 
 from essential.game_base import GameABC
 from essential.exception import ExceptionMessage
+from essential.online.transition import RedisTransition
+
 from . import gamecore, gameobject
 from ..communication import GameInstruction, SceneInfo
 
@@ -160,3 +162,58 @@ class Screen:
 			pygame.display.flip()
 
 		pygame.quit()
+
+class TransitionServer:
+	"""Pass the scene info received to the message server
+	"""
+	def __init__(self, channel_name):
+		"""Contstructor
+
+		@param channel_name The name of the channel of remote server for sending
+		       the message.
+		"""
+		self._message_server = RedisTransition(channel_name)
+
+	def transition_loop(self, scene_info_pipe: Connection, log_dir: str = None):
+		"""Recevie the SceneInfo from the game process and pass to the message server
+
+		Transition loop always runs in one shot mode, therefore,
+		it will be exited after the game is over or is passed.
+		"""
+		while True:
+			scene_info = scene_info_pipe.recv()
+			if isinstance(scene_info, ExceptionMessage):
+				self._send_exception(scene_info)
+				return
+
+			self._send_scene_info(scene_info)
+			if scene_info.status == SceneInfo.STATUS_GAME_OVER or \
+			   scene_info.status == SceneInfo.STATUS_GAME_PASS:
+				return
+
+	def _send_scene_info(self, scene_info: SceneInfo):
+		"""Send the scene info to the message server
+		"""
+		scene_info_dict = {
+			"frame": scene_info.frame,
+			"status": scene_info.status,
+			"ball": scene_info.ball,
+			"platform": scene_info.platform,
+			"bricks": scene_info.bricks,
+		}
+
+		message_object = {
+			"type": "game_progress",
+			"scene_info": scene_info_dict
+		}
+		self._message_server.send(message_object)
+
+	def _send_exception(self, exception_msg: ExceptionMessage):
+		"""Send the exception message to the message server
+		"""
+		message_object = {
+			"type": "game_error",
+			"from_process": exception_msg.process_name,
+			"error_message": exception_msg.exc_msg,
+		}
+		self._message_server.send(message_object)
