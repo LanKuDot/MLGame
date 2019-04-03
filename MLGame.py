@@ -19,11 +19,11 @@ def create_optparser():
 		help = "start the game in the manual mode instead of " \
 		"the machine learning mode [default: %default]")
 	parser.add_option("-r", "--record", \
-		action = "store_true", dest = "record", default = False, \
+		action = "store_true", dest = "record_progress", default = False, \
 		help = "pickle the game progress (a list of scene info) to the log files "\
 		"[default: %default]")
 	parser.add_option("-1", "--one-shot", \
-		action = "store_true", dest = "one_shot", default = False, \
+		action = "store_true", dest = "one_shot_mode", default = False, \
 		help = "quit the game when the game is passed or over. " \
 		"Only supported in the ml mode. [default: %default]")
 	parser.add_option("-i", "--input-script", \

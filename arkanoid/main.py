@@ -17,10 +17,10 @@ def execute(options, *game_params):
 		level = 1
 
 	if options.manual_mode:
-		_manual_mode(options.fps, level, options.record)
+		_manual_mode(options.fps, level, options.record_progress)
 	else:
 		_ml_mode(options.fps, level, options.input_script, \
-			options.record, options.one_shot)
+			options.record_progress, options.one_shot_mode)
 
 def _ml_mode(fps, level, input_script = "ml_play.py", \
 	record_progress = False, one_shot_mode = False):
