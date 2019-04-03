@@ -1,21 +1,10 @@
-def ml_mode(options, *game_params):
-	"""Start the game in the machine learning mode
+def execute(options, *game_params):
+	"""Start the game in the selected mode
 
-	Create a game and a machine learning processes, and pipes for communicating.
-	The main process is the drawing process, which will draw the scene information
-	sent from the game process to the window. After quit from the drawing loop,
-	the created processes will be terminated.
-
-	@param options Specify the game settings
-	@param game_params Only one parameter is needed. Specify the level of the game
+	@param options The game options specified in the command line
+	@param game_params Additional game parameter. Only one parameter is needed
+	       for specifying the level of the game.
 	"""
-
-	from multiprocessing import Process, Pipe
-
-	fps = options.fps
-	record_progress = options.record
-	one_shot_mode = options.one_shot
-
 	try:
 		level = int(game_params[0])
 		if level < 1:
@@ -27,31 +16,62 @@ def ml_mode(options, *game_params):
 		print("Invalid level value. Set to 1.")
 		level = 1
 
+	if options.manual_mode:
+		_manual_mode(options.fps, level, options.record)
+	else:
+		_ml_mode(options.fps, level, options.input_script, \
+			options.record, options.one_shot)
+
+def _ml_mode(fps, level, input_script = "ml_play.py", \
+	record_progress = False, one_shot_mode = False):
+	"""Start the game in the machine learning mode
+
+	Create a game and a machine learning processes, and pipes for communicating.
+	The main process is the drawing process, which will draw the game progress
+	accroding to the information sent from the game process.
+
+	After quit from the drawing loop,
+	the created processeswill be terminated.
+
+	@param fps Specify the updating rate of the game
+	@param level Specify the level of the game
+	@param input_script Specify the script for the ml process
+	@param record_progress Specify whether to record the game progress or not
+	@param one_shot_mode Specify whether to run the game only once or not
+	"""
+
+	from multiprocessing import Process, Pipe
+
 	instruct_pipe_r, instruct_pipe_s = Pipe(False)
 	scene_info_pipe_r, scene_info_pipe_s = Pipe(False)
 	main_pipe_r, main_pipe_s = Pipe(False)
 
-	game_process = Process(target = start_game_process, name = "game process", \
+	game_process = Process(target = _start_game_process, name = "game process", \
 		args = (fps, level, instruct_pipe_r, scene_info_pipe_s, main_pipe_s))
-	ml_process = Process(target = start_ml_process, name = "ml process", \
-		args = (options.input_script, instruct_pipe_s, scene_info_pipe_r))
+	ml_process = Process(target = _start_ml_process, name = "ml process", \
+		args = (input_script, instruct_pipe_s, scene_info_pipe_r))
 
 	ml_process.start()
 	game_process.start()
 
-	start_display_process(main_pipe_r, record_progress, one_shot_mode)
+	_start_display_process(main_pipe_r, record_progress, one_shot_mode)
 
 	ml_process.terminate()
 	game_process.terminate()
 
-def start_game_process(*args):
-	"""Start the Arkanoid in the machine learning mode
+def _start_game_process(fps, level, \
+	instruct_pipe, scene_info_pipe, main_pipe):
+	"""Start the game process
 
-	@param args The arguments to be passed to the game loop
+	@param fps Specify the updating rate of the game
+	@param level Specify the level of the game
+	@param instruct_pipe The pipe for receving the instruction from the ml process
+	@param scene_info_pipe The pipe for sending the scene info to the ml process
+	@param main_pipe The pipe for sending the scene info to the main process
 	"""
 	from .game.arkanoid_ml import Arkanoid
 	try:
-		Arkanoid().game_loop(*args)
+		Arkanoid().game_loop(fps, level, instruct_pipe, scene_info_pipe, main_pipe)
 	except Exception as e:
 		import traceback
 		from essential.exception import ExceptionMessage
@@ -59,10 +79,10 @@ def start_game_process(*args):
 		main_pipe = args[-1]
 		main_pipe.send(exc_msg)
 
-def start_ml_process(target_script, instruct_pipe, scene_info_pipe):
+def _start_ml_process(target_script, instruct_pipe, scene_info_pipe):
 	"""Start the custom machine learning process
 
-	@param target_script Specify the name of the script to be used
+	@param target_script Specify the name of the script to be used.
 	       The Script must have function `ml_loop()` and be put in the "ml"
 	       directory of the game.
 	@param instruct_pipe The sending-end of pipe for the game instruction
@@ -85,7 +105,7 @@ def start_ml_process(target_script, instruct_pipe, scene_info_pipe):
 		exc_msg = ExceptionMessage("ml", traceback.format_exc())
 		comm._instruct_pipe.send(exc_msg)
 
-def start_display_process(main_pipe, record_progress, one_shot_mode):
+def _start_display_process(main_pipe, record_progress, one_shot_mode):
 	"""Start the process for displaying the game progress
 
 	@param main_pipe The receving-end of pipe for the scene information
@@ -105,27 +125,14 @@ def start_display_process(main_pipe, record_progress, one_shot_mode):
 		print("Exception occurred in the {} process:".format(exception_msg.process_name))
 		print(exception_msg.exc_msg)
 
-def manual_mode(options, *game_params):
+def _manual_mode(fps, level, record_progress = False):
 	"""Play the game as a normal game
 
-	@param options Specify the game settings
-	@param game_params Only one parameter is needed. Specify the level of the game
+	@param fps Specify the updating rate of the game
+	@param level Specify the level of the game
+	@param record_progress Specify whether to record the game progress or not
 	"""
 	from .game.arkanoid import Arkanoid
-
-	fps = options.fps
-	record_progress = options.record
-
-	try:
-		level = int(game_params[0])
-		if level < 1:
-			raise ValueError
-	except IndexError:
-		print("Level is not specified. Set to 1.")
-		level = 1
-	except ValueError:
-		print("Invalid level value. Set to 1.")
-		level = 1
 
 	log_path = None
 	if record_progress:

@@ -65,7 +65,4 @@ if __name__ == "__main__":
 			"Cannot start the machine learning mode." \
 			.format(game_name, options.input_script))
 	else:
-		if options.manual_mode:
-			game.manual_mode(options, *game_params)
-		else:
-			game.ml_mode(options, *game_params)
+		game.execute(options, *game_params)
