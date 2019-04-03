@@ -114,12 +114,9 @@ def _start_display_process(main_pipe, record_progress, one_shot_mode):
 	"""
 	from .game.arkanoid_ml import Screen
 	
-	log_path = None
-	if record_progress:
-		log_path = __get_log_path()
-
 	screen = Screen()
-	exception_msg = screen.draw_loop(main_pipe, log_path, one_shot_mode)
+	record_handler = _get_record_handler(record_progress)
+	exception_msg = screen.draw_loop(main_pipe, record_handler, one_shot_mode)
 
 	if exception_msg is not None:
 		print("Exception occurred in the {} process:".format(exception_msg.process_name))
@@ -134,13 +131,22 @@ def _manual_mode(fps, level, record_progress = False):
 	"""
 	from .game.arkanoid import Arkanoid
 
-	log_path = None
+	record_handler = _get_record_handler(record_progress)
+	Arkanoid().game_loop(fps, level, record_handler)
+
+def _get_record_handler(record_progress: bool):
+	"""Return the handler for record the game progress
+
+	If the `record_progress` is False, return a dummy function.
+	"""
 	if record_progress:
-		log_path = __get_log_path()
+		from essential.recorder import Recorder
+		recorder = Recorder(_get_log_dir_path())
+		return recorder.record_scene_info
+	else:
+		return lambda x: None
 
-	Arkanoid().game_loop(fps, level, log_path)
-
-def __get_log_path():
+def _get_log_dir_path():
 	import os.path
 	dirpath = os.path.dirname(__file__)
 	return os.path.join(dirpath, "log")

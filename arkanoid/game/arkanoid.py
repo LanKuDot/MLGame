@@ -1,5 +1,6 @@
 import pygame
 from . import gamecore
+from ..communication import SceneInfo
 
 class Arkanoid():
 	def __init__(self):
@@ -12,7 +13,7 @@ class Arkanoid():
 		self._screen = pygame.display.set_mode(gamecore.display_area_size)
 		pygame.display.set_caption("Arkanoid")
 
-	def game_loop(self, fps: int, level: int, log_dir: str = None):
+	def game_loop(self, fps: int, level: int, record_handler = None):
 		def keyboard_action() -> str:
 			key_pressed_list = pygame.key.get_pressed()
 			if key_pressed_list[pygame.K_LEFT]:
@@ -30,26 +31,15 @@ class Arkanoid():
 
 		scene = gamecore.Scene(level, True, self._screen)
 
-		if log_dir is not None:
-			from ..communication import SceneInfo
-			from essential.recorder import Recorder
-			recorder = Recorder(log_dir)
-			def __record_scene_info():
-				scene_info = scene.fill_scene_info_obj(SceneInfo())
-				recorder.record_scene_info(scene_info)
-			record_scene_info = __record_scene_info
-		else:
-			record_scene_info = lambda: None	# Dummy function
-
 		while check_going():
-			record_scene_info()
+			record_handler(scene.fill_scene_info_obj(SceneInfo()))
 			control_action = keyboard_action()
 			game_status = scene.update(control_action)
 
 			if game_status == gamecore.GAME_OVER_MSG or \
 			   game_status == gamecore.GAME_PASS_MSG:
 				print(game_status)
-				record_scene_info()
+				record_handler(scene.fill_scene_info_obj(SceneInfo()))
 				scene.reset()
 		
 			scene.draw()
