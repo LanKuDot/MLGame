@@ -76,7 +76,6 @@ def _start_game_process(fps, level, \
 		import traceback
 		from essential.exception import ExceptionMessage
 		exc_msg = ExceptionMessage("game", traceback.format_exc())
-		main_pipe = args[-1]
 		main_pipe.send(exc_msg)
 
 def _start_ml_process(target_script, instruct_pipe, scene_info_pipe):
