@@ -213,7 +213,7 @@ class TransitionServer:
 		"""
 		message_object = {
 			"type": "game_error",
-			"from_process": exception_msg.process_name,
-			"error_message": exception_msg.exc_msg,
+			"error_message": "Error occuered in {} process.\n{}" \
+				.format(exception_msg.process_name, exception_msg.exc_msg),
 		}
 		self._message_server.send(message_object)
