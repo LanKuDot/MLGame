@@ -64,7 +64,7 @@ class Arkanoid(GameABC):
 		scene = gamecore.Scene(level, False)
 		scene_info = scene.fill_scene_info_obj(SceneInfo())
 		# Wait for ready instruction
-		instruct_pipe.recv()
+		recv_instruction()
 		self._clock.tick(fps)
 
 		while True:
