@@ -85,7 +85,7 @@ def _start_game_process(fps, level, \
 		import traceback
 		from essential.exception import ExceptionMessage
 		exc_msg = ExceptionMessage("game", traceback.format_exc())
-		main_pipe.send(exc_msg)
+		main_pipe.send((exc_msg, None))
 
 def _start_ml_process(target_script, instruct_pipe, scene_info_pipe):
 	"""Start the custom machine learning process

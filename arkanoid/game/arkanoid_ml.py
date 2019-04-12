@@ -50,7 +50,7 @@ class Arkanoid(GameABC):
 
 				# Pass the exception to the main process
 				if isinstance(instruction, ExceptionMessage):
-					main_pipe.send(instruction)
+					main_pipe.send((instruction, None))
 
 				if not isinstance(instruction, GameInstruction):
 					return GameInstruction(-1, gamecore.ACTION_NONE)
@@ -71,20 +71,21 @@ class Arkanoid(GameABC):
 
 		while True:
 			scene_info_pipe.send(scene_info)
-			main_pipe.send(scene_info)
 
 			self._clock.tick(fps)
 
 			instruction = recv_instruction()
-			print("Frame: {}/{} Cmd: {}" \
-				.format(scene_info.frame, instruction.frame, instruction.command))
+			main_pipe.send((scene_info, instruction))
+
 			game_status = scene.update(instruction.command)
 			scene_info = scene.fill_scene_info_obj(SceneInfo())
 
 			if game_status == gamecore.GAME_OVER_MSG or \
 			   game_status == gamecore.GAME_PASS_MSG:
 				scene_info_pipe.send(scene_info)
-				main_pipe.send(scene_info)
+				main_pipe.send((scene_info, None))
+
+				# TODO Wait the ml process before reset the scene
 				scene.reset()
 				scene_info = scene.fill_scene_info_obj(SceneInfo())
 
@@ -137,7 +138,7 @@ class Screen:
 			return True
 
 		while check_going():
-			scene_info = scene_info_pipe.recv()
+			scene_info, instruction = scene_info_pipe.recv()
 			# If receive an exception, pass the exception and quit the game.
 			if isinstance(scene_info, ExceptionMessage):
 				return scene_info
@@ -145,9 +146,13 @@ class Screen:
 			record_handler(scene_info)
 			if scene_info.status == SceneInfo.STATUS_GAME_OVER or \
 			   scene_info.status == SceneInfo.STATUS_GAME_PASS:
-				print(scene_info.status)
+				print("Frame: {} {}".format(scene_info.frame, scene_info.status))
+				print("-----")
 				if one_shot_mode:
 					return
+			else:
+				print("Frame: {}/{} Cmd: {}" \
+					.format(scene_info.frame, instruction.frame, instruction.command))
 
 			self._screen.fill((0, 0, 0))
 			self._screen.blit(self._ball_surface, scene_info.ball)

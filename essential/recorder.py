@@ -2,10 +2,11 @@ import pickle, time
 from .game_base import BasicSceneInfo
 
 class Recorder:
-	def __init__(self, saving_directory):
+	def __init__(self, saving_directory, filename = None):
 		self.__scene_info_list = []
 		self.__saving_directory = saving_directory
 		self.__create_directory()
+		self.__filename = filename
 
 	def __create_directory(self):
 		import os
@@ -13,7 +14,11 @@ class Recorder:
 			os.mkdir(self.__saving_directory)
 
 	def __save_to_file(self):
-		filename = time.strftime("%Y-%m-%d_%H-%M-%S") + ".pickle"
+		if self.__filename:
+			filename = self.__filename
+		else:
+			filename = time.strftime("%Y-%m-%d_%H-%M-%S") + ".pickle"
+
 		filepath = self.__saving_directory + "/" + filename
 		with open(filepath, "wb") as f:
 			pickle.dump(self.__scene_info_list, f)
