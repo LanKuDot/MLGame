@@ -194,6 +194,7 @@ class TransitionServer:
 			self._send_scene_info(scene_info)
 			if scene_info.status == SceneInfo.STATUS_GAME_OVER or \
 			   scene_info.status == SceneInfo.STATUS_GAME_PASS:
+				self._send_game_result(scene_info)
 				return
 
 	def _send_scene_info(self, scene_info: SceneInfo):
@@ -210,6 +211,21 @@ class TransitionServer:
 		message_object = {
 			"type": "game_progress",
 			"scene_info": scene_info_dict
+		}
+		self._message_server.send(message_object)
+
+	def _send_game_result(self, scene_info: SceneInfo):
+		"""Send the game result to the message server
+		"""
+		game_result_dict = {
+			"status": scene_info.status,
+			"frame_used": scene_info.frame,
+			"bricks_remain": len(scene_info.bricks),
+		}
+
+		message_object = {
+			"type": "game_result",
+			"result": game_result_dict,
 		}
 		self._message_server.send(message_object)
 
