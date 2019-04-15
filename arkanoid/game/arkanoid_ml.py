@@ -61,10 +61,23 @@ class Arkanoid(GameABC):
 
 			return instruction
 
+		def wait_ml_process_ready():
+			while True:
+				ready_instruct = instruct_pipe.recv()
+
+				# Pass the exception to the main process
+				if isinstance(ready_instruct, ExceptionMessage):
+					main_pipe.send((ready_instruct, None))
+					return
+
+				if isinstance(ready_instruct, GameInstruction) and \
+				   ready_instruct.command == GameInstruction.CMD_READY:
+					return
+
 		scene = gamecore.Scene(level, False)
 		scene_info = scene.fill_scene_info_obj(SceneInfo())
-		# Wait for ready instruction
-		recv_instruction()
+		wait_ml_process_ready()
+		# Set the first tick
 		self._clock.tick(fps)
 
 		while True:
