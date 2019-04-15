@@ -179,7 +179,7 @@ class TransitionServer:
 		"""
 		self._message_server = RedisTransition(channel_name)
 
-	def transition_loop(self, scene_info_pipe: Connection, log_dir: str = None):
+	def transition_loop(self, scene_info_pipe: Connection, record_handler = None):
 		"""Recevie the SceneInfo from the game process and pass to the message server
 
 		Transition loop always runs in one shot mode, therefore,
@@ -192,6 +192,8 @@ class TransitionServer:
 				return
 
 			self._send_scene_info(scene_info, instruction)
+			record_handler(scene_info)
+
 			if scene_info.status == SceneInfo.STATUS_GAME_OVER or \
 			   scene_info.status == SceneInfo.STATUS_GAME_PASS:
 				self._send_game_result(scene_info)

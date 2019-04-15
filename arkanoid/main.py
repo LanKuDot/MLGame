@@ -137,10 +137,17 @@ def _start_transition_process(main_pipe, channel_name: str):
 	@param channel_name The name of the channel of remote server
 	       to send the scene info.
 	"""
+	# TODO Merge the recorder creation code to the master bracnch
+	import os.path
+	ml_dir_path = os.path.join(os.path.dirname(__file__), "ml")
+
+	from essential.recorder import Recorder
+	recorder = Recorder(ml_dir_path, "log.pickle_log")
+
 	from .game.arkanoid_ml import TransitionServer
 
 	transition_server = TransitionServer(channel_name)
-	transition_server.transition_loop(main_pipe)
+	transition_server.transition_loop(main_pipe, recorder.record_scene_info)
 
 def _manual_mode(fps, level, record_progress = False):
 	"""Play the game as a normal game
