@@ -186,22 +186,28 @@ class TransitionServer:
 		it will be exited after the game is over or is passed.
 		"""
 		while True:
-			scene_info = scene_info_pipe.recv()
+			scene_info, instruction = scene_info_pipe.recv()
 			if isinstance(scene_info, ExceptionMessage):
 				self._send_exception(scene_info)
 				return
 
-			self._send_scene_info(scene_info)
+			self._send_scene_info(scene_info, instruction)
 			if scene_info.status == SceneInfo.STATUS_GAME_OVER or \
 			   scene_info.status == SceneInfo.STATUS_GAME_PASS:
 				self._send_game_result(scene_info)
 				return
 
-	def _send_scene_info(self, scene_info: SceneInfo):
+	def _send_scene_info(self, scene_info: SceneInfo, instruction: GameInstruction):
 		"""Send the scene info to the message server
 		"""
+		if instruction:
+			delay_frame = scene_info.frame - instruction.frame
+		else:
+			delay_frame = "--"
+
 		scene_info_dict = {
 			"frame": scene_info.frame,
+			"delay_frame": delay_frame,
 			"status": scene_info.status,
 			"ball": scene_info.ball,
 			"platform": scene_info.platform,
