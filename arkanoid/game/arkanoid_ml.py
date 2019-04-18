@@ -178,6 +178,7 @@ class TransitionServer:
 		       the message.
 		"""
 		self._message_server = RedisTransition(channel_name)
+		self._delay_frame = 0
 
 	def transition_loop(self, scene_info_pipe: Connection, record_handler = None):
 		"""Recevie the SceneInfo from the game process and pass to the message server
@@ -202,14 +203,12 @@ class TransitionServer:
 	def _send_scene_info(self, scene_info: SceneInfo, instruction: GameInstruction):
 		"""Send the scene info to the message server
 		"""
-		if instruction:
-			delay_frame = scene_info.frame - instruction.frame
-		else:
-			delay_frame = "--"
+		if instruction and instruction.frame == -1:
+			self._delay_frame += 1
 
 		scene_info_dict = {
 			"frame": scene_info.frame,
-			"delay_frame": delay_frame,
+			"delay_frame": self._delay_frame,
 			"status": scene_info.status,
 			"ball": scene_info.ball,
 			"platform": scene_info.platform,
