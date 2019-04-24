@@ -7,8 +7,7 @@ class Arkanoid():
 		self._init_pygame()
 
 	def _init_pygame(self):
-		pygame.init()
-		pygame.mixer.quit()	# Avoid unusual high CPU uage
+		pygame.display.init()
 		self._clock = pygame.time.Clock()
 		self._screen = pygame.display.set_mode(gamecore.display_area_size)
 		pygame.display.set_caption("Arkanoid")

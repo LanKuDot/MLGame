@@ -14,8 +14,6 @@ class Arkanoid(GameABC):
 		self._init_pygame()
 
 	def _init_pygame(self):
-		pygame.init()
-		pygame.mixer.quit()
 		self._clock = pygame.time.Clock()
 
 	def game_loop(self, fps: int, level: int, \
@@ -109,8 +107,8 @@ class Screen:
 		self._create_surface()
 
 	def _init_pygame(self):
-		pygame.init()
-		pygame.mixer.quit()
+		pygame.display.init()
+		pygame.font.init()
 		self._screen = pygame.display.set_mode(gamecore.display_area_size)
 		pygame.display.set_caption("Arkanoid")
 		self._font = pygame.font.Font(None, 22)
