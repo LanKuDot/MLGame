@@ -12,7 +12,8 @@ class RedisTransition:
 		@param channel_name Specify the name of the channel in the Redis server
 		       to be communicated.
 		"""
-		self._redis_server = RedisChannelLayer(hosts = [("172.17.0.2", 6379)])
+		# TODO Get the host from the environment variable
+		self._redis_server = RedisChannelLayer(hosts = [("redis_server", 6379)])
 		self._channel_name = channel_name
 
 	def send(self, message_object):
