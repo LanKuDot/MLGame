@@ -1,0 +1,8 @@
+# Files
+*.pickle
+
+# Directories
+venv
+.git
+.vs
+__pycache__
