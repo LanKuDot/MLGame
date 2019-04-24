@@ -16,8 +16,6 @@ class Arkanoid(GameABC):
 		self._init_pygame()
 
 	def _init_pygame(self):
-		pygame.init()
-		pygame.mixer.quit()
 		self._clock = pygame.time.Clock()
 
 	def game_loop(self, fps: int, level: int, \
@@ -63,10 +61,23 @@ class Arkanoid(GameABC):
 
 			return instruction
 
+		def wait_ml_process_ready():
+			while True:
+				ready_instruct = instruct_pipe.recv()
+
+				# Pass the exception to the main process
+				if isinstance(ready_instruct, ExceptionMessage):
+					main_pipe.send((ready_instruct, None))
+					return
+
+				if isinstance(ready_instruct, GameInstruction) and \
+				   ready_instruct.command == GameInstruction.CMD_READY:
+					return
+
 		scene = gamecore.Scene(level, False)
 		scene_info = scene.fill_scene_info_obj(SceneInfo())
-		# Wait for ready instruction
-		instruct_pipe.recv()
+		wait_ml_process_ready()
+		# Set the first tick
 		self._clock.tick(fps)
 
 		while True:
@@ -98,8 +109,8 @@ class Screen:
 		self._create_surface()
 
 	def _init_pygame(self):
-		pygame.init()
-		pygame.mixer.quit()
+		pygame.display.init()
+		pygame.font.init()
 		self._screen = pygame.display.set_mode(gamecore.display_area_size)
 		pygame.display.set_caption("Arkanoid")
 		self._font = pygame.font.Font(None, 22)
