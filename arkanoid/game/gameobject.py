@@ -67,16 +67,10 @@ class Ball(pygame.sprite.Sprite):
 	def move(self):
 		self.rect.move_ip(self._speed)
 
-	def check_bouncing(self, platform: Platform) -> bool:
+	def check_bouncing(self, platform: Platform):
 		if physics.collide_or_tangent(self, platform):
 			physics.bounce_off_ip(self.rect, self._speed, platform.rect, platform._speed)
 		physics.bounce_in_box(self.rect, self._speed, self._play_area_rect)
-
-		# Game over
-		if self.rect.top >= platform.rect.bottom:
-			return False
-		else:
-			return True
 
 	def check_hit_brick(self, group_brick: pygame.sprite.RenderPlain) -> int:
 		hit_bricks = pygame.sprite.spritecollide(self, group_brick, 1, \
