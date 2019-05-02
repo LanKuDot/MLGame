@@ -1,15 +1,5 @@
 import pygame
-
-def collide_or_tangent(sprite_a, sprite_b) -> bool:
-	rect_a = sprite_a.rect
-	rect_b = sprite_b.rect
-
-	if rect_a.left <= rect_b.right and \
-	   rect_a.right >= rect_b.left and \
-	   rect_a.top <= rect_b.bottom and \
-	   rect_a.bottom >= rect_b.top:
-		return True
-	return False
+from essential import physics
 
 class Brick(pygame.sprite.Sprite):
 	def __init__(self, init_pos, *groups):
@@ -77,36 +67,10 @@ class Ball(pygame.sprite.Sprite):
 	def move(self):
 		self.rect.move_ip(self._speed)
 
-	def _bounce(self, target_rect: pygame.Rect, target_speed):
-		speed_diff_x = self._speed[0] - target_speed[0]
-		speed_diff_y = self._speed[1] - target_speed[1]
-
-		# The distance between top and bottom, or left and right of two objects
-		# in the last frame.
-		rect_diff_T_B = self.rect.top - target_rect.bottom - speed_diff_y
-		rect_diff_B_T = self.rect.bottom - target_rect.top - speed_diff_y
-		rect_diff_L_R = self.rect.left - target_rect.right - speed_diff_x
-		rect_diff_R_L = self.rect.right - target_rect.left - speed_diff_x
-
-		# Decide the relative position from the ball to the hit object
-		# to adjust the ball's position and change the moving direction
-		if rect_diff_T_B > 0 and rect_diff_B_T > 0:
-			self.rect.top = target_rect.bottom
-			self._speed[1] = -self._speed[1]
-		elif rect_diff_T_B < 0 and rect_diff_B_T < 0:
-			self.rect.bottom = target_rect.top
-			self._speed[1] = -self._speed[1]
-
-		if rect_diff_L_R > 0 and rect_diff_R_L > 0:
-			self.rect.left = target_rect.right
-			self._speed[0] = -self._speed[0]
-		elif rect_diff_L_R < 0 and rect_diff_R_L < 0:
-			self.rect.right = target_rect.left
-			self._speed[0] = -self._speed[0]
-
 	def check_bouncing(self, platform: Platform) -> bool:
-		self._check_platform_bouncing(platform)
-		self._check_wall_bouncing()
+		if physics.collide_or_tangent(self, platform):
+			physics.bounce_off_ip(self.rect, self._speed, platform.rect, platform._speed)
+		physics.bounce_in_box(self.rect, self._speed, self._play_area_rect)
 
 		# Game over
 		if self.rect.top >= platform.rect.bottom:
@@ -114,36 +78,17 @@ class Ball(pygame.sprite.Sprite):
 		else:
 			return True
 
-	def _check_wall_bouncing(self):
-		if self.rect.left <= self._play_area_rect.left:
-			self.rect.left = self._play_area_rect.left
-			self._speed[0] = -self._speed[0]
-		elif self.rect.right >= self._play_area_rect.right:
-			self.rect.right = self._play_area_rect.right
-			self._speed[0] = -self._speed[0]
-
-		if self.rect.top <= self._play_area_rect.top:
-			self.rect.top = self._play_area_rect.top
-			self._speed[1] = -self._speed[1]
-		elif self.rect.bottom >= self._play_area_rect.bottom:
-			self.rect.bottom = self._play_area_rect.bottom
-			self._speed[1] = -self._speed[1]
-
-	def _check_platform_bouncing(self, platform: Platform):
-		if collide_or_tangent(self, platform):
-			self._bounce(platform.rect, platform._speed)
-
 	def check_hit_brick(self, group_brick: pygame.sprite.RenderPlain) -> int:
 		hit_bricks = pygame.sprite.spritecollide(self, group_brick, 1, \
-			collide_or_tangent)
+			physics.collide_or_tangent)
 
 		if len(hit_bricks) > 0:
 			# XXX: Bad multiple collision bouncing handling
 			if len(hit_bricks) == 2 and \
 				hit_bricks[0].rect.y == hit_bricks[1].rect.y:
 				combined_rect = hit_bricks[0].rect.union(hit_bricks[1].rect)
-				self._bounce(combined_rect, (0, 0))
+				physics.bounce_off_ip(self.rect, self._speed, combined_rect, (0, 0))
 			else:
-				self._bounce(hit_bricks[0].rect, (0, 0))
+				physics.bounce_off_ip(self.rect, self._speed, hit_bricks[0].rect, (0, 0))
 
 		return len(hit_bricks)
