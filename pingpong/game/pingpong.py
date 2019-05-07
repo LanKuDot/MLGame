@@ -69,9 +69,9 @@ class PingPong:
 			scene.draw()
 
 			font_1P_surface = self._font.render( \
-				"1P score: {}".format(scene.score[0]), True, (84, 149, 255))
+				"1P score: {}".format(scene.score[0]), True, gamecore.color_1P)
 			font_2P_surface = self._font.render( \
-				"2P score: {}".format(scene.score[1]), True, (219, 70, 92))
+				"2P score: {}".format(scene.score[1]), True, gamecore.color_2P)
 			font_speed_surface = self._font.render( \
 				"Speed: {}".format(abs(scene._ball._speed[0])), True, (255, 255, 255))
 			self._screen.blit(font_1P_surface, self._font_pos_1P)

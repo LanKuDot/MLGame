@@ -6,6 +6,8 @@ from .gameobject import (
 )
 
 display_area_size = (200, 500)	# (width, height)
+color_1P = (84, 149, 255)	# Blue
+color_2P = (219, 70, 92)	# Red
 
 class GameStatus(Enum):
 	GAME_1P_WIN = auto()
@@ -37,8 +39,8 @@ class Scene:
 			self._background = pygame.Surface(display_area_size)
 			self._background.fill((0, 0, 0))
 			self._ball.create_surface()
-			self._platform_1P.create_surface((84, 149, 255)) # Blue
-			self._platform_2P.create_surface((219, 70, 92))  # Red
+			self._platform_1P.create_surface(color_1P)
+			self._platform_2P.create_surface(color_2P)
 
 	def reset(self):
 		self._frame_count = 0
