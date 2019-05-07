@@ -17,6 +17,8 @@ class PingPong:
 		self._font = pygame.font.Font(None, 22)
 		self._font_pos_1P = (1, 4)
 		self._font_pos_2P = (1, gamecore.display_area_size[1] - 21)
+		self._font_pos_speed = (gamecore.display_area_size[0] - 75, \
+			gamecore.display_area_size[1] - 21)
 
 	def _check_going(self):
 		for event in pygame.event.get():
@@ -70,8 +72,11 @@ class PingPong:
 				"1P score: {}".format(scene.score[0]), True, (84, 149, 255))
 			font_2P_surface = self._font.render( \
 				"2P score: {}".format(scene.score[1]), True, (219, 70, 92))
+			font_speed_surface = self._font.render( \
+				"Speed: {}".format(abs(scene._ball._speed[0])), True, (255, 255, 255))
 			self._screen.blit(font_1P_surface, self._font_pos_1P)
 			self._screen.blit(font_2P_surface, self._font_pos_2P)
+			self._screen.blit(font_speed_surface, self._font_pos_speed)
 
 			pygame.display.flip()
 
