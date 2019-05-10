@@ -79,3 +79,19 @@ class Scene:
 	def draw(self):
 		self._screen.blit(self._background, (0, 0))
 		self._draw_group.draw(self._screen)
+
+	def fill_scene_info_obj(self, scene_info_obj):
+		"""
+		Fill the inforamtion of the scene to the `scene_info_obj`
+		"""
+		def get_pivot_point(rect):
+			return (rect.x, rect.y)
+
+		scene_info_obj.frame = self._frame_count
+		scene_info_obj.status = self._game_status.name
+		scene_info_obj.ball = get_pivot_point(self._ball.rect)
+		scene_info_obj.ball_speed = abs(self._ball._speed[0])
+		scene_info_obj.platform_1P = get_pivot_point(self._platform_1P.rect)
+		scene_info_obj.platform_2P = get_pivot_point(self._platform_2P.rect)
+
+		return scene_info_obj
