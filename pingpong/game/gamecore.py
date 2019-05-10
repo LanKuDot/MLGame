@@ -1,5 +1,6 @@
 import pygame
-from enum import Enum, auto
+from enum import auto
+from essential.game_base import StringEnum
 
 from .gameobject import (
 	Ball, Platform, PlatformMoveAction
@@ -9,7 +10,7 @@ display_area_size = (200, 500)	# (width, height)
 color_1P = (84, 149, 255)	# Blue
 color_2P = (219, 70, 92)	# Red
 
-class GameStatus(Enum):
+class GameStatus(StringEnum):
 	GAME_1P_WIN = auto()
 	GAME_2P_WIN = auto()
 	GAME_ALIVE = auto()

@@ -1,10 +1,11 @@
-from enum import Enum, auto
+from enum import auto
 from essential import physics
+from essential.game_base import StringEnum
 
 import pygame
 import random
 
-class PlatformMoveAction(Enum):
+class PlatformMoveAction(StringEnum):
 	LEFT = auto()
 	RIGHT = auto()
 	NONE = auto()
