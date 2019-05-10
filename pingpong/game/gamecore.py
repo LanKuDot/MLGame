@@ -25,6 +25,7 @@ class Scene:
 		self.score = [0, 0]	# 1P, 2P
 
 		self._create_scene()
+		self.reset()
 
 	def _create_scene(self):
 		display_area_rect = pygame.Rect((0, 0), display_area_size)

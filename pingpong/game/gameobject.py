@@ -19,7 +19,7 @@ class Platform(pygame.sprite.Sprite):
 		self._speed = [0, 0]
 		self._init_pos = pygame.Rect(*init_pos, 40, 10)
 
-		self.reset()
+		self.rect = self._init_pos.copy()
 
 	def create_surface(self, color):
 		self.image = pygame.Surface((self.rect.width, self.rect.height))
@@ -50,7 +50,7 @@ class Ball(pygame.sprite.Sprite):
 		self._size = [5, 5]
 		self._serve_from_1P = True
 
-		self.reset()
+		self.rect = pygame.Rect(0, 0, *self._size)
 
 	def create_surface(self):
 		self.image = pygame.Surface((self.rect.width, self.rect.height))
