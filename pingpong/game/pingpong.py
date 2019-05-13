@@ -2,6 +2,7 @@ import pygame
 from . import gamecore
 from .gamecore import GameStatus
 from .gameobject import PlatformMoveAction
+from ..communication import SceneInfo
 
 class PingPong:
 	def __init__(self):
@@ -55,13 +56,21 @@ class PingPong:
 
 		while self._check_going():
 			keyboard_action = self._keyboard_action()
+
+			scene_info = scene.fill_scene_info_obj(SceneInfo())
+			scene_info.command_1P = keyboard_action[0].value
+			scene_info.command_2P = keyboard_action[1].value
+			record_handler(scene_info)
+
 			game_status = scene.update(*keyboard_action)
 
 			if game_status == GameStatus.GAME_1P_WIN or \
-				game_status == GameStatus.GAME_2P_WIN:
-				print(game_status.name)
+			   game_status == GameStatus.GAME_2P_WIN:
+				scene_info = scene.fill_scene_info_obj(SceneInfo())
+				record_handler(scene_info)
+				print(game_status.value)
 				if scene.score[0] == game_over_score or \
-					scene.score[1] == game_over_score:
+				   scene.score[1] == game_over_score:
 					break
 
 				scene.reset()

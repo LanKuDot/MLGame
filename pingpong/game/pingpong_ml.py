@@ -203,6 +203,9 @@ class Screen:
 			if isinstance(scene_info, ExceptionMessage):
 				return scene_info
 
+			if instructions:
+				scene_info.command_1P = instructions[0].command.value
+				scene_info.command_2P = instructions[1].command.value
 			self._record_handler(scene_info)
 
 			# If either of side wins, print the game status and update the score

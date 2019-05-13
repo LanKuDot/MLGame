@@ -22,7 +22,7 @@ class SceneInfo:
 	@var status The status of the game. It will be the "value" (not "name")
 	     of one of the member of the GameStatus.
 	@var ball An (x, y) tuple. The position of the ball.
-	@var ball_speed An positive integer. The speed of the ball.
+	@var ball_speed A positive integer. The speed of the ball.
 	@var platform_1P An (x, y) tuple. The position of the platform of 1P
 	@var platform_2P An (x, y) tuple. The position of the platform of 2P
 	@var command_1P The command for platform_1P in this frame. It will be the "value"
@@ -40,8 +40,8 @@ class SceneInfo:
 
 		# These fields will be filled after receiving the instruction
 		# from the ml process
-		self.command_1P = None
-		self.command_2P = None
+		self.command_1P = "NONE"
+		self.command_2P = "NONE"
 
 	def __str__(self):
 		output_str = "# Frame {}\n".format(self.frame)

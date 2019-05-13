@@ -32,7 +32,7 @@ def execute(options, *game_params):
 	if options.manual_mode:
 		_manual_mode(options.fps, game_over_score, options.record_progress)
 	else:
-		_ml_mode(options.fps, game_over_score)
+		_ml_mode(options.fps, game_over_score, record_progress = options.record_progress)
 
 def _ml_mode(fps, game_over_score, \
 	input_script_1P = "ml_play_1P.py", input_script_2P = "ml_play_2P.py", \
@@ -123,19 +123,20 @@ def _start_ml_process(side, target_script, instruct_pipe, scene_info_pipe):
 		exc_msg = ExceptionMessage("{} ml".format(side), traceback.format_exc())
 		comm._instruct_pipe.send(exc_msg)
 
-def _start_display_process(main_pipe, record_process, game_over_score):
+def _start_display_process(main_pipe, record_progress, game_over_score):
 	"""
 	Start the process for displaying the game progress
 
 	@param main_pipe The pipe for receiving the scene info from the game process
-	@param record_process Whether to record the game progress or not
+	@param record_progress Whether to record the game progress or not
 	@param game_over_score The score which the game will stop if either of side
 	       reaches that score.
 	"""
 	from .game.pingpong_ml import Screen
 
 	try:
-		screen = Screen(main_pipe)
+		record_handler = _get_record_handler(record_progress)
+		screen = Screen(main_pipe, record_handler)
 		exception_msg = screen.draw_loop(game_over_score)
 	except Exception as e:
 		import traceback
@@ -157,4 +158,24 @@ def _manual_mode(fps, game_over_score, record_progress = False):
 	"""
 	from .game.pingpong import PingPong
 
-	PingPong().game_loop(fps, game_over_score)
+	record_handler = _get_record_handler(record_progress)
+	PingPong().game_loop(fps, game_over_score, record_handler)
+
+def _get_record_handler(record_progress: bool):
+	"""
+	Get the record handler for record the game progress
+
+	If the `record_progress` is False, it will return a dummy function
+	"""
+	if record_progress:
+		import os.path
+		log_dir_path = os.path.join(os.path.dirname(__file__), "log")
+
+		from essential.recorder import Recorder
+		from .game import gamecore
+		recorder = Recorder( \
+			(gamecore.GameStatus.GAME_1P_WIN, gamecore.GameStatus.GAME_2P_WIN), \
+			log_dir_path)
+		return recorder.record_scene_info
+	else:
+		return lambda x: None

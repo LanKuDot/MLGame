@@ -88,7 +88,7 @@ class Scene:
 			return (rect.x, rect.y)
 
 		scene_info_obj.frame = self._frame_count
-		scene_info_obj.status = self._game_status.name
+		scene_info_obj.status = self._game_status.value
 		scene_info_obj.ball = get_pivot_point(self._ball.rect)
 		scene_info_obj.ball_speed = abs(self._ball._speed[0])
 		scene_info_obj.platform_1P = get_pivot_point(self._platform_1P.rect)
