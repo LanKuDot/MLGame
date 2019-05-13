@@ -140,7 +140,10 @@ def _get_record_handler(record_progress: bool):
 	"""
 	if record_progress:
 		from essential.recorder import Recorder
-		recorder = Recorder(_get_log_dir_path())
+		from .game import gamecore
+		recorder = Recorder( \
+			(gamecore.GAME_OVER_MSG, gamecore.GAME_PASS_MSG), \
+			_get_log_dir_path())
 		return recorder.record_scene_info
 	else:
 		return lambda x: None
