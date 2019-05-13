@@ -1,14 +1,13 @@
 from essential.game_base import StringEnum
-from enum import auto
 
 class GameStatus(StringEnum):
-	GAME_1P_WIN = auto()
-	GAME_2P_WIN = auto()
-	GAME_ALIVE = auto()
+	GAME_1P_WIN = "GAME_1P_WIN"
+	GAME_2P_WIN = "GAME_2P_WIN"
+	GAME_ALIVE = "GAME_ALIVE"
 
 class PlatformAction(StringEnum):
-	READY = auto()
-	NONE = auto()
+	READY = "READY"
+	NONE = "NONE"
 	MOVE_LEFT = "LEFT"
 	MOVE_RIGHT = "RIGHT"
 

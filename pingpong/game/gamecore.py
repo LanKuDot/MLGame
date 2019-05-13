@@ -1,5 +1,4 @@
 import pygame
-from enum import auto
 from essential.game_base import StringEnum
 
 from .gameobject import (
@@ -11,9 +10,9 @@ color_1P = (84, 149, 255)	# Blue
 color_2P = (219, 70, 92)	# Red
 
 class GameStatus(StringEnum):
-	GAME_1P_WIN = auto()
-	GAME_2P_WIN = auto()
-	GAME_ALIVE = auto()
+	GAME_1P_WIN = "GAME_1P_WIN"
+	GAME_2P_WIN = "GAME_2P_WIN"
+	GAME_ALIVE = "GAME_ALIVE"
 
 class Scene:
 	def __init__(self, display_on_screen: bool, screen = None):
@@ -32,9 +31,9 @@ class Scene:
 
 		self._draw_group = pygame.sprite.RenderPlain()
 		self._ball = Ball(display_area_rect, self._draw_group)
-		self._platform_1P = Platform((85, 50), \
+		self._platform_1P = Platform((80, 50), \
 			display_area_rect, self._draw_group)
-		self._platform_2P = Platform((85, display_area_size[1] - 60), \
+		self._platform_2P = Platform((80, display_area_size[1] - 60), \
 			display_area_rect, self._draw_group)
 
 		if self._display_on_screen:

@@ -21,11 +21,6 @@ class GameABC(abc.ABC):
 		return NotImplemented
 
 class StringEnum(Enum):
-	def _generate_next_value_(name, start, count, last_values):
-		# Use the name of the enum as the enum value
-		# when use auto() to set the enum value.
-		return name
-
 	def __eq__(self, other):
 		if isinstance(other, StringEnum):
 			return super().__eq__(other)

@@ -1,4 +1,3 @@
-from enum import auto
 from essential import physics
 from essential.game_base import StringEnum
 
@@ -6,9 +5,9 @@ import pygame
 import random
 
 class PlatformMoveAction(StringEnum):
-	LEFT = auto()
-	RIGHT = auto()
-	NONE = auto()
+	LEFT = "LEFT"
+	RIGHT = "RIGHT"
+	NONE = "NONE"
 
 class Platform(pygame.sprite.Sprite):
 	def __init__(self, init_pos, play_area_rect: pygame.Rect, *groups):
