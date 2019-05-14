@@ -66,7 +66,7 @@ class PingPong:
 				gamecore.PlatformMoveAction[instruction_2P.command.value])
 			scene_info = scene.fill_scene_info_obj(SceneInfo())
 
-			# If either of side wins, reset the scene and wait for ml processes
+			# If either of two sides wins, reset the scene and wait for ml processes
 			# getting ready for the next round
 			if game_status == gamecore.GameStatus.GAME_1P_WIN or \
 			   game_status == gamecore.GameStatus.GAME_2P_WIN:
@@ -150,6 +150,7 @@ class Screen:
 	def __init__(self, scene_info_pipe: Connection, record_handler = lambda x: None):
 		self._scene_info_pipe = scene_info_pipe
 		self._record_handler = record_handler
+		self._delayed_frame = [0, 0]	# 1P, 2P
 
 		self._init_pygame()
 		self._create_surface()
@@ -206,14 +207,19 @@ class Screen:
 			if instructions:
 				scene_info.command_1P = instructions[0].command.value
 				scene_info.command_2P = instructions[1].command.value
+				self._check_delayed_frame(scene_info.frame, \
+					instructions[0].frame, instructions[1].frame)
 			self._record_handler(scene_info)
 
-			# If either of side wins, print the game status and update the score
+			# If either of two sides wins, print the game status and update the score
 			if scene_info.status == gamecore.GameStatus.GAME_1P_WIN or \
 			   scene_info.status == gamecore.GameStatus.GAME_2P_WIN:
 				print("Frame: {}, Status: {}" \
 					.format(scene_info.frame, scene_info.status))
 				print("-----")
+
+				# Reset delayed frame
+				self._delayed_frame = [0, 0]
 
 				# Update the score
 				if scene_info.status == gamecore.GameStatus.GAME_1P_WIN:
@@ -246,3 +252,15 @@ class Screen:
 		else:
 			print("2P wins!")
 		print("Final score: {}-{}".format(score[0], score[1]))
+
+	def _check_delayed_frame(self, scene_frame, command_frame_1P, command_frame_2P):
+		"""
+		Check if the received instruction is delayed. If yes, output the message.
+		"""
+		if scene_frame - command_frame_1P == self._delayed_frame[0] + 1:
+			self._delayed_frame[0] += 1
+			print("1P delayed {} frame(s)".format(self._delayed_frame[0]))
+
+		if scene_frame - command_frame_2P == self._delayed_frame[1] + 1:
+			self._delayed_frame[1] += 1
+			print("2P delayed {} frame(s)".format(self._delayed_frame[1]))
