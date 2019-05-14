@@ -82,6 +82,8 @@ class Ball(pygame.sprite.Sprite):
 		self._speed[1] += 1 if self._speed[1] > 0 else -1
 
 	def check_bouncing(self, platform_1p: Platform, platform_2p: Platform):
+		physics.bounce_in_box(self.rect, self._speed, self._play_area_rect)
+
 		# Check if the ball hits the platform or not
 		if physics.collide_or_tangent(self, platform_1p):
 			target_platform = platform_1p
@@ -90,9 +92,6 @@ class Ball(pygame.sprite.Sprite):
 		else:
 			target_platform = None
 
-		# Change the y speed of the ball accroding to the hit action of the platform
 		if target_platform:
 			physics.bounce_off_ip(self.rect, self._speed, \
 				target_platform.rect, target_platform._speed)
-
-		physics.bounce_in_box(self.rect, self._speed, self._play_area_rect)
