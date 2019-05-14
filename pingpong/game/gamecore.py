@@ -31,9 +31,9 @@ class Scene:
 
 		self._draw_group = pygame.sprite.RenderPlain()
 		self._ball = Ball(display_area_rect, self._draw_group)
-		self._platform_1P = Platform((80, 50), \
+		self._platform_1P = Platform((80, 70), \
 			display_area_rect, self._draw_group)
-		self._platform_2P = Platform((80, display_area_size[1] - 60), \
+		self._platform_2P = Platform((80, display_area_size[1] - 80), \
 			display_area_rect, self._draw_group)
 
 		if self._display_on_screen:

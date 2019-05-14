@@ -61,13 +61,13 @@ class Ball(pygame.sprite.Sprite):
 		Reset the ball status and serve the ball
 		"""
 		# Serving the ball
-		reset_pos_x = self._play_area_rect.width >> 1
-
 		if self._serve_from_1P:
+			reset_pos_x = 75
 			reset_pos_y = int(self._play_area_rect.height * 0.2)
 			self._speed = [7, 7]
 		else:
-			reset_pos_y = int(self._play_area_rect.height * 0.8)
+			reset_pos_x = 120
+			reset_pos_y = int(self._play_area_rect.height * 0.8 - self.rect.height)
 			self._speed = [-7, -7]
 
 		self.rect = pygame.Rect(reset_pos_x, reset_pos_y, *self._size)
