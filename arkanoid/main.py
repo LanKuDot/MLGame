@@ -1,12 +1,13 @@
-def execute(options, *game_params):
+def execute(options):
 	"""Start the game in the selected mode
 
+	An additional game parameter (stored in options.game_params)
+	for the game arkanoid is the level.
+
 	@param options The game options specified in the command line
-	@param game_params Additional game parameter. Only one parameter is needed
-	       for specifying the level of the game.
 	"""
 	try:
-		level = int(game_params[0])
+		level = int(options.game_params[0])
 		if level < 1:
 			raise ValueError
 	except IndexError:
@@ -19,10 +20,10 @@ def execute(options, *game_params):
 	if options.manual_mode:
 		_manual_mode(options.fps, level, options.record_progress)
 	else:
-		_ml_mode(options.fps, level, options.input_script, \
+		_ml_mode(options.fps, level, options.input_script[0], \
 			options.record_progress, options.one_shot_mode)
 
-def _ml_mode(fps, level, input_script = "ml_play.py", \
+def _ml_mode(fps, level, input_script = "ml_play_template.py", \
 	record_progress = False, one_shot_mode = False):
 	"""Start the game in the machine learning mode
 

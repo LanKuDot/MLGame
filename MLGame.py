@@ -1,36 +1,39 @@
-from optparse import OptionParser
+from argparse import ArgumentParser
 from _version import version
 import importlib
 
-def create_optparser():
-	usage_str = "python %prog [options] <game> [game_params]"
-	description_str = \
-		"\"game\" is the name of the game. " \
-		"\"game_params\" is an optional parameter (not needed " \
-		"by every game) to specify the additional setting for the game."
+def create_argparser():
+	usage_str = "python %(prog)s [options] <game> [game_params]"
+	description_str = "A platform for applying machine learning algorithm " \
+		"to play pixel games"
 
-	parser = OptionParser(usage = usage_str, description = description_str, \
-		version = version)
-	parser.add_option("-f", "--fps", \
-		action = "store", type = "int", dest = "fps", default = 30, \
-		help = "the updating rate of the game process [default: %default]")
-	parser.add_option("-m", "--manual", \
-		action = "store_true", dest = "manual_mode", default = False, \
+	parser = ArgumentParser(usage = usage_str, description = description_str)
+
+	parser.add_argument("game", type = str, nargs = 1, \
+		help = "the name of the game to be started")
+	parser.add_argument("game_params", nargs = '*', default = None, \
+		help = "the additional settings for the game")
+
+	parser.add_argument("--version", action = "version", version = version)
+	parser.add_argument("-f", "--fps", type = int, default = 30, \
+		help = "the updating frequency of the game process [default: %(default)s]")
+	parser.add_argument("-m", "--manual-mode", action = "store_true", default = False, \
 		help = "start the game in the manual mode instead of " \
-		"the machine learning mode [default: %default]")
-	parser.add_option("-r", "--record", \
-		action = "store_true", dest = "record_progress", default = False, \
-		help = "pickle the game progress (a list of scene info) to the log files "\
-		"[default: %default]")
-	parser.add_option("-1", "--one-shot", \
-		action = "store_true", dest = "one_shot_mode", default = False, \
-		help = "quit the game when the game is passed or over. " \
-		"Only supported in the ml mode. [default: %default]")
-	parser.add_option("-i", "--input-script", \
-		action = "store", type = "str", dest = "input_script", default = "ml_play.py", \
-		help = "specify the script used in the machine learning mode. " \
+		"the machine learning mode [default: %(default)s]")
+	parser.add_argument("-r", "--record", action = "store_true", \
+		dest = "record_progress", default = False, \
+		help = "pickle the game progress (a list of scene info) to the log file " \
+		"[default: %(default)s]")
+	parser.add_argument("-1", "--one-shot", action = "store_true", \
+		dest = "one_shot_mode", default = False, \
+		help = "quit the game when the game is passed or is over. " \
+		"Only supported in the machine learning mode. [default: %(default)s]")
+	# TODO: Set the default script to the ml_play_template.py
+	parser.add_argument("-i", "--input-script", type = str, nargs = '+', \
+		default = ["ml_play.py"], metavar = "SCRIPT", \
+		help = "specify the script(s) used in the machine learning mode. " \
 		"The script must have function `ml_loop()` and " \
-		"be put in the <game>/ml directory. [default: %default]")
+		"be put in the <game>/ml/ directory. [default: %(default)s]")
 
 	return parser
 
@@ -43,26 +46,26 @@ def has_ml_script(game_name: str, script_name: str):
 	return os.path.exists(ml_script_path)
 
 if __name__ == "__main__":
-	optparser = create_optparser()
-	(options, args) = optparser.parse_args()
+	parser = create_argparser()
+	options = parser.parse_args()
 
 	try:
-		game_name = args[0].lower()
-		game_params = args[1:]
+		game_name = options.game[0]
 		game = importlib.import_module("{}.main".format(game_name))
 
-		if not options.manual_mode and \
-		   not has_ml_script(game_name, options.input_script):
-			raise FileNotFoundError
+		if not options.manual_mode:
+			for script in options.input_script:
+				if not has_ml_script(game_name, script):
+					raise FileNotFoundError(script)
 
 	except IndexError:
 		print("Error: <game> is not specified. Use -h to see help.")
 		print(optparser.get_usage()[:-1])
 	except ModuleNotFoundError:
 		print("Error: Game \"{}\" is not found.".format(game_name))
-	except FileNotFoundError:
+	except FileNotFoundError as e:
 		print("Error: The script \"{}/ml/{}\" is not provided. " \
 			"Cannot start the machine learning mode." \
-			.format(game_name, options.input_script))
+			.format(game_name, e.args[0]))
 	else:
-		game.execute(options, *game_params)
+		game.execute(options)
