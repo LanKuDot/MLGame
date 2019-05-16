@@ -22,18 +22,20 @@ def create_argparser():
 		"the machine learning mode [default: %(default)s]")
 	parser.add_argument("-r", "--record", action = "store_true", \
 		dest = "record_progress", default = False, \
-		help = "pickle the game progress (a list of scene info) to the log file " \
+		help = "pickle the game progress (a list of SceneInfo) to the log file. " \
+		"One file for a round, and stored in \"<game>/log/\" directory. " \
 		"[default: %(default)s]")
 	parser.add_argument("-1", "--one-shot", action = "store_true", \
 		dest = "one_shot_mode", default = False, \
 		help = "quit the game when the game is passed or is over. " \
+		"Otherwise, the game will restart automatically. " \
 		"Only supported in the machine learning mode. [default: %(default)s]")
 	# TODO: Set the default script to the ml_play_template.py
 	parser.add_argument("-i", "--input-script", type = str, nargs = '+', \
 		default = ["ml_play.py"], metavar = "SCRIPT", \
 		help = "specify the script(s) used in the machine learning mode. " \
 		"The script must have function `ml_loop()` and " \
-		"be put in the <game>/ml/ directory. [default: %(default)s]")
+		"be put in the \"<game>/ml/\" directory. [default: %(default)s]")
 
 	return parser
 
