@@ -21,10 +21,23 @@ def execute(options):
 	if options.manual_mode:
 		_manual_mode(options.fps, game_over_score, options.record_progress)
 	else:
-		_ml_mode(options.fps, game_over_score, record_progress = options.record_progress)
+		script_1P, script_2P = get_scripts_name(options.input_script)
+		_ml_mode(options.fps, game_over_score, \
+			script_1P, script_2P, options.record_progress)
+
+def get_scripts_name(input_scripts):
+	"""
+	Get the name of scripts for each side.
+
+	@param input_scripts A list of input scripts
+	"""
+	if len(input_scripts) == 1:
+		return input_scripts[0], input_scripts[0]
+
+	return input_scripts[0], input_scripts[1]
 
 def _ml_mode(fps, game_over_score, \
-	input_script_1P = "ml_play_1P.py", input_script_2P = "ml_play_2P.py", \
+	input_script_1P = "ml_play_template.py", input_script_2P = "ml_play_template.py", \
 	record_progress = False):
 	"""
 	Start the gane in the machine learning mode
@@ -105,7 +118,7 @@ def _start_ml_process(side, target_script, instruct_pipe, scene_info_pipe):
 
 		import importlib
 		ml = importlib.import_module(".ml.{}".format(script_name), __package__)
-		ml.ml_loop()
+		ml.ml_loop(side)
 	except Exception as e:
 		import traceback
 		from essential.exception import ExceptionMessage

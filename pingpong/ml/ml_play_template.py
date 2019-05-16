@@ -8,7 +8,22 @@ from pingpong.communication import (
 	SceneInfo, GameInstruction, GameStatus, PlatformAction
 )
 
-def ml_loop():
+def ml_loop(side: str):
+	"""
+	The main loop for the machine learning process
+
+	The `side` parameter can be used for switch the code for either of both sides,
+	so you can write the code for both sides in the same script. Such as:
+	```python
+	if side == "1P":
+		ml_loop_for_1P()
+	else:
+		ml_loop_for_2P()
+	```
+
+	@param side The side which this script is executed for. Either "1P" or "2P".
+	"""
+
 	# === Here is the execution order of the loop === #
 	# 1. Put the initialization code here
 

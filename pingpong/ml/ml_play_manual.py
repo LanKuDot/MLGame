@@ -19,10 +19,11 @@ def init_pygame():
 	pygame.display.set_mode((300, 100))
 	pygame.display.set_caption("Invisible joysitck")
 
-def ml_loop():
+def ml_loop(side: str):
 	init_pygame()
 
-	print("Invisible joystick is used. Press Enter to start the ml process.")
+	print("Invisible joystick is used. " \
+		"Press Enter to start the {} ml process.".format(side))
 	while wait_enter_key():
 		pass
 
