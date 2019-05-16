@@ -1,33 +1,22 @@
-def execute(options, *game_params):
+def execute(options):
 	"""
 	Start the game in the selected mode
 
+	An additional game parameter (stored in options.game_params)
+	for the game pingpong is the game over score.
+
 	@param options The game options
-	@param game_params Additional game parameters. There are two paramters is used,
-	       one is the score of game over,
-	       the other is the manual side in the ml mode [Optional].
 	"""
 	try:
-		game_over_score = int(game_params[0])
+		game_over_score = int(options.game_params[0])
 		if game_over_score < 1:
 			raise ValueError
-
-		game_params[1].upper()
-		if game_params[1] == "1P" or game_params[1] == "2P":
-			manual_side = game_params[1]
-		else:
-			raise IndexError
 	except IndexError:
-		if len(game_params) == 0:
-			print("The game over score is not specified.")
-			print("Usage: pingpong <game_over_score> [manual_side]")
-			return
-		else:
-			print("The manual side is not specified or is invalid. Set to None.")
-			manual_side = None
+		print("Gameover score is not specified. Set to 3.")
+		game_over_score = 3
 	except ValueError:
-		print("Invalid game over score. Should be a positive integer.")
-		return
+		print("Invalid game over score. Set to 3.")
+		game_over_score = 3
 
 	if options.manual_mode:
 		_manual_mode(options.fps, game_over_score, options.record_progress)
