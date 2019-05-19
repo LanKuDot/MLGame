@@ -1,6 +1,8 @@
 # MLGame
 
-The platform for applying maching learning algorithm to play pixel games
+A platform for applying machine learning algorithm to play pixel games
+
+MLGame separates the machine learning part from the game core, which makes users easily apply codes to play the game.
 
 ## Requirements
 
@@ -10,7 +12,7 @@ The platform for applying maching learning algorithm to play pixel games
 
 ## Usage
 
-```bash
+```
 $ python MLGame.py [options] <game> [game_params]
 ```
 
@@ -28,19 +30,19 @@ Use `python MLGame.py -h` for more information.
 For example:
 
 * Play the game arkanoid level 3 in manual mode with 45 fps
-  ```bash
-  python MLGame.py -m -f 45 arkanoid 3
+  ```
+  $ python MLGame.py -m -f 45 arkanoid 3
   ```
 
 * Play the game arkanoid level 2, record the game progress, and specify the script ml_play_template.py
 
-  ```bash
-  python MLGame.py -r -i ml_play_template.py arkanoid 2
+  ```
+  $ python MLGame.py -r -i ml_play_template.py arkanoid 2
   ```
 
 ## Machine Learning Mode
 
-If `-m` flag is not specified, the game will execute in the machine learning mode. In the machine learning mode, the main process will generate two new processes, one is for executing the machine learning code (called ml process), the other is for executing the game core (called game process). They use pipes to communicate with each other.
+If `-m` flag is **not** specified, the game will execute in the machine learning mode. In the machine learning mode, the main process will generate two new processes, one is for executing the machine learning code (called ml process), the other is for executing the game core (called game process). They use pipes to communicate with each other.
 
 ![](https://i.imgur.com/Wlai4Bh.png)
 
