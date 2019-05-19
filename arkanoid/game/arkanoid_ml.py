@@ -214,7 +214,8 @@ class TransitionServer:
 	def _send_scene_info(self, scene_info: SceneInfo, instruction: GameInstruction):
 		"""Send the scene info to the message server
 		"""
-		if instruction and instruction.frame == -1:
+		if instruction and \
+		   scene_info.frame - instruction.frame == self._delay_frame + 1:
 			self._delay_frame += 1
 
 		scene_info_dict = {
