@@ -101,8 +101,9 @@ def _start_ml_process(target_script, instruct_pipe, scene_info_pipe):
 		ml.ml_loop()
 	except Exception as e:
 		import traceback
-		from essential.exception import ExceptionMessage
-		exc_msg = ExceptionMessage("ml", traceback.format_exc())
+		from essential.exception import ExceptionMessage, trim_callstack
+		trimmed_callstack = trim_callstack(traceback.format_exc(), target_script)
+		exc_msg = ExceptionMessage("ml", trimmed_callstack)
 		comm._instruct_pipe.send(exc_msg)
 
 def _start_display_process(main_pipe, record_progress, one_shot_mode):
