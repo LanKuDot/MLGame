@@ -56,8 +56,7 @@ class PingPong:
 
 			self._clock.tick_busy_loop(fps)
 
-			instruction_1P = self._recv_instruction("1P")
-			instruction_2P = self._recv_instruction("2P")
+			instruction_1P, instruction_2P = self._recv_instruction()
 			self._main_pipe.send((scene_info, (instruction_1P, instruction_2P)))
 
 			# Update the scene
@@ -87,41 +86,38 @@ class PingPong:
 		self._ml_pipes["1P"].send_end.send(scene_info)
 		self._ml_pipes["2P"].send_end.send(scene_info)
 
-	def _recv_instruction(self, from_side: str) -> GameInstruction:
+	def _recv_instruction(self):
 		"""
-		Get the GameInstruction from the target pipe
+		Get the GameInstruction from both ml processes
 
 		This function is non-blocking. If there is nothing available in the pipe,
 		it will return a dummy GameInstruction.
-
-		@param from_side Should be either "1P" or "2P".
 		"""
-		# Only "1P" or "2P" is the valid side.
-		if from_side in ("1P", "2P"):
-			target_pipe = self._ml_pipes[from_side].recv_end
-		else:
-			raise ValueError("Invalid from_side: {}. " \
-				"Should be either \"1P\" or \"2P\".".format(from_side))
+		def recv_instruction_from_pipe(target_pipe: Connection):
+			if target_pipe.poll():
+				instruction = target_pipe.recv()
 
-		if target_pipe.poll():
-			instruction = target_pipe.recv()
+				# Pass the exception to the main process
+				if isinstance(instruction, ExceptionMessage):
+					self._main_pipe.send((instruction, None))
 
-			# Pass the exception to the main process
-			if isinstance(instruction, ExceptionMessage):
-				self._main_pipe.send((instruction, None))
+				# Invalid instruction object
+				if not isinstance(instruction, GameInstruction):
+					return GameInstruction(-1, comm.PlatformAction.NONE)
 
-			# Invalid instruction object
-			if not isinstance(instruction, GameInstruction):
+				# Invalid PlatformAction instruction
+				if instruction.command != comm.PlatformAction.MOVE_LEFT and \
+				   instruction.command != comm.PlatformAction.MOVE_RIGHT:
+					instruction.command = comm.PlatformAction.NONE
+
+				return instruction
+			else:
 				return GameInstruction(-1, comm.PlatformAction.NONE)
 
-			# Invalid PlatformAction instruction
-			if instruction.command != comm.PlatformAction.MOVE_LEFT and \
-			   instruction.command != comm.PlatformAction.MOVE_RIGHT:
-				instruction.command = comm.PlatformAction.NONE
-		else:
-			return GameInstruction(-1, comm.PlatformAction.NONE)
+		instruction_1P = recv_instruction_from_pipe(self._ml_pipes["1P"].recv_end)
+		instruction_2P = recv_instruction_from_pipe(self._ml_pipes["2P"].recv_end)
 
-		return instruction
+		return instruction_1P, instruction_2P
 
 	def _wait_ml_process_ready(self):
 		"""
