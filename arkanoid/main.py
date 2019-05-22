@@ -115,13 +115,18 @@ def _start_display_process(main_pipe, record_progress, one_shot_mode):
 	"""
 	from .game.arkanoid_ml import Screen
 	
-	screen = Screen()
-	record_handler = _get_record_handler(record_progress)
-	exception_msg = screen.draw_loop(main_pipe, record_handler, one_shot_mode)
-
-	if exception_msg is not None:
-		print("Exception occurred in the {} process:".format(exception_msg.process_name))
-		print(exception_msg.exc_msg)
+	try:
+		screen = Screen()
+		record_handler = _get_record_handler(record_progress)
+		exception_msg = screen.draw_loop(main_pipe, record_handler, one_shot_mode)
+	except Exception as e:
+		import traceback
+		print(traceback.format_exc())
+	else:
+		if exception_msg is not None:
+			print("Exception occurred in the {} process:" \
+				.format(exception_msg.process_name))
+			print(exception_msg.exc_msg)
 
 def _manual_mode(fps, level, record_progress = False):
 	"""Play the game as a normal game
