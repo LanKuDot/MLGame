@@ -20,9 +20,23 @@ class Platform(pygame.sprite.Sprite):
 
 		self.rect = self._init_pos.copy()
 
-	def create_surface(self, color):
+	def create_surface(self, side, color):
 		self.image = pygame.Surface((self.rect.width, self.rect.height))
-		self.image.fill(color)
+
+		# Draw the plarform image
+		platform_image = pygame.Surface((self.rect.width, 10))
+		platform_image.fill(color)
+		# 1P is at the bottom of the platform rect
+		if side == "1P":
+			self.image.blit(platform_image, (0, self.image.get_height() - 10))
+		# 2P is at the top of the platform rect
+		else:
+			self.image.blit(platform_image, (0, 0))
+
+		# Draw the outline of the platform rect
+		pygame.draw.rect(self.image, color, \
+			pygame.Rect(0, 0, self.rect.width, self.rect.height), 1)
+
 		self.image.convert()
 
 	def reset(self):

@@ -40,8 +40,8 @@ class Scene:
 			self._background = pygame.Surface(display_area_size)
 			self._background.fill((0, 0, 0))
 			self._ball.create_surface()
-			self._platform_1P.create_surface(color_1P)
-			self._platform_2P.create_surface(color_2P)
+			self._platform_1P.create_surface("1P", color_1P)
+			self._platform_2P.create_surface("2P", color_2P)
 
 	def reset(self):
 		self._frame_count = 0
