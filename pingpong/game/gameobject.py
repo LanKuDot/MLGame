@@ -16,7 +16,7 @@ class Platform(pygame.sprite.Sprite):
 		self._play_area_rect = play_area_rect
 		self._shift_speed = 5
 		self._speed = [0, 0]
-		self._init_pos = pygame.Rect(*init_pos, 40, 10)
+		self._init_pos = pygame.Rect(*init_pos, 40, 30)
 
 		self.rect = self._init_pos.copy()
 
