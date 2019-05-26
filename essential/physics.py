@@ -5,6 +5,18 @@ The helper functions for physics
 from pygame import Rect
 from pygame.sprite import Sprite
 
+from collections import namedtuple
+
+# ====== Data structure ======
+class Vector2D(namedtuple("Vector2D", ["x", "y"])):
+	__slots__ = ()
+
+	def __add__(self, other):
+		return Vector2D(self.x + other.x, self.y + other.y)
+
+	def __sub__(self, other):
+		return Vector2D(self.x - other.x, self.y - other.y)
+
 def collide_or_tangent(sprite_a: Sprite, sprite_b: Sprite) -> bool:
 	"""
 	Check if two sprites are colliding or targent
@@ -17,6 +29,76 @@ def collide_or_tangent(sprite_a: Sprite, sprite_b: Sprite) -> bool:
 	   rect_a.top <= rect_b.bottom and \
 	   rect_a.bottom >= rect_b.top:
 		return True
+	return False
+
+def line_intersect(line_a, line_b) -> bool:
+	"""
+	Check if two line segments intersect
+
+	@param line_a A tuple (Vector2D, Vector2D) representing both end points
+	       of line segment
+	@param line_b Same as `line_a`
+	"""
+	# line_a and line_b have the same end point
+	if line_a[0] == line_b[0] or \
+	   line_a[1] == line_b[0] or \
+	   line_a[0] == line_b[1] or \
+	   line_a[1] == line_b[1]:
+		return True
+
+	# Set line_a to (u0, u0 + v0) and p0 = u0 + s * v0, and
+	# set line_b to (u1, u1 + v1) and p1 = u1 + t * v1,
+	# where u, v, p are vectors and s, t is in [0, 1].
+	# If line_a and line_b intersects, then p0 = p1
+	# -> u0 - u1 = -s * v0 + t * v1
+	# -> | u0.x - u1.x |   | v0.x  v1.x | |-s |
+	#    | u0.y - u1.y | = | v0.y  v1.y | | t |
+	#
+	# If left-hand vector is a zero vector, then two line segments has the same end point.
+	# If the right-hand matrix is not invertible, then two line segments are parallel.
+	# If none of above conditions is matched, find the solution of s and t,
+	# if both s and t are in [0, 1], then two line segments intersect.
+
+	v0 = line_a[1] - line_a[0]
+	v1 = line_b[1] - line_b[0]
+	det = v0.x * v1.y - v0.y * v1.x
+	# Two line segments are parallel
+	if det == 0:
+		# TODO Determine if two lines overlap
+		return False
+
+	du = line_a[0] - line_b[0]
+	s_det = v1.x * du.y - v1.y * du.x
+	t_det = v0.x * du.y - v0.y * du.x
+
+	if (det > 0 and 0 <= s_det <= det and 0 <= t_det <= det) or \
+	   (det < 0 and det <= s_det <= 0 and det <= t_det <= 0):
+		return True
+
+	return False
+
+def rect_collideline(rect: Rect, line) -> bool:
+	"""
+	Check if line segment intersects with a rect
+
+	@param rect The Rect of the target rectangle
+	@param line A tuple (Vector2D, Vector2D) representing both end points
+	       of line segment
+	"""
+	line_top = (Vector2D(rect.left, rect.top), Vector2D(rect.right, rect.top))
+	line_bottom = (Vector2D(rect.left, rect.bottom), Vector2D(rect.right, rect.bottom))
+	line_left = (Vector2D(rect.left, rect.top), Vector2D(rect.left, rect.bottom))
+	line_right = (Vector2D(rect.right, rect.top), Vector2D(rect.right, rect.bottom))
+
+	intersect_num = 0
+	if line_intersect(line_top, line):    intersect_num += 1
+	if line_intersect(line_bottom, line): intersect_num += 1
+	if line_intersect(line_left, line):   intersect_num += 1
+	if line_intersect(line_right, line):  intersect_num += 1
+
+	if intersect_num >= 2:
+		return True
+	
 	return False
 
 def bounce_off_ip(bounce_obj_rect: Rect, bounce_obj_speed, \
