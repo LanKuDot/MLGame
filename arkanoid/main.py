@@ -18,7 +18,7 @@ def execute(options):
 		level = 1
 
 	if options.online_channel:
-		_ml_mode(options.fps, level, options.input_script, \
+		_ml_mode(options.fps, level, options.input_script[0], \
 			online_channel = options.online_channel)
 	elif options.manual_mode:
 		_manual_mode(options.fps, level, options.record_progress)
@@ -27,7 +27,7 @@ def execute(options):
 			options.record_progress, options.one_shot_mode)
 
 def _ml_mode(fps, level, input_script = "ml_play_template.py", \
-	record_progress = False, one_shot_mode = False):
+	record_progress = False, one_shot_mode = False, online_channel = None):
 	"""Start the game in the machine learning mode
 
 	Create a game and a machine learning processes, and pipes for communicating.
@@ -44,7 +44,7 @@ def _ml_mode(fps, level, input_script = "ml_play_template.py", \
 	@param input_script Specify the script for the ml process
 	@param record_progress Specify whether to record the game progress or not
 	@param one_shot_mode Specify whether to run the game only once or not
-	@param online_mode Specify the channel name of the remote server
+	@param online_channel Specify the channel name of the remote server
 	"""
 
 	from multiprocessing import Process, Pipe
