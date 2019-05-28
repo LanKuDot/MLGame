@@ -167,9 +167,9 @@ class Screen:
 		ball_sprite = gameobject.Ball((0, 0))
 		ball_sprite.create_surface()
 		platform_1P_sprite = gameobject.Platform((0, 0), (0, 0))
-		platform_1P_sprite.create_surface(gamecore.color_1P)
+		platform_1P_sprite.create_surface("1P", gamecore.color_1P)
 		platform_2P_sprite = gameobject.Platform((0, 0), (0, 0))
-		platform_2P_sprite.create_surface(gamecore.color_2P)
+		platform_2P_sprite.create_surface("2P", gamecore.color_2P)
 
 		self._ball_surface = ball_sprite.image
 		self._platform_1P_surface = platform_1P_sprite.image
