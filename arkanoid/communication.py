@@ -53,6 +53,13 @@ class GameInstruction:
 	CMD_NONE = ""
 
 	def __init__(self, frame: int, command: str):
+		# Check the type of the arguments
+		if not isinstance(frame, int):
+			raise TypeError("Invalid type of 'frame' for 'GameInstruction'." \
+				" Type 'int' is needed, but '{}' is given." \
+				.format(type(frame).__name__))
+		# TODO: Check the type or the content of the command
+
 		self.frame = frame
 		self.command = command
 
