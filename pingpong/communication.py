@@ -66,6 +66,16 @@ class GameInstruction:
 		@var command The command for controlling the platform. It will be one
 		     of the PlatformAction.
 		"""
+		# Check the type of the arguments
+		if not isinstance(frame, int):
+			raise TypeError("Invalid type of 'frame' for 'GameInstruction'." \
+				" Type 'int' is needed, but '{}' is given." \
+				.format(type(frame).__name__))
+		if not isinstance(command, PlatformAction):
+			raise TypeError("Invalid type of 'command' for 'GameInstruction'." \
+				" Type 'PlatformAction' is needed, but '{}' is given." \
+				.format(type(command).__name__))
+
 		self.frame = frame
 		self.command = command
 
