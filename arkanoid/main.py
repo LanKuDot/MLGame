@@ -1,12 +1,13 @@
-def execute(options, *game_params):
+def execute(options):
 	"""Start the game in the selected mode
 
+	An additional game parameter (stored in options.game_params)
+	for the game arkanoid is the level.
+
 	@param options The game options specified in the command line
-	@param game_params Additional game parameter. Only one parameter is needed
-	       for specifying the level of the game.
 	"""
 	try:
-		level = int(game_params[0])
+		level = int(options.game_params[0])
 		if level < 1:
 			raise ValueError
 	except IndexError:
@@ -22,11 +23,11 @@ def execute(options, *game_params):
 	elif options.manual_mode:
 		_manual_mode(options.fps, level, options.record_progress)
 	else:
-		_ml_mode(options.fps, level, options.input_script, \
+		_ml_mode(options.fps, level, options.input_script[0], \
 			options.record_progress, options.one_shot_mode)
 
-def _ml_mode(fps, level, input_script = "ml_play.py", \
-	record_progress = False, one_shot_mode = False, online_channel = None):
+def _ml_mode(fps, level, input_script = "ml_play_template.py", \
+	record_progress = False, one_shot_mode = False):
 	"""Start the game in the machine learning mode
 
 	Create a game and a machine learning processes, and pipes for communicating.
@@ -109,8 +110,9 @@ def _start_ml_process(target_script, instruct_pipe, scene_info_pipe):
 		ml.ml_loop()
 	except Exception as e:
 		import traceback
-		from essential.exception import ExceptionMessage
-		exc_msg = ExceptionMessage("ml", traceback.format_exc())
+		from essential.exception import ExceptionMessage, trim_callstack
+		trimmed_callstack = trim_callstack(traceback.format_exc(), target_script)
+		exc_msg = ExceptionMessage("ml", trimmed_callstack)
 		comm._instruct_pipe.send(exc_msg)
 
 def _start_display_process(main_pipe, record_progress, one_shot_mode):
@@ -122,13 +124,18 @@ def _start_display_process(main_pipe, record_progress, one_shot_mode):
 	"""
 	from .game.arkanoid_ml import Screen
 	
-	screen = Screen()
-	record_handler = _get_record_handler(record_progress)
-	exception_msg = screen.draw_loop(main_pipe, record_handler, one_shot_mode)
-
-	if exception_msg is not None:
-		print("Exception occurred in the {} process:".format(exception_msg.process_name))
-		print(exception_msg.exc_msg)
+	try:
+		screen = Screen()
+		record_handler = _get_record_handler(record_progress)
+		exception_msg = screen.draw_loop(main_pipe, record_handler, one_shot_mode)
+	except Exception as e:
+		import traceback
+		print(traceback.format_exc())
+	else:
+		if exception_msg is not None:
+			print("Exception occurred in the {} process:" \
+				.format(exception_msg.process_name))
+			print(exception_msg.exc_msg)
 
 def _start_transition_process(main_pipe, channel_name: str):
 	"""Start the transition process for pass the scene info to the remote server
@@ -168,7 +175,10 @@ def _get_record_handler(record_progress: bool):
 	"""
 	if record_progress:
 		from essential.recorder import Recorder
-		recorder = Recorder(_get_log_dir_path())
+		from .game import gamecore
+		recorder = Recorder( \
+			(gamecore.GAME_OVER_MSG, gamecore.GAME_PASS_MSG), \
+			_get_log_dir_path())
 		return recorder.record_scene_info
 	else:
 		return lambda x: None

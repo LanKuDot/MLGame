@@ -78,14 +78,14 @@ class Scene:
 		self._platform.move(move_action)
 
 		self._ball.check_hit_brick(self._group_brick)
-		is_alive = self._ball.check_bouncing(self._platform)
+		self._ball.check_bouncing(self._platform)
 
 		if len(self._group_brick) == 0:
 			self._game_status = GAME_PASS_MSG
-		elif is_alive:
-			self._game_status = GAME_ALIVE_MSG
-		else:
+		elif self._ball.rect.top >= self._platform.rect.bottom:
 			self._game_status = GAME_OVER_MSG
+		else:
+			self._game_status = GAME_ALIVE_MSG
 
 		return self._game_status
 
