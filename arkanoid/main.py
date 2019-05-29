@@ -154,14 +154,15 @@ def _start_transition_process(main_pipe, server_ip, server_port, channel_name):
 	@param channel_name The name of the channel of remote server
 	       for sending the scene info.
 	"""
-	# TODO Merge the recorder creation code to the master bracnch
 	import os.path
-	ml_dir_path = os.path.join(os.path.dirname(__file__), "ml")
-
 	from essential.recorder import Recorder
-	recorder = Recorder(ml_dir_path, "log.pickle_log")
-
 	from .game.arkanoid_ml import TransitionServer
+	from .game import gamecore
+
+	# TODO Merge the recorder creation code to the master bracnch
+	ml_dir_path = os.path.join(os.path.dirname(__file__), "ml")
+	recorder = Recorder((gamecore.GAME_PASS_MSG, gamecore.GAME_OVER_MSG), \
+		ml_dir_path, "log.pickle_log")
 
 	try:
 		transition_server = TransitionServer(server_ip, server_port, channel_name)
