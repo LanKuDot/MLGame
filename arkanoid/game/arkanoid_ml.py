@@ -3,7 +3,7 @@ from multiprocessing.connection import Connection
 
 from essential.game_base import GameABC
 from essential.exception import ExceptionMessage
-from essential.online.transition import RedisTransition
+from essential.online import MessageServer
 
 from . import gamecore, gameobject
 from ..communication import GameInstruction, SceneInfo
@@ -182,13 +182,15 @@ class Screen:
 class TransitionServer:
 	"""Pass the scene info received to the message server
 	"""
-	def __init__(self, channel_name):
+	def __init__(self, server_ip, server_port, channel_name):
 		"""Contstructor
 
+		@param server_ip The ip of the remote server
+		@param server_port The port of the remote server
 		@param channel_name The name of the channel of remote server for sending
 		       the message.
 		"""
-		self._message_server = RedisTransition(channel_name)
+		self._message_server = MessageServer(server_ip, server_port, channel_name)
 		self._delay_frame = 0
 
 	def transition_loop(self, scene_info_pipe: Connection, record_handler = None):

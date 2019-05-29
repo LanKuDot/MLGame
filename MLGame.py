@@ -36,8 +36,10 @@ def create_argparser():
 		help = "specify the script(s) used in the machine learning mode. " \
 		"The script must have function `ml_loop()` and " \
 		"be put in the \"<game>/ml/\" directory. [default: %(default)s]")
-	parser.add_argument("--online-channel", type = str, default = None, \
-		help = "specify the channel name of remote server and " \
+	parser.add_argument("--online-channel", type = str, \
+		default = None, metavar = "SERVER_INFO", \
+		help = "specify the remote server and the channel name with the format " \
+		"\"<server_ip>:<server_port>:<channel_name>\", and " \
 		"start the game in the online mode [default : %(default)s]")
 
 	return parser

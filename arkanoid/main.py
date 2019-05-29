@@ -18,8 +18,16 @@ def execute(options):
 		level = 1
 
 	if options.online_channel:
-		_ml_mode(options.fps, level, options.input_script[0], \
-			online_channel = options.online_channel)
+		try:
+			server_info = options.online_channel.split(":")
+			if len(server_info) != 3:
+				raise ValueError
+		except ValueError:
+			print("Invalid SERVER_INFO format. Must be " \
+				"\"<server_ip>:<server_port>:<channel_nane>\".")
+		else:
+			_ml_mode(options.fps, level, options.input_script[0], \
+				server_info = server_info)
 	elif options.manual_mode:
 		_manual_mode(options.fps, level, options.record_progress)
 	else:
@@ -27,13 +35,13 @@ def execute(options):
 			options.record_progress, options.one_shot_mode)
 
 def _ml_mode(fps, level, input_script = "ml_play_template.py", \
-	record_progress = False, one_shot_mode = False, online_channel = None):
+	record_progress = False, one_shot_mode = False, server_info = None):
 	"""Start the game in the machine learning mode
 
 	Create a game and a machine learning processes, and pipes for communicating.
 	The main process is the drawing process, which will draw the game progress
 	accroding to the information sent from the game process.
-	If the `online_mode` is True, the main process will be the transition process,
+	If the `server_info` is not None, the main process will be the transition process,
 	which will pass the game progress to the remote server.
 
 	After quit from the drawing loop,
@@ -44,7 +52,7 @@ def _ml_mode(fps, level, input_script = "ml_play_template.py", \
 	@param input_script Specify the script for the ml process
 	@param record_progress Specify whether to record the game progress or not
 	@param one_shot_mode Specify whether to run the game only once or not
-	@param online_channel Specify the channel name of the remote server
+	@param server_info Specify a list [server_ip, server_port, channel_name]
 	"""
 
 	from multiprocessing import Process, Pipe
@@ -61,8 +69,8 @@ def _ml_mode(fps, level, input_script = "ml_play_template.py", \
 	ml_process.start()
 	game_process.start()
 
-	if online_channel:
-		_start_transition_process(main_pipe_r, online_channel)
+	if server_info:
+		_start_transition_process(main_pipe_r, *server_info)
 	else:
 		_start_display_process(main_pipe_r, record_progress, one_shot_mode)
 
@@ -137,12 +145,14 @@ def _start_display_process(main_pipe, record_progress, one_shot_mode):
 				.format(exception_msg.process_name))
 			print(exception_msg.exc_msg)
 
-def _start_transition_process(main_pipe, channel_name: str):
+def _start_transition_process(main_pipe, server_ip, server_port, channel_name):
 	"""Start the transition process for pass the scene info to the remote server
 
 	@param main_pipe The pipe for receving the scene info sent from the game process
+	@param server_ip The ip of the remote server
+	@param server_port The port of the remote server
 	@param channel_name The name of the channel of remote server
-	       to send the scene info.
+	       for sending the scene info.
 	"""
 	# TODO Merge the recorder creation code to the master bracnch
 	import os.path
@@ -153,8 +163,13 @@ def _start_transition_process(main_pipe, channel_name: str):
 
 	from .game.arkanoid_ml import TransitionServer
 
-	transition_server = TransitionServer(channel_name)
-	transition_server.transition_loop(main_pipe, recorder.record_scene_info)
+	try:
+		transition_server = TransitionServer(server_ip, server_port, channel_name)
+		transition_server.transition_loop(main_pipe, recorder.record_scene_info)
+	except Exception as e:
+		import traceback
+		print("Exception occurred in the transition process:")
+		print(traceback.format_exc())
 
 def _manual_mode(fps, level, record_progress = False):
 	"""Play the game as a normal game
