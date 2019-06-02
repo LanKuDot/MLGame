@@ -24,7 +24,7 @@ class Platform(pygame.sprite.Sprite):
 	def create_surface(self, side, color):
 		self.image = pygame.Surface((self.rect.width, self.rect.height))
 
-		# Draw the plarform image
+		# Draw the platform image
 		platform_image = pygame.Surface((self.rect.width, 10))
 		platform_image.fill(color)
 		# 1P is at the bottom of the platform rect

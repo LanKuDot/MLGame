@@ -81,7 +81,7 @@ class Scene:
 
 	def fill_scene_info_obj(self, scene_info_obj):
 		"""
-		Fill the inforamtion of the scene to the `scene_info_obj`
+		Fill the information of the scene to the `scene_info_obj`
 		"""
 		def get_pivot_point(rect):
 			return (rect.x, rect.y)

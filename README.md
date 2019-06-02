@@ -16,7 +16,7 @@ MLGame separates the machine learning part from the game core, which makes users
 $ python MLGame.py [options] <game> [game_params]
 ```
 
-* `game`: The name of the game to be started. Avaliable games are "arkanoid" and "pingpong"
+* `game`: The name of the game to be started. Available games are "arkanoid" and "pingpong"
 * `game_params`: The additional parameters for the game.
 * `options`:
   * `-f FPS`: Specify the updating frequency of the game

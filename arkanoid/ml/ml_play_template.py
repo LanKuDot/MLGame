@@ -7,10 +7,10 @@ from arkanoid.communication import SceneInfo, GameInstruction
 def ml_loop():
 	"""The main loop of the machine learning process
 
-	This loop is run in a seperate process, and communicates with the game process.
+	This loop is run in a separate process, and communicates with the game process.
 
 	Note that the game process won't wait for the ml process to generate the
-	GameInstrcution. It is possible that the frame of the GameInstruction
+	GameInstruction. It is possible that the frame of the GameInstruction
 	is behind of the current frame in the game process. Try to decrease the fps
 	to avoid this situation.
 	"""

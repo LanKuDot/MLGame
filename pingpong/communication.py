@@ -26,7 +26,7 @@ class SceneInfo:
 	@var platform_2P An (x, y) tuple. The position of the platform of 2P
 	@var command_1P The command for platform_1P in this frame. It will be the "value"
 	     (not "name") of one of the member of the PlatformAction.
-	@var command_2P The command for plarform_2P in this frame. Similiar to `command_1P`.
+	@var command_2P The command for platform_2P in this frame. Similar to `command_1P`.
 	"""
 	def __init__(self):
 		# These fields will be filled before being sent to the ml process
