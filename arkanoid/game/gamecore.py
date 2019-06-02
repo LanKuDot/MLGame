@@ -102,7 +102,7 @@ class Scene:
 
 		This is a helper function. `scene_info_obj` has the basic member "frame" and
 		"status", and it must have member "ball", "platform", and "bricks".
-		The position of the objects will be assigned to these members accroding to
+		The position of the objects will be assigned to these members according to
 		the name. Here are the data:
 		- scene_info_obj.ball: a (x, y) tuple, the position of the ball
 		- scene_info_obj.platform: a (x, y) tuple, the position of the platform

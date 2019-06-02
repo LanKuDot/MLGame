@@ -1,5 +1,5 @@
 """
-The script that send the instruction accroding to the keyboard input
+The script that send the instruction according to the keyboard input
 """
 
 import pygame
@@ -17,7 +17,7 @@ def wait_enter_key():
 def init_pygame():
 	pygame.display.init()
 	pygame.display.set_mode((300, 100))
-	pygame.display.set_caption("Invisible joysitck")
+	pygame.display.set_caption("Invisible joystick")
 
 def ml_loop(side: str):
 	init_pygame()

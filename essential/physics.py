@@ -19,7 +19,7 @@ class Vector2D(namedtuple("Vector2D", ["x", "y"])):
 
 def collide_or_tangent(sprite_a: Sprite, sprite_b: Sprite) -> bool:
 	"""
-	Check if two sprites are colliding or targent
+	Check if two sprites are colliding or tangent
 	"""
 	rect_a = sprite_a.rect
 	rect_b = sprite_b.rect
@@ -113,7 +113,7 @@ def bounce_off_ip(bounce_obj_rect: Rect, bounce_obj_speed, \
 	@param hit_obj_rect The Rect of the hit object
 	@param hit_obj_speed The 2D speed vector of the hit object
 	"""
-	# Treat the hit object as an unmoveable object
+	# Treat the hit object as an unmovable object
 	speed_diff_x = bounce_obj_speed[0] - hit_obj_speed[0]
 	speed_diff_y = bounce_obj_speed[1] - hit_obj_speed[1]
 
@@ -125,7 +125,7 @@ def bounce_off_ip(bounce_obj_rect: Rect, bounce_obj_speed, \
 	rect_diff_R_L = bounce_obj_rect.right - hit_obj_rect.left - speed_diff_x
 
 	# Set the position and speed of the bouncing object
-	# acccroding to the relative position of two objects
+	# according to the relative position of two objects
 	if rect_diff_T_B > 0 and rect_diff_B_T > 0:
 		bounce_obj_rect.top = hit_obj_rect.bottom
 		bounce_obj_speed[1] *= -1

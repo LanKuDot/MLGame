@@ -16,7 +16,7 @@ MLGame separates the machine learning part from the game core, which makes users
 $ python MLGame.py [options] <game> [game_params]
 ```
 
-* `game`: The name of the game to be started. Avaliable games are "arkanoid" and "pingpong"
+* `game`: The name of the game to be started. Available games are "arkanoid" and "pingpong"
 * `game_params`: The additional parameters for the game.
 * `options`:
   * `-f FPS`: Specify the updating frequency of the game
@@ -50,7 +50,7 @@ If `-m` flag is **not** specified, the game will execute in the machine learning
 
 ### Execution Order
 
-![](https://i.imgur.com/OFL5BoC.png)
+![](https://i.imgur.com/D3D5Mm3.png)
 
 Note that the game process won't wait for the ml process. Therefore, if the ml process cannot send a `GameInstruction` in time, the instruction will be consumed in the next frame in the game process, which is "delayed".
 
