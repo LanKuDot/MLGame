@@ -255,7 +255,7 @@ class TransitionServer:
 		"""
 		message_object = {
 			"type": "game_error",
-			"error_message": "Error occurred in {} process.\n{}" \
+			"message": "Error occurred in {} process.\n{}" \
 				.format(exception_msg.process_name, exception_msg.exc_msg),
 		}
 		self._message_server.send(message_object)
