@@ -18,16 +18,13 @@ def execute(options):
 		level = 1
 
 	if options.online_channel:
-		try:
-			server_info = options.online_channel.split(":")
-			if len(server_info) != 3:
-				raise ValueError
-		except ValueError:
-			print("Invalid SERVER_INFO format. Must be " \
+		server_info = options.online_channel.split(":")
+		if len(server_info) != 3:
+			raise ValueError("Invalid SERVER_INFO format. Must be " \
 				"\"<server_ip>:<server_port>:<channel_nane>\".")
-		else:
-			_ml_mode(options.fps, level, options.input_script[0], \
-				server_info = server_info)
+
+		_ml_mode(options.fps, level, options.input_script[0], \
+			server_info = server_info)
 	elif options.manual_mode:
 		_manual_mode(options.fps, level, options.record_progress)
 	else:
@@ -146,7 +143,7 @@ def _start_display_process(main_pipe, record_progress, one_shot_mode):
 			print(exception_msg.exc_msg)
 
 def _start_transition_process(main_pipe, server_ip, server_port, channel_name):
-	"""Start the transition process for pass the scene info to the remote server
+	"""Start the transition process for passing the game progress to the remote server
 
 	@param main_pipe The pipe for receving the scene info sent from the game process
 	@param server_ip The ip of the remote server
