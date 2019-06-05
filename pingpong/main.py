@@ -20,6 +20,15 @@ def execute(options):
 
 	if options.manual_mode:
 		_manual_mode(options.fps, game_over_score, options.record_progress)
+	elif options.online_channel:
+		server_info = options.online_channel.split(":")
+		if len(server_info) != 3:
+			raise ValueError("Invalid SERVER_INFO format. Must be " \
+				"\"<server_ip>:<server_port>:<channel_name>\".")
+
+		script_1P, script_2P = get_scripts_name(options.input_script)
+		_ml_mode(options.fps, game_over_score, script_1P, script_2P, \
+			server_info = server_info)
 	else:
 		script_1P, script_2P = get_scripts_name(options.input_script)
 		_ml_mode(options.fps, game_over_score, \
@@ -38,7 +47,7 @@ def get_scripts_name(input_scripts):
 
 def _ml_mode(fps, game_over_score, \
 	input_script_1P = "ml_play_template.py", input_script_2P = "ml_play_template.py", \
-	record_progress = False):
+	record_progress = False, server_info = None):
 	"""
 	Start the gane in the machine learning mode
 	"""
@@ -67,7 +76,10 @@ def _ml_mode(fps, game_over_score, \
 	ml_process_1P.start()
 	ml_process_2P.start()
 
-	_start_display_process(main_pipe.recv_end, record_progress, game_over_score)
+	if server_info:
+		_start_transition_process(main_pipe.recv_end, *server_info, game_over_score)
+	else:
+		_start_display_process(main_pipe.recv_end, record_progress, game_over_score)
 
 	game_process.terminate()
 	ml_process_1P.terminate()
@@ -149,6 +161,37 @@ def _start_display_process(main_pipe, record_progress, game_over_score):
 			print("Exception occurred in the {} process:" \
 				.format(exception_msg.process_name))
 			print(exception_msg.exc_msg)
+
+def _start_transition_process(main_pipe, server_ip, server_port, channel_name, \
+	game_over_score):
+	"""
+	Start the transition process for passing the game progress to the remote server
+
+	@param main_pipe The pipe for receving the scene info from the game process
+	@param server_ip The ip of the remote server
+	@param server_port The port of the remote server
+	@param channel_name The name of the channel for sending the scene info
+	       to the remote server
+	@param game_over_score The score that the game will stop oif either of side
+	       reaches that score
+	"""
+	import os.path
+	from essential.recorder import Recorder
+	from .game.pingpong_ml import TransitionServer
+	from .game.gamecore import GameStatus
+
+	ml_dir_path = os.path.join(os.path.dirname(__file__), "ml")
+	recorder = Recorder((GameStatus.GAME_1P_WIN, GameStatus.GAME_2P_WIN), \
+		ml_dir_path)
+
+	try:
+		transition_server = TransitionServer(server_ip, server_port, channel_name)
+		transition_server.transition_loop(main_pipe, game_over_score, \
+			recorder.record_scene_info)
+	except Exception as e:
+		import traceback
+		print("Exception occurred in the transition process:")
+		print(traceback.format_exc())
 
 def _manual_mode(fps, game_over_score, record_progress = False):
 	"""
