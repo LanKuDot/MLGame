@@ -175,14 +175,16 @@ def _start_transition_process(main_pipe, server_ip, server_port, channel_name, \
 	@param game_over_score The score that the game will stop oif either of side
 	       reaches that score
 	"""
-	import os.path
+	import os
 	from essential.recorder import Recorder
 	from .game.pingpong_ml import TransitionServer
 	from .game.gamecore import GameStatus
 
-	ml_dir_path = os.path.join(os.path.dirname(__file__), "ml")
+	# XXX Prevent user from accessing the record files and the compressed file
+	# Seperate the user and the game container is a better way.
+	record_dir_path = os.path.join(os.path.dirname(__file__), "__pycache__")
 	recorder = Recorder((GameStatus.GAME_1P_WIN, GameStatus.GAME_2P_WIN), \
-		ml_dir_path)
+		record_dir_path)
 
 	try:
 		transition_server = TransitionServer(server_ip, server_port, channel_name)
@@ -192,6 +194,17 @@ def _start_transition_process(main_pipe, server_ip, server_port, channel_name, \
 		import traceback
 		print("Exception occurred in the transition process:")
 		print(traceback.format_exc())
+	else:
+		# Collect the generated pickle files to a zip
+		import zipfile
+		ml_dir_path = os.path.join(os.path.dirname(__file__), "ml")
+		zipfile_path = os.path.join(ml_dir_path, "log_pickle.zip")
+		with zipfile.ZipFile(zipfile_path, "x") as z:
+			for filename in os.listdir(record_dir_path):
+				if filename.endswith(".pickle"):
+					pickle_file_path = os.path.join(record_dir_path, filename)
+					z.write(pickle_file_path, filename)
+
 
 def _manual_mode(fps, game_over_score, record_progress = False):
 	"""
