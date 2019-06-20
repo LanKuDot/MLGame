@@ -1,8 +1,8 @@
 # Files
-*.pickle
+**/*.pickle
 
 # Directories
-venv
-.git
-.vs
-__pycache__
+venv/*
+.git/*
+.vs/*
+**/__pycache__/*
