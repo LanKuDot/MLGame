@@ -4,11 +4,14 @@ FROM python:3.6.8-slim
 ENV PYTHONDONTWRITEBYTECODE 1
 ENV PYTHONUNBUFFERED 1
 
+RUN adduser --system --group --no-create-home --uid 1000 appuser
+
 # Set working directory
 WORKDIR /app
+RUN chown appuser:appuser /app/
 
 # Copy project
-COPY . /app/
+COPY --chown=appuser:appuser . /app/
 
 RUN apt-get update \
     && apt-get install -y gcc build-essential \
@@ -19,3 +22,5 @@ RUN apt-get update \
     && apt-get remove -y --purge gcc build-essential \
     && apt-get autoremove -y \
     && rm -rf /var/lib/apt/lists/*
+
+USER appuser
