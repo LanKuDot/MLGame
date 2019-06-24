@@ -25,7 +25,7 @@ $ python MLGame.py [options] <game> [game_params]
   * `-r`: Pickle the game progress (a list of `SceneInfo`) to log files.
   * `-i SCRIPT [SCRIPT ...]`: Specify the script(s) used in the machine learning mode. The script must have function `ml_loop()` and be put in the `<game>/ml/` directory.
 
-Use `python MLGame.py -h` for more information.
+Use `python MLGame.py -h` for more information. Note that `-i` flag and the following "SCRIPTs" should be placed at the end of the command.
 
 For example:
 
@@ -37,7 +37,7 @@ For example:
 * Play the game arkanoid level 2, record the game progress, and specify the script ml_play_template.py
 
   ```
-  $ python MLGame.py -r -i ml_play_template.py arkanoid 2
+  $ python MLGame.py -r arkanoid 2 -i ml_play_template.py
   ```
 
 ## Machine Learning Mode
