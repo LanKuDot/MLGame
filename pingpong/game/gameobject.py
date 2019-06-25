@@ -1,7 +1,7 @@
 from essential import physics
-from essential.physics import Vector2D
 from essential.game_base import StringEnum
 
+from pygame.math import Vector2
 import pygame
 import random
 
@@ -67,7 +67,7 @@ class Ball(pygame.sprite.Sprite):
 		self.rect = pygame.Rect(0, 0, *self._size)
 
 		# Used in additional collision detection
-		self._last_pos = Vector2D(self.rect.x, self.rect.y)
+		self._last_pos = Vector2(self.rect.x, self.rect.y)
 
 	def create_surface(self):
 		self.image = pygame.Surface((self.rect.width, self.rect.height))
@@ -93,7 +93,7 @@ class Ball(pygame.sprite.Sprite):
 		self._serve_from_1P = not self._serve_from_1P
 
 	def move(self):
-		self._last_pos = Vector2D(self.rect.x, self.rect.y)
+		self._last_pos = Vector2(self.rect.x, self.rect.y)
 		self.rect.move_ip(self._speed)
 
 	def speed_up(self):
@@ -105,7 +105,7 @@ class Ball(pygame.sprite.Sprite):
 
 		# Check if the ball hits the platform or not
 		target_platform = None
-		cur_pos = Vector2D(self.rect.x, self.rect.y)
+		cur_pos = Vector2(self.rect.x, self.rect.y)
 
 		if physics.collide_or_tangent(self, platform_1p):
 			target_platform = platform_1p
@@ -114,8 +114,8 @@ class Ball(pygame.sprite.Sprite):
 		# Additional checking for the ball passing through the corner of the platform
 		# Determine if the routine of the ball intersects with the platform
 		elif self.rect.bottom < platform_1p.rect.bottom:
-			line_top_right = (cur_pos + Vector2D(self.rect.width, 0), \
-				self._last_pos + Vector2D(self.rect.width, 0))
+			line_top_right = (cur_pos + Vector2(self.rect.width, 0), \
+				self._last_pos + Vector2(self.rect.width, 0))
 			line_top_left = (cur_pos, self._last_pos)
 
 			if self._ball_routine_hit_platform( \
@@ -123,10 +123,10 @@ class Ball(pygame.sprite.Sprite):
 				target_platform = platform_1p
 
 		elif self.rect.top > platform_2p.rect.top:
-			line_bottom_right = (cur_pos + Vector2D(self.rect.width, self.rect.height), \
-				self._last_pos + Vector2D(self.rect.width, self.rect.height))
-			line_bottom_left = (cur_pos + Vector2D(0, self.rect.height), \
-				self._last_pos + Vector2D(0, self.rect.height))
+			line_bottom_right = (cur_pos + Vector2(self.rect.width, self.rect.height), \
+				self._last_pos + Vector2(self.rect.width, self.rect.height))
+			line_bottom_left = (cur_pos + Vector2(0, self.rect.height), \
+				self._last_pos + Vector2(0, self.rect.height))
 
 			if self._ball_routine_hit_platform( \
 				platform_2p, line_bottom_right, line_bottom_left):
@@ -142,7 +142,7 @@ class Ball(pygame.sprite.Sprite):
 		Check if the ball routine hits the platform
 
 		@param target_platform Specify the target platform
-		@param routine_for_left A tuple (Vector2D, Vector2D) presenting the checking routine
+		@param routine_for_left A tuple (Vector2, Vector2) presenting the checking routine
 		       for the condition that the ball is at the left side of the platform
 		@param routine_for_right Similar to `routine_for_left` but
 		       for the condition that the ball is at the right side of the platform

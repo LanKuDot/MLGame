@@ -4,18 +4,7 @@ The helper functions for physics
 
 from pygame import Rect
 from pygame.sprite import Sprite
-
-from collections import namedtuple
-
-# ====== Data structure ======
-class Vector2D(namedtuple("Vector2D", ["x", "y"])):
-	__slots__ = ()
-
-	def __add__(self, other):
-		return Vector2D(self.x + other.x, self.y + other.y)
-
-	def __sub__(self, other):
-		return Vector2D(self.x - other.x, self.y - other.y)
+from pygame.math import Vector2
 
 def collide_or_tangent(sprite_a: Sprite, sprite_b: Sprite) -> bool:
 	"""
@@ -35,7 +24,7 @@ def line_intersect(line_a, line_b) -> bool:
 	"""
 	Check if two line segments intersect
 
-	@param line_a A tuple (Vector2D, Vector2D) representing both end points
+	@param line_a A tuple (Vector2, Vector2) representing both end points
 	       of line segment
 	@param line_b Same as `line_a`
 	"""
@@ -82,13 +71,13 @@ def rect_collideline(rect: Rect, line) -> bool:
 	Check if line segment intersects with a rect
 
 	@param rect The Rect of the target rectangle
-	@param line A tuple (Vector2D, Vector2D) representing both end points
+	@param line A tuple (Vector2, Vector2) representing both end points
 	       of line segment
 	"""
-	line_top = (Vector2D(rect.left, rect.top), Vector2D(rect.right, rect.top))
-	line_bottom = (Vector2D(rect.left, rect.bottom), Vector2D(rect.right, rect.bottom))
-	line_left = (Vector2D(rect.left, rect.top), Vector2D(rect.left, rect.bottom))
-	line_right = (Vector2D(rect.right, rect.top), Vector2D(rect.right, rect.bottom))
+	line_top = (Vector2(rect.left, rect.top), Vector2(rect.right, rect.top))
+	line_bottom = (Vector2(rect.left, rect.bottom), Vector2(rect.right, rect.bottom))
+	line_left = (Vector2(rect.left, rect.top), Vector2(rect.left, rect.bottom))
+	line_right = (Vector2(rect.right, rect.top), Vector2(rect.right, rect.bottom))
 
 	intersect_num = 0
 	if line_intersect(line_top, line):    intersect_num += 1
