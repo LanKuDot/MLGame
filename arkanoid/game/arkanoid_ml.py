@@ -109,10 +109,10 @@ class Screen:
 	def _init_pygame(self):
 		pygame.display.init()
 		pygame.font.init()
-		self._screen = pygame.display.set_mode(gamecore.display_area_size)
+		self._screen = pygame.display.set_mode(gamecore.scene_area_size)
 		pygame.display.set_caption("Arkanoid")
 		self._font = pygame.font.Font(None, 22)
-		self._font_pos = (1, gamecore.display_area_size[1] - 21)
+		self._font_pos = (1, gamecore.scene_area_size[1] - 21)
 
 	def _create_surface(self):
 		brick_sprite = gameobject.Brick((0, 0))

@@ -138,7 +138,8 @@ def _manual_mode(fps, level, record_progress = False):
 	from .game.arkanoid import Arkanoid
 
 	record_handler = _get_record_handler(record_progress)
-	Arkanoid().game_loop(fps, level, record_handler)
+	game = Arkanoid(fps, level, record_handler)
+	game.game_loop()
 
 def _get_record_handler(record_progress: bool):
 	"""Return the handler for record the game progress
