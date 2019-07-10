@@ -21,11 +21,8 @@ class ProcessManager:
 	def is_running(self):
 		return self._is_running
 
-	def set_game_process(self, target, name = "", args = (), kwargs = {}):
-		if name == "":
-			name = "game"
-
-		self._game_process = ProcessData(target, name, args, kwargs)
+	def set_game_process(self, target, args = (), kwargs = {}):
+		self._game_process = ProcessData(target, "game", args, kwargs)
 
 	def add_ml_process(self, target, name = "", args = (), kwargs = {}):
 		if name == "":
