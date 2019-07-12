@@ -17,22 +17,27 @@ class ProcessData:
 class ProcessManager:
 	def __init__(self):
 		self._game_proc_data = None
-		self._ml_proc_data = []
+		self._ml_proc_helpers = []
+		self._ml_procs = []
 
 	def set_game_process(self, target, args = (), kwargs = {}):
 		self._game_proc_data = ProcessData(target, "game", args, kwargs)
 
-	def add_ml_process(self, target, name = "", args = (), kwargs = {}):
+	def add_ml_process(self, target_module, name = "", args = (), kwargs = {}):
 		if name == "":
-			name = "ml_" + len(self._ml_proc_data)
+			name = "ml_" + len(self._ml_proc_helpers)
 
-		proc_data = ProcessData(target, name, args, kwargs)
-		self._ml_proc_data.append(proc_data)
+		for helper in self._ml_proc_helpers:
+			if name == helper.name:
+				raise ValueError("The name '{}' has been used.".format(name))
+
+		helper = MLProcessHelper(target_module, name, args, kwargs)
+		self._ml_proc_helpers.append(helper)
 
 	def start(self):
 		if self._game_proc_data is None:
 			raise RuntimeError("The game process is not set. Cannot start the ProcessManager")
-		if len(self._ml_proc_data) == 0:
+		if len(self._ml_proc_helpers) == 0:
 			raise RuntimeError("No ml process added. Cannot start the ProcessManager")
 
 		self._create_pipes()
@@ -40,24 +45,24 @@ class ProcessManager:
 		self._start_game_process()
 
 	def _create_pipes(self):
-		for ml_process in self._ml_proc_data:
+		for ml_proc_helper in self._ml_proc_helpers:
 			# Create pipe for Game process -> ML process
 			recv_pipe, send_pipe = Pipe(False)
-			self._game_proc_data._comm_set.send_end[ml_process._name] = send_pipe
-			ml_process._comm_set.recv_end[self._game_proc_data._name] = recv_pipe
+			self._game_proc_data._comm_set.send_end[ml_proc_helper.name] = send_pipe
+			ml_proc_helper._comm_set.recv_end[self._game_proc_data._name] = recv_pipe
 
 			# Create pipe for ML process -> Game process
 			recv_pipe, send_pipe = Pipe(False)
-			ml_process._comm_set.send_end[self._game_proc_data._name] = send_pipe
-			self._game_proc_data._comm_set.recv_end[ml_process._name] = recv_pipe
+			ml_proc_helper._comm_set.send_end[self._game_proc_data._name] = send_pipe
+			self._game_proc_data._comm_set.recv_end[ml_proc_helper.name] = recv_pipe
 
 	def _start_ml_processes(self):
-		for proc_data in self._ml_proc_data:
-			helper = MLProcessHelper(proc_data._name, proc_data._comm_set)
-			proc_data._process_obj = Process( \
-				None, _ml_process_entry_point, proc_data._name, \
-				args = (helper, proc_data._target, proc_data._args, proc_data._kwargs))
-			proc_data._process_obj.start()
+		for ml_proc_helper in self._ml_proc_helpers:
+			process = Process(target = _ml_process_entry_point, \
+				name = ml_proc_helper.name, args = (ml_proc_helper,))
+			process.start()
+
+			self._ml_procs.append(process)
 
 	def _start_game_process(self):
 		proc_data = self._game_proc_data
@@ -66,8 +71,8 @@ class ProcessManager:
 		self._terminate()
 
 	def _terminate(self):
-		for ml_process in self._ml_proc_data:
-			ml_process._process_obj.terminate()
+		for ml_process in self._ml_procs:
+			ml_process.terminate()
 
 class BaseProcessHelper:
 	def __init__(self, process_name, comm_set):
@@ -86,12 +91,19 @@ class GameProcessHelper(BaseProcessHelper):
 
 		return instructions
 
-class MLProcessHelper(BaseProcessHelper):
+class MLProcessHelper:
+	def __init__(self, target_module, name, args = (), kwargs = {}):
+		self.target_module = target_module
+		self.name = name
+		self.args = args
+		self.kwargs = kwargs
+		self._comm_set = CommunicationSet()
+
 	def recv_from_game(self):
 		return self._comm_set.recv_end["game"].recv()
 
-	def send_to_game(self, instruction_obj):
-		self._comm_set.send_end["game"].send(instruction_obj)
+	def send_to_game(self, obj):
+		self._comm_set.send_end["game"].send(obj)
 
 	def send_exception(self, exc_msg: ExceptionMessage):
 		self._comm_set.send_end["game"].send(exc_msg)
@@ -103,9 +115,14 @@ def _game_process_entry_point(helper: GameProcessHelper, \
 	except Exception as e:
 		traceback.print_exc()
 
-def _ml_process_entry_point(helper: MLProcessHelper, \
-	target_function, args = (), kwargs = {}):
+def _ml_process_entry_point(helper: MLProcessHelper):
 	try:
-		target_function(*args, **kwargs, helper = helper)
+		from .handler import ml
+		ml.send_to_game_handler.set_function(helper.send_to_game)
+		ml.recv_from_game_handler.set_function(helper.recv_from_game)
+
+		ml_module = importlib.import_module(helper.target_module, __package__)
+		ml_module.ml_loop(*helper.args, **helper.kwargs)
 	except Exception as e:
-		traceback.print_exc()
+		exc_msg = ExceptionMessage(helper.name, traceback.format_exc())
+		helper.send_exception(exc_msg)
