@@ -5,23 +5,14 @@ from multiprocessing import Process, Pipe
 from .communication import CommunicationSet
 from .exception import ExceptionMessage, trim_callstack
 
-class ProcessData:
-	def __init__(self, target, name = "", args = (), kwargs = {}):
-		self._process_obj = None
-		self._target = target
-		self._name = name
-		self._args = args
-		self._kwargs = kwargs
-		self._comm_set = CommunicationSet()
-
 class ProcessManager:
 	def __init__(self):
-		self._game_proc_data = None
+		self._game_proc_helper = None
 		self._ml_proc_helpers = []
 		self._ml_procs = []
 
 	def set_game_process(self, target, args = (), kwargs = {}):
-		self._game_proc_data = ProcessData(target, "game", args, kwargs)
+		self._game_proc_helper = GameProcessHelper(target, args, kwargs)
 
 	def add_ml_process(self, target_module, name = "", args = (), kwargs = {}):
 		if name == "":
@@ -35,7 +26,7 @@ class ProcessManager:
 		self._ml_proc_helpers.append(helper)
 
 	def start(self):
-		if self._game_proc_data is None:
+		if self._game_proc_helper is None:
 			raise RuntimeError("The game process is not set. Cannot start the ProcessManager")
 		if len(self._ml_proc_helpers) == 0:
 			raise RuntimeError("No ml process added. Cannot start the ProcessManager")
@@ -43,18 +34,19 @@ class ProcessManager:
 		self._create_pipes()
 		self._start_ml_processes()
 		self._start_game_process()
+		self._terminate()
 
 	def _create_pipes(self):
 		for ml_proc_helper in self._ml_proc_helpers:
 			# Create pipe for Game process -> ML process
 			recv_pipe, send_pipe = Pipe(False)
-			self._game_proc_data._comm_set.send_end[ml_proc_helper.name] = send_pipe
-			ml_proc_helper._comm_set.recv_end[self._game_proc_data._name] = recv_pipe
+			self._game_proc_helper._comm_set.send_end[ml_proc_helper.name] = send_pipe
+			ml_proc_helper._comm_set.recv_end[self._game_proc_helper.name] = recv_pipe
 
 			# Create pipe for ML process -> Game process
 			recv_pipe, send_pipe = Pipe(False)
-			ml_proc_helper._comm_set.send_end[self._game_proc_data._name] = send_pipe
-			self._game_proc_data._comm_set.recv_end[ml_proc_helper.name] = recv_pipe
+			ml_proc_helper._comm_set.send_end[self._game_proc_helper.name] = send_pipe
+			self._game_proc_helper._comm_set.recv_end[ml_proc_helper.name] = recv_pipe
 
 	def _start_ml_processes(self):
 		for ml_proc_helper in self._ml_proc_helpers:
@@ -65,31 +57,36 @@ class ProcessManager:
 			self._ml_procs.append(process)
 
 	def _start_game_process(self):
-		proc_data = self._game_proc_data
-		helper = GameProcessHelper(proc_data._name, proc_data._comm_set)
-		_game_process_entry_point(helper, proc_data._target, proc_data._args, proc_data._kwargs)
-		self._terminate()
+		_game_process_entry_point(self._game_proc_helper)
 
 	def _terminate(self):
 		for ml_process in self._ml_procs:
 			ml_process.terminate()
 
-class BaseProcessHelper:
-	def __init__(self, process_name, comm_set):
-		self.process_name = process_name
-		self._comm_set = comm_set
+class GameProcessHelper:
+	def __init__(self, target_function, args = (), kwargs = {}):
+		self.target_function = target_function
+		self.name = "game"
+		self.args = args
+		self.kwargs = kwargs
+		self._comm_set = CommunicationSet()
 
-class GameProcessHelper(BaseProcessHelper):
-	def send_scene_info(self, scene_info):
+	def send_to_ml(self, obj, to_ml: str):
+		self._comm_set.send_end[to_ml].send(obj)
+
+	def send_to_all_ml(self, obj):
 		for send_end in self._comm_set.send_end.values():
-			send_end.send(scene_info)
+			send_end.send(obj)
 
-	def recv_instructions(self):
-		instructions = []
+	def recv_from_ml(self, from_ml: str):
+		return self._comm_set.recv_end[from_ml].recv()
+
+	def recv_from_all_ml(self):
+		objs = []
 		for recv_end in self._comm_set.recv_end.values():
-			instructions.append(recv_end.recv())
+			objs.append(recv_end.recv())
 
-		return instructions
+		return objs
 
 class MLProcessHelper:
 	def __init__(self, target_module, name, args = (), kwargs = {}):
@@ -108,10 +105,13 @@ class MLProcessHelper:
 	def send_exception(self, exc_msg: ExceptionMessage):
 		self._comm_set.send_end["game"].send(exc_msg)
 
-def _game_process_entry_point(helper: GameProcessHelper, \
-	target_function, args = (), kwargs = {}):
+def _game_process_entry_point(helper: GameProcessHelper):
 	try:
-		target_function(*args, **kwargs, helper = helper)
+		from .handler import game
+		game.send_to_all_ml.set_function(helper.send_to_all_ml)
+		game.recv_from_all_ml.set_function(helper.recv_from_all_ml)
+
+		helper.target_function(*helper.args, **helper.kwargs)
 	except Exception as e:
 		traceback.print_exc()
 
