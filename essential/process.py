@@ -2,7 +2,7 @@ import importlib
 import traceback
 
 from multiprocessing import Process, Pipe
-from .communication import CommunicationSet
+from .communication.base import CommunicationSet
 from .exception import ExceptionMessage, trim_callstack
 
 class ProcessManager:
@@ -107,7 +107,7 @@ class MLProcessHelper:
 
 def _game_process_entry_point(helper: GameProcessHelper):
 	try:
-		from .handler import game
+		from .communication import game
 		game.send_to_all_ml.set_function(helper.send_to_all_ml)
 		game.recv_from_all_ml.set_function(helper.recv_from_all_ml)
 
@@ -117,9 +117,9 @@ def _game_process_entry_point(helper: GameProcessHelper):
 
 def _ml_process_entry_point(helper: MLProcessHelper):
 	try:
-		from .handler import ml
-		ml.send_to_game_handler.set_function(helper.send_to_game)
-		ml.recv_from_game_handler.set_function(helper.recv_from_game)
+		from .communication import ml
+		ml.send_to_game.set_function(helper.send_to_game)
+		ml.recv_from_game.set_function(helper.recv_from_game)
 
 		ml_module = importlib.import_module(helper.target_module, __package__)
 		ml_module.ml_loop(*helper.args, **helper.kwargs)
