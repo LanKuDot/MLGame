@@ -1,3 +1,22 @@
+class ProcessError(Exception):
+	"""The base class for the exception in the processes
+	"""
+
+	def __init__(self, process_name, message):
+		"""Constructor
+
+		@param process_name The name of the process in which the error occurred
+		@param message The error message
+		"""
+		self.process_name = process_name
+		self.message = message
+
+class MLProcessError(ProcessError):
+	"""Exception raised when the main process received the ExceptionMessage
+	from the ml process
+	"""
+	pass
+
 class ExceptionMessage:
 	"""The exception message object to be passed to another process
 	"""

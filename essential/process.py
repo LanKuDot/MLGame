@@ -3,7 +3,7 @@ import traceback
 
 from multiprocessing import Process, Pipe
 from .communication.base import CommunicationSet
-from .exception import ExceptionMessage, trim_callstack
+from .exception import MLProcessError, ExceptionMessage, trim_callstack
 
 class ProcessManager:
 	def __init__(self):
@@ -79,12 +79,16 @@ class GameProcessHelper:
 			send_end.send(obj)
 
 	def recv_from_ml(self, from_ml: str):
-		return self._comm_set.recv_end[from_ml].recv()
+		obj = self._comm_set.recv_end[from_ml].recv()
+		if isinstance(obj, ExceptionMessage):
+			raise MLProcessError(obj.process_name, obj.exc_msg)
+
+		return obj
 
 	def recv_from_all_ml(self):
 		objs = []
-		for recv_end in self._comm_set.recv_end.values():
-			objs.append(recv_end.recv())
+		for ml_name in self._comm_set.recv_end.keys():
+			objs.append(self.recv_from_ml(ml_name))
 
 		return objs
 
@@ -106,21 +110,22 @@ class MLProcessHelper:
 		self._comm_set.send_end["game"].send(exc_msg)
 
 def _game_process_entry_point(helper: GameProcessHelper):
-	try:
-		from .communication import game
-		game.send_to_all_ml.set_function(helper.send_to_all_ml)
-		game.recv_from_all_ml.set_function(helper.recv_from_all_ml)
+	from .communication import game
+	game.send_to_all_ml.set_function(helper.send_to_all_ml)
+	game.recv_from_all_ml.set_function(helper.recv_from_all_ml)
 
+	try:
 		helper.target_function(*helper.args, **helper.kwargs)
-	except Exception as e:
-		traceback.print_exc()
+	except MLProcessError as e:
+		print("*** Error occurred in \"{}\" process:".format(e.process_name))
+		print(e.message)
 
 def _ml_process_entry_point(helper: MLProcessHelper):
-	try:
-		from .communication import ml
-		ml.send_to_game.set_function(helper.send_to_game)
-		ml.recv_from_game.set_function(helper.recv_from_game)
+	from .communication import ml
+	ml.send_to_game.set_function(helper.send_to_game)
+	ml.recv_from_game.set_function(helper.recv_from_game)
 
+	try:
 		ml_module = importlib.import_module(helper.target_module, __package__)
 		ml_module.ml_loop(*helper.args, **helper.kwargs)
 	except Exception as e:
