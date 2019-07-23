@@ -16,7 +16,7 @@ class FunctionDelegate:
 	def set_function(self, func):
 		"""Set the target function to the function delegate
 
-		@param func A function or callable object
+		@param func A function or a callable object
 		"""
 		if self._target_function is not None:
 			raise ValueError("The target function has been already set.")
