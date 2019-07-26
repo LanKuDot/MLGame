@@ -220,42 +220,48 @@ class TransitionServer:
 		   scene_info.frame - instruction.frame == self._delay_frame + 1:
 			self._delay_frame += 1
 
-		scene_info_dict = {
+		status_dict = {
 			"frame": scene_info.frame,
-			"delay_frame": self._delay_frame,
-			"status": scene_info.status,
-			"ball": scene_info.ball,
-			"platform": scene_info.platform,
-			"bricks": scene_info.bricks,
+			"frame_delayed": [self._delay_frame],
+		}
+		gameobject_dict = {
+			"ball": [scene_info.ball],
+			"platform": [scene_info.platform],
+			"brick": scene_info.bricks
 		}
 
-		message_object = {
+		self._message_server.send({
 			"type": "game_progress",
-			"scene_info": scene_info_dict
-		}
-		self._message_server.send(message_object)
+			"data": {
+				"status": status_dict,
+				"game_object": gameobject_dict,
+			}
+		})
 
 	def _send_game_result(self, scene_info: SceneInfo):
 		"""Send the game result to the message server
 		"""
 		game_result_dict = {
-			"status": scene_info.status,
 			"frame_used": scene_info.frame,
-			"bricks_remain": len(scene_info.bricks),
+			"frame_delayed": [self._delay_frame],
+			"result": [scene_info.status],
+			"brick_remain": len(scene_info.bricks),
 		}
 
-		message_object = {
+		self._message_server.send({
 			"type": "game_result",
-			"result": game_result_dict,
-		}
-		self._message_server.send(message_object)
+			"data": game_result_dict,
+		})
 
 	def _send_exception(self, exception_msg: ExceptionMessage):
 		"""Send the exception message to the message server
 		"""
-		message_object = {
-			"type": "game_error",
+		message_dict = {
 			"message": "Error occurred in {} process.\n{}" \
 				.format(exception_msg.process_name, exception_msg.exc_msg),
 		}
-		self._message_server.send(message_object)
+
+		self._message_server.send({
+			"type": "game_error",
+			"data": message_dict,
+		})

@@ -312,60 +312,66 @@ class TransitionServer:
 				else:
 					self._score[1] += 1
 
+				self._send_game_result(scene_info)
 				self._delay_frame = [0, 0]
 
 				if self._score[0] == game_over_score or \
 				   self._score[1] == game_over_score:
-					self._send_game_result()
 					return
 
 	def _send_scene_info(self, scene_info: SceneInfo):
 		"""
 		Send the scene info to the message server
 		"""
-		scene_info_dict = {
+		status_dict = {
 			"frame": scene_info.frame,
-			"delay_frame": self._delay_frame,
-			"status": scene_info.status,
-			"ball": scene_info.ball,
+			"frame_delayed": self._delay_frame,
 			"ball_speed": scene_info.ball_speed,
-			"platform_1P": scene_info.platform_1P,
-			"platform_2P": scene_info.platform_2P,
+		}
+		gameobject_dict = {
+			"ball": [scene_info.ball],
+			"platform_1P": [scene_info.platform_1P],
+			"platform_2P": [scene_info.platform_2P],
 		}
 
-		message_object = {
+		self._message_server.send({
 			"type": "game_progress",
-			"scene_info": scene_info_dict,
-		}
-		self._message_server.send(message_object)
+			"data": {
+				"status": status_dict,
+				"game_object": gameobject_dict,
+			}
+		})
 
-	def _send_game_result(self):
+	def _send_game_result(self, scene_info: SceneInfo):
 		"""
 		Send the game result fo the message server
 		"""
 		if self._score[0] > self._score[1]:
-			status = gamecore.GameStatus.GAME_1P_WIN.value
+			status = ["GAME_PASS", "GAME_OVER"]
 		else:
-			status = gamecore.GameStatus.GAME_2P_WIN.value
+			status = ["GAME_OVER", "GAME_PASS"]
 
 		game_result_dict = {
-			"status": status,
-			"score": self._score,
+			"frame_used": scene_info.frame,
+			"frame_delayed": self._delay_frame,
+			"result": status,
+			"ball_speed": scene_info.ball_speed,
 		}
 
-		message_object = {
+		self._message_server.send({
 			"type": "game_result",
-			"result": game_result_dict,
-		}
-		self._message_server.send(message_object)
+			"data": game_result_dict,
+		})
 
 	def _send_exception(self, exception_msg: ExceptionMessage):
 		"""
 		Send the exception message to the message server
 		"""
-		message_object = {
-			"type": "game_error",
+		message_dict = {
 			"message": "Error occurred in {} process.\n{}" \
 				.format(exception_msg.process_name, exception_msg.exc_msg),
 		}
-		self._message_server.send(message_object)
+		self._message_server.send({
+			"type": "game_error",
+			"data": message_dict,
+		})
