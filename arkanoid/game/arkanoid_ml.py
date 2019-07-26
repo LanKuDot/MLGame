@@ -199,6 +199,7 @@ class TransitionServer:
 		Transition loop always runs in one shot mode, therefore,
 		it will be exited after the game is over or is passed.
 		"""
+		self._send_game_info()
 		while True:
 			scene_info, instruction = scene_info_pipe.recv()
 			if isinstance(scene_info, ExceptionMessage):
@@ -212,6 +213,25 @@ class TransitionServer:
 			   scene_info.status == SceneInfo.STATUS_GAME_PASS:
 				self._send_game_result(scene_info)
 				return
+
+	def _send_game_info(self):
+		"""Send the information of the game to the message server
+		"""
+		info_dict = {
+			"scene": {
+				"size": [200, 500]
+			},
+			"game_object": [
+				{ "name": "ball", "size": [5, 5], "color": [44, 185, 214] },
+				{ "name": "platform", "size": [40, 5], "color": [66, 226, 126] },
+				{ "name": "brick", "size": [25, 10], "color": [244, 158, 66] },
+			]
+		}
+
+		self._message_server.send({
+			"type": "game_info",
+			"data": info_dict,
+		})
 
 	def _send_scene_info(self, scene_info: SceneInfo, instruction: GameInstruction):
 		"""Send the scene info to the message server

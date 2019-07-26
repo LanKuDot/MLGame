@@ -290,6 +290,7 @@ class TransitionServer:
 		       the game will be stopped.
 		@param record_handler The handler for recording the game progress
 		"""
+		self._send_game_info()
 		while True:
 			scene_info, instructions = scene_info_pipe.recv()
 			if isinstance(scene_info, ExceptionMessage):
@@ -318,6 +319,26 @@ class TransitionServer:
 				if self._score[0] == game_over_score or \
 				   self._score[1] == game_over_score:
 					return
+
+	def _send_game_info(self):
+		"""
+		Send the game information to the message server
+		"""
+		info_dict = {
+			"scene": {
+				"size": [200, 500],
+			},
+			"game_object": [
+				{ "name": "platform_1P", "size": [40, 30], "color": [84, 149, 255] },
+				{ "name": "platform_2P", "size": [40, 30], "color": [219, 70, 92] },
+				{ "name": "ball", "size": [5, 5], "color": [66, 226, 126] },
+			]
+		}
+
+		self._message_server.send({
+			"type": "game_info",
+			"data": info_dict,
+		})
 
 	def _send_scene_info(self, scene_info: SceneInfo):
 		"""
