@@ -22,7 +22,7 @@ class Arkanoid(GameABC):
 		instruct_pipe: Connection, scene_info_pipe: Connection, main_pipe: Connection):
 		"""The main loop of the game in machine learning mode
 
-		This loop is run in a seperate process, and it communicates the main process
+		This loop is run in a separate process, and it communicates the main process
 		and the machine learning process with pipes.
 		The execution order in the loops:
 		1. Send the SceneInfo to the machine learning process and the main process.
@@ -37,7 +37,7 @@ class Arkanoid(GameABC):
 
 		@param fps Specify the updating rate of the game
 		@param level Specify the level of the game
-		@param instruct_pipe The receving-end of the GameInstruction from the ml process
+		@param instruct_pipe The receiving-end of the GameInstruction from the ml process
 		@param scene_info_pipe The sending-end of the SceneInfo to the ml process
 		@param main_pipe The sending-end of the SceneInfo to the main process
 		"""
@@ -101,7 +101,7 @@ class Arkanoid(GameABC):
 				scene_info = scene.fill_scene_info_obj(SceneInfo())
 
 class Screen:
-	"""The drawing process for the game in the machine leraning mode
+	"""The drawing process for the game in the machine learning mode
 	"""
 
 	def __init__(self):
@@ -111,10 +111,10 @@ class Screen:
 	def _init_pygame(self):
 		pygame.display.init()
 		pygame.font.init()
-		self._screen = pygame.display.set_mode(gamecore.display_area_size)
+		self._screen = pygame.display.set_mode(gamecore.scene_area_size)
 		pygame.display.set_caption("Arkanoid")
 		self._font = pygame.font.Font(None, 22)
-		self._font_pos = (1, gamecore.display_area_size[1] - 21)
+		self._font_pos = (1, gamecore.scene_area_size[1] - 21)
 
 	def _create_surface(self):
 		brick_sprite = gameobject.Brick((0, 0))

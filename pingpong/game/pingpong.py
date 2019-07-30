@@ -16,8 +16,8 @@ class PingPong:
 
 		pygame.font.init()
 		self._font = pygame.font.Font(None, 22)
-		self._font_pos_1P = (1, 4)
-		self._font_pos_2P = (1, gamecore.display_area_size[1] - 21)
+		self._font_pos_1P = (1, gamecore.display_area_size[1] - 21)
+		self._font_pos_2P = (1, 4)
 		self._font_pos_speed = (gamecore.display_area_size[0] - 75, \
 			gamecore.display_area_size[1] - 21)
 
@@ -38,14 +38,14 @@ class PingPong:
 		action_2P = PlatformMoveAction.NONE
 
 		key_pressed_list = pygame.key.get_pressed()
-		if key_pressed_list[pygame.K_a]:
+		if key_pressed_list[pygame.K_LEFT]:
 			action_1P = PlatformMoveAction.LEFT
-		elif key_pressed_list[pygame.K_d]:
+		elif key_pressed_list[pygame.K_RIGHT]:
 			action_1P = PlatformMoveAction.RIGHT
 
-		if key_pressed_list[pygame.K_LEFT]:
+		if key_pressed_list[pygame.K_a]:
 			action_2P = PlatformMoveAction.LEFT
-		elif key_pressed_list[pygame.K_RIGHT]:
+		elif key_pressed_list[pygame.K_d]:
 			action_2P = PlatformMoveAction.RIGHT
 
 		return action_1P, action_2P

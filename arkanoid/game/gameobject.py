@@ -1,38 +1,43 @@
 import pygame
+from pygame import Rect, Surface
+from pygame.sprite import Sprite
 from essential import physics
 
-class Brick(pygame.sprite.Sprite):
+class Brick(Sprite):
 	def __init__(self, init_pos, *groups):
-		pygame.sprite.Sprite.__init__(self, *groups)
+		super().__init__(*groups)
 
-		self.rect = pygame.Rect(init_pos[0], init_pos[1], 25, 10)
+		self.rect = Rect(init_pos[0], init_pos[1], 25, 10)
 
 	def create_surface(self):
-		self.image = pygame.Surface((self.rect.width, self.rect.height))
-		self.image.fill((244, 158, 66)) # Orange
-		pygame.draw.line(self.image, (0, 0, 0), \
+		surface = Surface((self.rect.width, self.rect.height))
+		surface.fill((244, 158, 66)) # Orange
+		pygame.draw.line(surface, (0, 0, 0), \
 			(self.rect.width - 1, 0), (self.rect.width - 1, self.rect.height - 1))
-		pygame.draw.line(self.image, (0, 0, 0), \
+		pygame.draw.line(surface, (0, 0, 0), \
 			(0, self.rect.height - 1), (self.rect.width - 1, self.rect.height - 1))
-		self.image.convert()
 
-class Platform(pygame.sprite.Sprite):
-	def __init__(self, init_pos, play_area_rect: pygame.Rect, *groups):
-		pygame.sprite.Sprite.__init__(self, *groups)
+		self.image = surface.convert()
+
+class Platform(Sprite):
+	def __init__(self, init_pos, play_area_rect: Rect, *groups):
+		super().__init__(*groups)
 
 		self._play_area_rect = play_area_rect
 		self._shift_speed = 5
 		self._speed = [0, 0]
-		self._init_pos = pygame.Rect(init_pos[0], init_pos[1], 40, 5)
-		self.rect = self._init_pos.copy()
+		self._init_pos = init_pos
+
+		self.rect = Rect(init_pos[0], init_pos[1], 40, 5)
 
 	def create_surface(self):
-		self.image = pygame.Surface((self.rect.width, self.rect.height))
-		self.image.fill((66, 226, 126)) # Green
-		self.image.convert()
+		surface = Surface((self.rect.width, self.rect.height))
+		surface.fill((66, 226, 126)) # Green
+
+		self.image = surface.convert()
 
 	def reset(self):
-		self.rect = self._init_pos.copy()
+		self.rect.topleft = self._init_pos
 
 	def move(self, move_action: str):
 		if move_action == "LEFT" and \
@@ -46,22 +51,24 @@ class Platform(pygame.sprite.Sprite):
 
 		self.rect.move_ip(*self._speed)
 
-class Ball(pygame.sprite.Sprite):
-	def __init__(self, init_pos, play_area_rect: pygame.Rect, *groups):
-		pygame.sprite.Sprite.__init__(self, *groups)
+class Ball(Sprite):
+	def __init__(self, init_pos, play_area_rect: Rect, *groups):
+		super().__init__(*groups)
 
 		self._play_area_rect = play_area_rect
 		self._speed = [7, 7]	# (x, y)
-		self._init_pos = pygame.Rect(init_pos[0], init_pos[1], 5, 5)
-		self.rect = self._init_pos.copy()
+		self._init_pos = init_pos
+
+		self.rect = Rect(init_pos[0], init_pos[1], 5, 5)
 
 	def create_surface(self):
-		self.image = pygame.Surface((self.rect.width, self.rect.height))
-		self.image.fill((44, 185, 214)) # Blue
-		self.image.convert()
+		surface = pygame.Surface((self.rect.width, self.rect.height))
+		surface.fill((44, 185, 214)) # Blue
+
+		self.image = surface.convert()
 
 	def reset(self):
-		self.rect = self._init_pos.copy()
+		self.rect.topleft = self._init_pos
 		self._speed = [7, 7]
 
 	def move(self):

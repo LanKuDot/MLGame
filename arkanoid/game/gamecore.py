@@ -1,7 +1,7 @@
 import pygame
 from . import gameobject
 
-display_area_size = (200, 500)	# (width, height)
+scene_area_size = (200, 500)	# (width, height)
 
 GAME_ALIVE_MSG = "GAME_ALIVE"
 GAME_OVER_MSG = "GAME_OVER"
@@ -12,12 +12,11 @@ ACTION_RIGHT = "RIGHT"
 ACTION_NONE = ""
 
 class Scene:
-	def __init__(self, level, display_on_screen: bool, screen = None):
+	def __init__(self, level, to_create_surface = False):
 		self._level = level
-		self._display_on_screen = display_on_screen
-		self._screen = screen
 		self._frame_count = 0
 		self._game_status = GAME_ALIVE_MSG
+		self._to_create_surface = to_create_surface
 
 		self._create_scene()
 
@@ -25,20 +24,16 @@ class Scene:
 		self._create_moves()
 		self._create_bricks(self._level)
 
-		if self._display_on_screen:
-			self._background = pygame.Surface(display_area_size)
-			self._background.fill((0, 0, 0))	# black
-
 	def _create_moves(self):
-		display_area_rect = pygame.Rect((0, 0), display_area_size)
+		game_area_rect = pygame.Rect((0, 0), scene_area_size)
 
 		self._group_move = pygame.sprite.RenderPlain()
 		self._ball = gameobject.Ball((100, 100), \
-			display_area_rect, self._group_move)
+			game_area_rect, self._group_move)
 		self._platform = gameobject.Platform((75, 400), \
-			display_area_rect, self._group_move)
+			game_area_rect, self._group_move)
 
-		if self._display_on_screen:
+		if self._to_create_surface:
 			self._ball.create_surface()
 			self._platform.create_surface()
 
@@ -46,12 +41,14 @@ class Scene:
 		def get_coordinate(string):
 			string = string.rstrip("\n").split(' ')
 			return int(string[0]), int(string[1])
+
 		self._group_brick = pygame.sprite.RenderPlain()
 		self._brick_container = []
 
 		import os.path
 		dir_path = os.path.dirname(__file__)
 		level_file_path = os.path.join(dir_path, "level_data/{0}.dat".format(level))
+
 		with open(level_file_path, 'r') as input_file:
 			offset_x, offset_y = get_coordinate(input_file.readline())
 			for input_pos in input_file:
@@ -60,7 +57,7 @@ class Scene:
 					self._group_brick)
 				self._brick_container.append(brick)
 
-				if self._display_on_screen:
+				if self._to_create_surface:
 					brick.create_surface()
 
 	def reset(self):
@@ -89,20 +86,16 @@ class Scene:
 
 		return self._game_status
 
-	def draw(self):
-		if not self._display_on_screen:
-			return
-
-		self._screen.blit(self._background, (0, 0))
-		self._group_move.draw(self._screen)
-		self._group_brick.draw(self._screen)
+	def draw_gameobjects(self, surface):
+		self._group_brick.draw(surface)
+		self._group_move.draw(surface)
 
 	def fill_scene_info_obj(self, scene_info_obj):
 		"""Fill the information of scene to the `scene_info_obj`
 
 		This is a helper function. `scene_info_obj` has the basic member "frame" and
 		"status", and it must have member "ball", "platform", and "bricks".
-		The position of the objects will be assigned to these members accroding to
+		The position of the objects will be assigned to these members according to
 		the name. Here are the data:
 		- scene_info_obj.ball: a (x, y) tuple, the position of the ball
 		- scene_info_obj.platform: a (x, y) tuple, the position of the platform

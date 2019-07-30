@@ -11,7 +11,7 @@ from ..communication import SceneInfo, GameInstruction
 
 class PingPong:
 	"""
-	The game core for the maching learning mode
+	The game core for the machine learning mode
 	"""
 	def __init__(self, \
 		instruct_pipe_1P: Connection, scene_info_pipe_1P: Connection, \
@@ -76,7 +76,7 @@ class PingPong:
 
 				scene.reset()
 				scene_info = scene.fill_scene_info_obj(SceneInfo())
-				# Wait for ml processes doing their reseting jobs
+				# Wait for ml processes doing their resetting jobs
 				self._wait_ml_process_ready()
 
 	def _send_scene_info(self, scene_info: SceneInfo):
@@ -160,8 +160,8 @@ class Screen:
 
 		pygame.font.init()
 		self._font = pygame.font.Font(None, 22)
-		self._font_pos_1P = (1, 4)
-		self._font_pos_2P = (1, gamecore.display_area_size[1] - 21)
+		self._font_pos_1P = (1, gamecore.display_area_size[1] - 21)
+		self._font_pos_2P = (1, 4)
 		self._font_pos_speed = (gamecore.display_area_size[0] - 75, \
 			gamecore.display_area_size[1] - 21)
 
@@ -191,7 +191,7 @@ class Screen:
 		"""
 		Receive the SceneInfo from the game process and draw on the window
 
-		It will count the score accroding to the SceneInfo received.
+		It will count the score according to the SceneInfo received.
 		If either of side reaches `game_over_score`, exit the loop.
 		"""
 		score = [0, 0]	# 1P, 2P

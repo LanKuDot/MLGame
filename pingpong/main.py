@@ -49,7 +49,7 @@ def _ml_mode(fps, game_over_score, \
 	input_script_1P = "ml_play_template.py", input_script_2P = "ml_play_template.py", \
 	record_progress = False, server_info = None):
 	"""
-	Start the gane in the machine learning mode
+	Start the game in the machine learning mode
 	"""
 	from multiprocessing import Process, Pipe
 	from collections import namedtuple

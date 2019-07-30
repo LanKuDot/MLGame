@@ -1,49 +1,42 @@
 import pygame
 from . import gamecore
 from ..communication import SceneInfo
+from essential.game_base import quit_or_esc, KeyCommandMap
 
-class Arkanoid():
-	def __init__(self):
+class Arkanoid:
+	def __init__(self, fps: int, level: int, record_handler = None):
 		self._init_pygame()
+
+		self._fps = fps
+		self._record_handler = record_handler
+		self._scene = gamecore.Scene(level, True)
+		self._keyboard = KeyCommandMap({
+			pygame.K_LEFT:  gamecore.ACTION_LEFT,
+			pygame.K_RIGHT: gamecore.ACTION_RIGHT,
+		}, gamecore.ACTION_NONE)
 
 	def _init_pygame(self):
 		pygame.display.init()
-		self._clock = pygame.time.Clock()
-		self._screen = pygame.display.set_mode(gamecore.display_area_size)
 		pygame.display.set_caption("Arkanoid")
+		self._screen = pygame.display.set_mode(gamecore.scene_area_size)
+		self._clock = pygame.time.Clock()
 
-	def game_loop(self, fps: int, level: int, record_handler = None):
-		def keyboard_action() -> str:
-			key_pressed_list = pygame.key.get_pressed()
-			if key_pressed_list[pygame.K_LEFT]:
-				return gamecore.ACTION_LEFT
-			if key_pressed_list[pygame.K_RIGHT]:
-				return gamecore.ACTION_RIGHT
-			return gamecore.ACTION_NONE
-
-		def check_going():
-			for event in pygame.event.get():
-				if event.type == pygame.QUIT or \
-				  (event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE):
-					return False
-			return True
-
-		scene = gamecore.Scene(level, True, self._screen)
-
-		while check_going():
-			record_handler(scene.fill_scene_info_obj(SceneInfo()))
-			control_action = keyboard_action()
-			game_status = scene.update(control_action)
+	def game_loop(self):
+		while not quit_or_esc():
+			self._record_handler(self._scene.fill_scene_info_obj(SceneInfo()))
+			control_action = self._keyboard.get_command()
+			game_status = self._scene.update(control_action)
 
 			if game_status == gamecore.GAME_OVER_MSG or \
 			   game_status == gamecore.GAME_PASS_MSG:
 				print(game_status)
-				record_handler(scene.fill_scene_info_obj(SceneInfo()))
-				scene.reset()
-		
-			scene.draw()
+				self._record_handler(self._scene.fill_scene_info_obj(SceneInfo()))
+				self._scene.reset()
+
+			self._screen.fill((0, 0, 0))
+			self._scene.draw_gameobjects(self._screen)
 			pygame.display.flip()
 
-			self._clock.tick(fps)
+			self._clock.tick(self._fps)
 
 		pygame.quit()

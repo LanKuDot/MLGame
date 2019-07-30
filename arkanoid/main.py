@@ -42,7 +42,7 @@ def _ml_mode(fps, level, input_script = "ml_play_template.py", \
 	which will pass the game progress to the remote server.
 
 	After quit from the drawing loop,
-	the created processeswill be terminated.
+	the created processes will be terminated.
 
 	@param fps Specify the updating rate of the game
 	@param level Specify the level of the game
@@ -80,7 +80,7 @@ def _start_game_process(fps, level, \
 
 	@param fps Specify the updating rate of the game
 	@param level Specify the level of the game
-	@param instruct_pipe The pipe for receving the instruction from the ml process
+	@param instruct_pipe The pipe for receiving the instruction from the ml process
 	@param scene_info_pipe The pipe for sending the scene info to the ml process
 	@param main_pipe The pipe for sending the scene info to the main process
 	"""
@@ -100,7 +100,7 @@ def _start_ml_process(target_script, instruct_pipe, scene_info_pipe):
 	       The Script must have function `ml_loop()` and be put in the "ml"
 	       directory of the game.
 	@param instruct_pipe The sending-end of pipe for the game instruction
-	@param scene_info_pipe The receving-end of pipe for the scene information
+	@param scene_info_pipe The receiving-end of pipe for the scene information
 	"""
 	# Initialize the pipe for helper functions in communication.py
 	from . import communication as comm
@@ -123,7 +123,7 @@ def _start_ml_process(target_script, instruct_pipe, scene_info_pipe):
 def _start_display_process(main_pipe, record_progress, one_shot_mode):
 	"""Start the process for displaying the game progress
 
-	@param main_pipe The receving-end of pipe for the scene information
+	@param main_pipe The receiving-end of pipe for the scene information
 	@param record_progress Whether to record the game progress or not
 	@param one_shot_mode Whether to execute the game for only once or not
 	"""
@@ -179,7 +179,8 @@ def _manual_mode(fps, level, record_progress = False):
 	from .game.arkanoid import Arkanoid
 
 	record_handler = _get_record_handler(record_progress)
-	Arkanoid().game_loop(fps, level, record_handler)
+	game = Arkanoid(fps, level, record_handler)
+	game.game_loop()
 
 def _get_record_handler(record_progress: bool):
 	"""Return the handler for record the game progress
