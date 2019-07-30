@@ -6,8 +6,8 @@ from .gameobject import (
 )
 
 display_area_size = (200, 500)	# (width, height)
-color_1P = (84, 149, 255)	# Blue
-color_2P = (219, 70, 92)	# Red
+color_1P = (219, 70, 92)	# Red
+color_2P = (84, 149, 255)	# Blue
 
 class GameStatus(StringEnum):
 	GAME_1P_WIN = "GAME_1P_WIN"
@@ -31,9 +31,9 @@ class Scene:
 
 		self._draw_group = pygame.sprite.RenderPlain()
 		self._ball = Ball(display_area_rect, self._draw_group)
-		self._platform_1P = Platform((80, 50), \
+		self._platform_1P = Platform((80, display_area_size[1] - 80), \
 			display_area_rect, self._draw_group)
-		self._platform_2P = Platform((80, display_area_size[1] - 80), \
+		self._platform_2P = Platform((80, 50), \
 			display_area_rect, self._draw_group)
 
 		if self._display_on_screen:
@@ -64,10 +64,10 @@ class Scene:
 
 		self._ball.check_bouncing(self._platform_1P, self._platform_2P)
 
-		if self._ball.rect.bottom < self._platform_1P.rect.top:
+		if self._ball.rect.top > self._platform_1P.rect.bottom:
 			self._game_status = GameStatus.GAME_2P_WIN
 			self.score[1] += 1
-		elif self._ball.rect.top > self._platform_2P.rect.bottom:
+		elif self._ball.rect.bottom < self._platform_2P.rect.top:
 			self._game_status = GameStatus.GAME_1P_WIN
 			self.score[0] += 1
 		else:

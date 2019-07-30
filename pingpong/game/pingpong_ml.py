@@ -158,8 +158,8 @@ class Screen:
 
 		pygame.font.init()
 		self._font = pygame.font.Font(None, 22)
-		self._font_pos_1P = (1, 4)
-		self._font_pos_2P = (1, gamecore.display_area_size[1] - 21)
+		self._font_pos_1P = (1, gamecore.display_area_size[1] - 21)
+		self._font_pos_2P = (1, 4)
 		self._font_pos_speed = (gamecore.display_area_size[0] - 75, \
 			gamecore.display_area_size[1] - 21)
 
