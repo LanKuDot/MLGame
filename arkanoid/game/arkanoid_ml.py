@@ -3,6 +3,8 @@ from multiprocessing.connection import Connection
 
 from essential.exception import ExceptionMessage
 from essential.game_base import quit_or_esc
+from essential.online import MessageServer
+
 from . import gamecore, gameobject
 from ..communication import GameInstruction, SceneInfo
 
@@ -108,3 +110,110 @@ class Arkanoid:
 			pygame.display.flip()
 
 		pygame.quit()
+
+class TransitionServer:
+	"""Pass the scene info received to the message server
+	"""
+	def __init__(self, server_ip, server_port, channel_name):
+		"""Contstructor
+
+		@param server_ip The ip of the remote server
+		@param server_port The port of the remote server
+		@param channel_name The name of the channel of remote server for sending
+		       the message.
+		"""
+		self._message_server = MessageServer(server_ip, server_port, channel_name)
+		self._delay_frame = 0
+
+	def transition_loop(self, scene_info_pipe: Connection, record_handler = None):
+		"""Recevie the SceneInfo from the game process and pass to the message server
+
+		Transition loop always runs in one shot mode, therefore,
+		it will be exited after the game is over or is passed.
+		"""
+		self._send_game_info()
+		while True:
+			scene_info, instruction = scene_info_pipe.recv()
+			if isinstance(scene_info, ExceptionMessage):
+				self._send_exception(scene_info)
+				return
+
+			self._send_scene_info(scene_info, instruction)
+			record_handler(scene_info)
+
+			if scene_info.status == SceneInfo.STATUS_GAME_OVER or \
+			   scene_info.status == SceneInfo.STATUS_GAME_PASS:
+				self._send_game_result(scene_info)
+				return
+
+	def _send_game_info(self):
+		"""Send the information of the game to the message server
+		"""
+		info_dict = {
+			"scene": {
+				"size": [200, 500]
+			},
+			"game_object": [
+				{ "name": "ball", "size": [5, 5], "color": [44, 185, 214] },
+				{ "name": "platform", "size": [40, 5], "color": [66, 226, 126] },
+				{ "name": "brick", "size": [25, 10], "color": [244, 158, 66] },
+			]
+		}
+
+		self._message_server.send({
+			"type": "game_info",
+			"data": info_dict,
+		})
+
+	def _send_scene_info(self, scene_info: SceneInfo, instruction: GameInstruction):
+		"""Send the scene info to the message server
+		"""
+		if instruction and \
+		   scene_info.frame - instruction.frame == self._delay_frame + 1:
+			self._delay_frame += 1
+
+		status_dict = {
+			"frame": scene_info.frame,
+			"frame_delayed": [self._delay_frame],
+		}
+		gameobject_dict = {
+			"ball": [scene_info.ball],
+			"platform": [scene_info.platform],
+			"brick": scene_info.bricks
+		}
+
+		self._message_server.send({
+			"type": "game_progress",
+			"data": {
+				"status": status_dict,
+				"game_object": gameobject_dict,
+			}
+		})
+
+	def _send_game_result(self, scene_info: SceneInfo):
+		"""Send the game result to the message server
+		"""
+		game_result_dict = {
+			"frame_used": scene_info.frame,
+			"frame_delayed": [self._delay_frame],
+			"result": [scene_info.status],
+			"brick_remain": len(scene_info.bricks),
+		}
+
+		self._message_server.send({
+			"type": "game_result",
+			"data": game_result_dict,
+		})
+
+	def _send_exception(self, exception_msg: ExceptionMessage):
+		"""Send the exception message to the message server
+		"""
+		message_dict = {
+			"message": "Error occurred in {} process.\n{}" \
+				.format(exception_msg.process_name, exception_msg.exc_msg),
+		}
+
+		self._message_server.send({
+			"type": "game_error",
+			"data": message_dict,
+		})

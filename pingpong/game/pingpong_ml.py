@@ -3,6 +3,8 @@ from multiprocessing.connection import Connection
 from collections import namedtuple
 
 from essential.exception import ExceptionMessage
+from essential.online import MessageServer
+
 from . import gamecore, gameobject
 from .. import communication as comm
 from ..communication import SceneInfo, GameInstruction
@@ -260,3 +262,137 @@ class Screen:
 		if scene_frame - command_frame_2P == self._delayed_frame[1] + 1:
 			self._delayed_frame[1] += 1
 			print("2P delayed {} frame(s)".format(self._delayed_frame[1]))
+
+class TransitionServer:
+	"""
+	Pass the scene info received to the message server
+	"""
+	def __init__(self, server_ip, server_port, channel_name):
+		"""
+		Constructor
+
+		@param server_ip The ip of the remote server
+		@param server_port The port of the remote server
+		@param channel_name The name of the channel of remote server for sending
+		       the message
+		"""
+		self._message_server = MessageServer(server_ip, server_port, channel_name)
+		self._delay_frame = [0, 0]	# 1P, 2P
+		self._score = [0, 0]	# 1P, 2P
+
+	def transition_loop(self, scene_info_pipe: Connection, game_over_score, \
+		record_handler):
+		"""
+		Receive the SceneInfo from the game process and pass to the message server
+
+		@param scene_info_pipe The pipe for receiving the SceneInfo
+		@param game_over_score The score that when either of both sides gets that score,
+		       the game will be stopped.
+		@param record_handler The handler for recording the game progress
+		"""
+		self._send_game_info()
+		while True:
+			scene_info, instructions = scene_info_pipe.recv()
+			if isinstance(scene_info, ExceptionMessage):
+				self._send_exception(scene_info)
+				return
+
+			if instructions:
+				if scene_info.frame - instructions[0].frame == self._delay_frame[0] + 1:
+					self._delay_frame[0] += 1
+				if scene_info.frame - instructions[1].frame == self._delay_frame[1] + 1:
+					self._delay_frame[1] += 1
+
+			self._send_scene_info(scene_info)
+			record_handler(scene_info)
+
+			if scene_info.status == gamecore.GameStatus.GAME_1P_WIN or \
+			   scene_info.status == gamecore.GameStatus.GAME_2P_WIN:
+				if scene_info.status == gamecore.GameStatus.GAME_1P_WIN:
+					self._score[0] += 1
+				else:
+					self._score[1] += 1
+
+				self._send_game_result(scene_info)
+				self._delay_frame = [0, 0]
+
+				if self._score[0] == game_over_score or \
+				   self._score[1] == game_over_score:
+					return
+
+	def _send_game_info(self):
+		"""
+		Send the game information to the message server
+		"""
+		info_dict = {
+			"scene": {
+				"size": [200, 500],
+			},
+			"game_object": [
+				{ "name": "platform_1P", "size": [40, 30], "color": [84, 149, 255] },
+				{ "name": "platform_2P", "size": [40, 30], "color": [219, 70, 92] },
+				{ "name": "ball", "size": [5, 5], "color": [66, 226, 126] },
+			]
+		}
+
+		self._message_server.send({
+			"type": "game_info",
+			"data": info_dict,
+		})
+
+	def _send_scene_info(self, scene_info: SceneInfo):
+		"""
+		Send the scene info to the message server
+		"""
+		status_dict = {
+			"frame": scene_info.frame,
+			"frame_delayed": self._delay_frame,
+			"ball_speed": scene_info.ball_speed,
+		}
+		gameobject_dict = {
+			"ball": [scene_info.ball],
+			"platform_1P": [scene_info.platform_1P],
+			"platform_2P": [scene_info.platform_2P],
+		}
+
+		self._message_server.send({
+			"type": "game_progress",
+			"data": {
+				"status": status_dict,
+				"game_object": gameobject_dict,
+			}
+		})
+
+	def _send_game_result(self, scene_info: SceneInfo):
+		"""
+		Send the game result fo the message server
+		"""
+		if self._score[0] > self._score[1]:
+			status = ["GAME_PASS", "GAME_OVER"]
+		else:
+			status = ["GAME_OVER", "GAME_PASS"]
+
+		game_result_dict = {
+			"frame_used": scene_info.frame,
+			"frame_delayed": self._delay_frame,
+			"result": status,
+			"ball_speed": scene_info.ball_speed,
+		}
+
+		self._message_server.send({
+			"type": "game_result",
+			"data": game_result_dict,
+		})
+
+	def _send_exception(self, exception_msg: ExceptionMessage):
+		"""
+		Send the exception message to the message server
+		"""
+		message_dict = {
+			"message": "Error occurred in {} process.\n{}" \
+				.format(exception_msg.process_name, exception_msg.exc_msg),
+		}
+		self._message_server.send({
+			"type": "game_error",
+			"data": message_dict,
+		})
