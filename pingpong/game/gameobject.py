@@ -27,12 +27,12 @@ class Platform(pygame.sprite.Sprite):
 		# Draw the platform image
 		platform_image = pygame.Surface((self.rect.width, 10))
 		platform_image.fill(color)
-		# 1P is at the bottom of the platform rect
+		# The platform image of 1P is at the top of the rect
 		if side == "1P":
-			self.image.blit(platform_image, (0, self.image.get_height() - 10))
-		# 2P is at the top of the platform rect
-		else:
 			self.image.blit(platform_image, (0, 0))
+		# The platform image of 2P is at the bottom of the rect
+		else:
+			self.image.blit(platform_image, (0, self.image.get_height() - 10))
 
 		# Draw the outline of the platform rect
 		pygame.draw.rect(self.image, color, \
@@ -80,13 +80,13 @@ class Ball(pygame.sprite.Sprite):
 		"""
 		# Serving the ball
 		if self._serve_from_1P:
-			reset_pos_x = 75
-			reset_pos_y = int(self._play_area_rect.height * 0.2)
-			self._speed = [7, 7]
-		else:
 			reset_pos_x = 120
 			reset_pos_y = int(self._play_area_rect.height * 0.8 - self.rect.height)
 			self._speed = [-7, -7]
+		else:
+			reset_pos_x = 75
+			reset_pos_y = int(self._play_area_rect.height * 0.2)
+			self._speed = [7, 7]
 
 		self.rect = pygame.Rect(reset_pos_x, reset_pos_y, *self._size)
 		# Change side next time
