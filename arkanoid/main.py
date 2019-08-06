@@ -45,39 +45,42 @@ def _ml_mode(fps, level, input_script = "ml_play_template.py", \
 
 	instruct_pipe_r, instruct_pipe_s = Pipe(False)
 	scene_info_pipe_r, scene_info_pipe_s = Pipe(False)
-	main_pipe_r, main_pipe_s = Pipe(False)
 
-	game_process = Process(target = _start_game_process, name = "game process", \
-		args = (fps, level, instruct_pipe_r, scene_info_pipe_s, main_pipe_s))
 	ml_process = Process(target = _start_ml_process, name = "ml process", \
 		args = (input_script, instruct_pipe_s, scene_info_pipe_r))
 
 	ml_process.start()
-	game_process.start()
 
-	_start_display_process(main_pipe_r, record_progress, one_shot_mode)
+	_start_game_process(fps, level, record_progress, one_shot_mode, \
+		instruct_pipe_r, scene_info_pipe_s)
 
 	ml_process.terminate()
-	game_process.terminate()
 
-def _start_game_process(fps, level, \
-	instruct_pipe, scene_info_pipe, main_pipe):
+def _start_game_process(fps, level, record_progress, one_shot_mode, \
+	instruct_pipe, scene_info_pipe):
 	"""Start the game process
 
 	@param fps Specify the updating rate of the game
 	@param level Specify the level of the game
+	@param record_progress Whether to record the game progress
+	@param one_shot_mode Whether to run the game for only one round
 	@param instruct_pipe The pipe for receiving the instruction from the ml process
 	@param scene_info_pipe The pipe for sending the scene info to the ml process
-	@param main_pipe The pipe for sending the scene info to the main process
 	"""
 	from .game.arkanoid_ml import Arkanoid
 	try:
-		Arkanoid().game_loop(fps, level, instruct_pipe, scene_info_pipe, main_pipe)
+		record_handler = _get_record_handler(record_progress)
+		game = Arkanoid(fps, level, record_handler, one_shot_mode)
+		game.game_loop(instruct_pipe, scene_info_pipe)
+	except RuntimeError as e:
+		print(e)
 	except Exception as e:
 		import traceback
 		from essential.exception import ExceptionMessage
-		exc_msg = ExceptionMessage("game", traceback.format_exc())
-		main_pipe.send((exc_msg, None))
+		exception_msg = ExceptionMessage("game", traceback.format_exc())
+		print("Exception occurred in the {} process:" \
+				.format(exception_msg.process_name))
+		print(exception_msg.exc_msg)
 
 def _start_ml_process(target_script, instruct_pipe, scene_info_pipe):
 	"""Start the custom machine learning process
@@ -105,28 +108,6 @@ def _start_ml_process(target_script, instruct_pipe, scene_info_pipe):
 		trimmed_callstack = trim_callstack(traceback.format_exc(), target_script)
 		exc_msg = ExceptionMessage("ml", trimmed_callstack)
 		comm._instruct_pipe.send(exc_msg)
-
-def _start_display_process(main_pipe, record_progress, one_shot_mode):
-	"""Start the process for displaying the game progress
-
-	@param main_pipe The receiving-end of pipe for the scene information
-	@param record_progress Whether to record the game progress or not
-	@param one_shot_mode Whether to execute the game for only once or not
-	"""
-	from .game.arkanoid_ml import Screen
-	
-	try:
-		screen = Screen()
-		record_handler = _get_record_handler(record_progress)
-		exception_msg = screen.draw_loop(main_pipe, record_handler, one_shot_mode)
-	except Exception as e:
-		import traceback
-		print(traceback.format_exc())
-	else:
-		if exception_msg is not None:
-			print("Exception occurred in the {} process:" \
-				.format(exception_msg.process_name))
-			print(exception_msg.exc_msg)
 
 def _manual_mode(fps, level, record_progress = False):
 	"""Play the game as a normal game
