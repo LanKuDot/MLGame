@@ -24,3 +24,22 @@ recv_from_ml = FunctionDelegate()
 # Return: a list of received objects, the order is the same as the registered order
 # in the ProcessManager.
 recv_from_all_ml = FunctionDelegate()
+
+
+def wait_ml_ready(ml_name):
+	"""
+	Wait until receiving the ready command from a ml process
+	"""
+	while recv_from_ml(ml_name, to_wait = True) != "READY":
+		pass
+
+def wait_all_ml_ready():
+	"""
+	Wait until receiving the ready command from all ml processes
+	"""
+	ready_dict = recv_from_all_ml(to_wait = False)
+
+	# Wait the ready command one by one
+	for ml_process, received_msg in ready_dict.items():
+		while received_msg != "READY":
+			received_msg = recv_from_ml(ml_process, to_wait = True)

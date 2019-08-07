@@ -11,3 +11,10 @@ send_to_game = FunctionDelegate()
 # The handler for receiving object from the game process
 # The handler takes no argument.
 recv_from_game = FunctionDelegate()
+
+
+def ml_ready():
+	"""
+	Inform the game process that the ml process is ready.
+	"""
+	send_to_game("READY")

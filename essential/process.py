@@ -220,7 +220,9 @@ def _game_process_entry_point(helper: GameProcessHelper):
 	"""
 	# Bind the helper functions to the handlers
 	from .communication import game
+	game.send_to_ml.set_function(helper.send_to_ml)
 	game.send_to_all_ml.set_function(helper.send_to_all_ml)
+	game.recv_from_ml.set_function(helper.recv_from_ml)
 	game.recv_from_all_ml.set_function(helper.recv_from_all_ml)
 
 	try:
