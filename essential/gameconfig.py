@@ -148,12 +148,12 @@ class GameConfig:
 		return splited_str
 
 	def __str__(self):
-		return \
-			"game_name: {}\n".format(self.game_name) + \
-			"game_params: {}\n".format(self.game_params) + \
-			"game_mode: {}\n".format(self.game_mode.name) + \
-			"one_shot_mode: {}\n".format(self.one_shot_mode) + \
-			"record_progress: {}\n".format(self.record_progress) + \
-			"online_channel: {}\n".format(self.online_channel) + \
-			"fps: {}\n".format(self.fps) + \
-			"input_scripts: {}".format(self.input_scripts)
+		return "{" + \
+			"'game_name': '{}', ".format(self.game_name) + \
+			"'game_params': {}, ".format(self.game_params) + \
+			"'game_mode': {}, ".format(self.game_mode) + \
+			"'one_shot_mode': {}, ".format(self.one_shot_mode) + \
+			"'record_progress': {}, ".format(self.record_progress) + \
+			"'online_channel': {}, ".format(self.online_channel) + \
+			"'fps': {}, ".format(self.fps) + \
+			"'input_scripts': {}".format(self.input_scripts)
