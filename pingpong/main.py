@@ -1,14 +1,16 @@
-def execute(options):
+from essential.gameconfig import GameMode
+
+def execute(config):
 	"""
 	Start the game in the selected mode
 
 	An additional game parameter (stored in options.game_params)
 	for the game pingpong is the game over score.
 
-	@param options The game options
+	@param config The game configuration
 	"""
 	try:
-		game_over_score = int(options.game_params[0])
+		game_over_score = int(config.game_params[0])
 		if game_over_score < 1:
 			raise ValueError
 	except IndexError:
@@ -18,21 +20,16 @@ def execute(options):
 		print("Invalid game over score. Set to 3.")
 		game_over_score = 3
 
-	if options.manual_mode:
-		_manual_mode(options.fps, game_over_score, options.record_progress)
-	elif options.online_channel:
-		server_info = options.online_channel.split(":")
-		if len(server_info) != 3:
-			raise ValueError("Invalid SERVER_INFO format. Must be " \
-				"\"<server_ip>:<server_port>:<channel_name>\".")
-
-		script_1P, script_2P = get_scripts_name(options.input_script)
-		_ml_mode(options.fps, game_over_score, script_1P, script_2P, \
-			server_info = server_info)
+	if config.game_mode == GameMode.MANUAL:
+		_manual_mode(config.fps, game_over_score, config.record_progress)
+	elif config.game_mode == GameMode.ONLINE:
+		script_1P, script_2P = get_scripts_name(config.input_scripts)
+		_ml_mode(config.fps, game_over_score, script_1P, script_2P, \
+			online_channel = config.online_channel)
 	else:
-		script_1P, script_2P = get_scripts_name(options.input_script)
-		_ml_mode(options.fps, game_over_score, \
-			script_1P, script_2P, options.record_progress)
+		script_1P, script_2P = get_scripts_name(config.input_scripts)
+		_ml_mode(config.fps, game_over_score, \
+			script_1P, script_2P, config.record_progress)
 
 def get_scripts_name(input_scripts):
 	"""
@@ -47,7 +44,7 @@ def get_scripts_name(input_scripts):
 
 def _ml_mode(fps, game_over_score, \
 	input_script_1P = "ml_play_template.py", input_script_2P = "ml_play_template.py", \
-	record_progress = False, server_info = None):
+	record_progress = False, online_channel = None):
 	"""
 	Start the game in the machine learning mode
 	"""
@@ -76,8 +73,8 @@ def _ml_mode(fps, game_over_score, \
 	ml_process_1P.start()
 	ml_process_2P.start()
 
-	if server_info:
-		_start_transition_process(main_pipe.recv_end, *server_info, game_over_score)
+	if online_channel:
+		_start_transition_process(main_pipe.recv_end, *online_channel, game_over_score)
 	else:
 		_start_display_process(main_pipe.recv_end, record_progress, game_over_score)
 

@@ -3,7 +3,6 @@ from multiprocessing.connection import Connection
 
 from essential.exception import ExceptionMessage
 from essential.game_base import quit_or_esc
-from essential.online import MessageServer
 
 from . import gamecore, gameobject
 from ..communication import GameInstruction, SceneInfo
@@ -115,18 +114,20 @@ class TransitionServer:
 	"""Pass the scene info received to the message server
 	"""
 	def __init__(self, server_ip, server_port, channel_name):
-		"""Contstructor
+		"""Constructor
 
-		@param server_ip The ip of the remote server
+		@param server_ip The IP of the remote server
 		@param server_port The port of the remote server
 		@param channel_name The name of the channel of remote server for sending
 		       the message.
 		"""
+		from essential.online import MessageServer
+
 		self._message_server = MessageServer(server_ip, server_port, channel_name)
 		self._delay_frame = 0
 
 	def transition_loop(self, scene_info_pipe: Connection, record_handler = None):
-		"""Recevie the SceneInfo from the game process and pass to the message server
+		"""Receive the SceneInfo from the game process and pass to the message server
 
 		Transition loop always runs in one shot mode, therefore,
 		it will be exited after the game is over or is passed.

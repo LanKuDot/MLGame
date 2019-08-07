@@ -3,7 +3,6 @@ from multiprocessing.connection import Connection
 from collections import namedtuple
 
 from essential.exception import ExceptionMessage
-from essential.online import MessageServer
 
 from . import gamecore, gameobject
 from .. import communication as comm
@@ -276,6 +275,8 @@ class TransitionServer:
 		@param channel_name The name of the channel of remote server for sending
 		       the message
 		"""
+		from essential.online import MessageServer
+
 		self._message_server = MessageServer(server_ip, server_port, channel_name)
 		self._delay_frame = [0, 0]	# 1P, 2P
 		self._score = [0, 0]	# 1P, 2P

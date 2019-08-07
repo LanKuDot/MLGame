@@ -1,13 +1,15 @@
-def execute(options):
+from essential.gameconfig import GameMode
+
+def execute(config):
 	"""Start the game in the selected mode
 
 	An additional game parameter (stored in options.game_params)
 	for the game arkanoid is the level.
 
-	@param options The game options specified in the command line
+	@param config The game configuration specified in the command line
 	"""
 	try:
-		level = int(options.game_params[0])
+		level = int(config.game_params[0])
 		if level < 1:
 			raise ValueError
 	except IndexError:
@@ -17,22 +19,17 @@ def execute(options):
 		print("Invalid level value. Set to 1.")
 		level = 1
 
-	if options.online_channel:
-		server_info = options.online_channel.split(":")
-		if len(server_info) != 3:
-			raise ValueError("Invalid SERVER_INFO format. Must be " \
-				"\"<server_ip>:<server_port>:<channel_nane>\".")
-
-		_ml_mode(options.fps, level, options.input_script[0], \
-			server_info = server_info)
-	elif options.manual_mode:
-		_manual_mode(options.fps, level, options.record_progress)
+	if config.game_mode == GameMode.ONLINE:
+		_ml_mode(config.fps, level, config.input_scripts[0], \
+			online_channel = config.online_channel)
+	elif config.game_mode == GameMode.MANUAL:
+		_manual_mode(config.fps, level, config.record_progress)
 	else:
-		_ml_mode(options.fps, level, options.input_script[0], \
-			options.record_progress, options.one_shot_mode)
+		_ml_mode(config.fps, level, config.input_scripts[0], \
+			config.record_progress, config.one_shot_mode)
 
 def _ml_mode(fps, level, input_script = "ml_play_template.py", \
-	record_progress = False, one_shot_mode = False, server_info = None):
+	record_progress = False, one_shot_mode = False, online_channel = None):
 	"""Start the game in the machine learning mode
 
 	Create a game and a machine learning processes, and pipes for communicating.
@@ -49,7 +46,7 @@ def _ml_mode(fps, level, input_script = "ml_play_template.py", \
 	@param input_script Specify the script for the ml process
 	@param record_progress Specify whether to record the game progress or not
 	@param one_shot_mode Specify whether to run the game only once or not
-	@param server_info Specify a list [server_ip, server_port, channel_name]
+	@param online_channel Specify a list [server_ip, server_port, channel_name]
 	"""
 
 	from multiprocessing import Process, Pipe
@@ -62,8 +59,8 @@ def _ml_mode(fps, level, input_script = "ml_play_template.py", \
 
 	ml_process.start()
 
-	if server_info:
-		_start_transition_process(main_pipe_r, *server_info)
+	if online_channel:
+		_start_transition_process(main_pipe_r, *online_channel)
 	else:
 		_start_game_process(fps, level, record_progress, one_shot_mode, \
 			instruct_pipe_r, scene_info_pipe_s)
