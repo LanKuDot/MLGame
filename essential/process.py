@@ -164,12 +164,12 @@ class GameProcessHelper:
 		"""Receive objects from all ml processes
 
 		@param to_wait Whether to wait the object send from the ml processes
-		@return A list of received objects. The order is the same as the order of
-		        registering the ml processes.
+		@return A dictionary. The key is the game of the ml process,
+		        the value is the received object from that process.
 		"""
-		objs = []
+		objs = {}
 		for ml_name in self._comm_set.recv_end.keys():
-			objs.append(self.recv_from_ml(ml_name, to_wait))
+			objs[ml_name] = self.recv_from_ml(ml_name, to_wait)
 
 		return objs
 
