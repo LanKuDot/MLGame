@@ -138,31 +138,38 @@ class GameProcessHelper:
 		for send_end in self._comm_set.send_end.values():
 			send_end.send(obj)
 
-	def recv_from_ml(self, from_ml: str):
+	def recv_from_ml(self, from_ml: str, to_wait: bool = False):
 		"""Receive an object from the specified ml process
 
 		If it receives an exception from the ml process, it will raise MLProcessError.
-		If this function is invoked in a `try...except...` block, raise the MLProcessError
-		to the starting point of the game process. The ProcessManager will stop all processes.
+		If this function is invoked in a `try...except...` block,
+		raise the MLProcessError outside the starting point of the game process for
+		the ProcessManager to stop all processes.
 
 		@param from_ml The name of the ml process
+		@param to_wait Whether to wait the object send from the ml process.
+		       If `to_wait` is False and there is no object available, return None.
 		@return The received object
 		"""
+		if not to_wait and not self._comm_set.recv_end[from_ml].poll():
+			return None
+
 		obj = self._comm_set.recv_end[from_ml].recv()
 		if isinstance(obj, ExceptionMessage):
 			raise MLProcessError(obj.process_name, obj.exc_msg)
 
 		return obj
 
-	def recv_from_all_ml(self):
+	def recv_from_all_ml(self, to_wait: bool = False):
 		"""Receive objects from all ml processes
 
+		@param to_wait Whether to wait the object send from the ml processes
 		@return A list of received objects. The order is the same as the order of
 		        registering the ml processes.
 		"""
 		objs = []
 		for ml_name in self._comm_set.recv_end.keys():
-			objs.append(self.recv_from_ml(ml_name))
+			objs.append(self.recv_from_ml(ml_name, to_wait))
 
 		return objs
 
