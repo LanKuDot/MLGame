@@ -15,12 +15,6 @@ class BasicSceneInfo:
 	def __str__(self):
 		return "# Frame {}\n# Status {}".format(self.frame, self.status)
 
-class GameABC(abc.ABC):
-	@abc.abstractmethod
-	def game_loop(self, fps: int, \
-		instruct_pipe: Connection, pos_pipe: Connection, main_pipe: Connection):
-		return NotImplemented
-
 class StringEnum(Enum):
 	def __eq__(self, other):
 		if isinstance(other, StringEnum):
