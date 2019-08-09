@@ -3,7 +3,9 @@ import traceback
 
 from multiprocessing import Process, Pipe
 from .communication.base import CommunicationSet
-from .exception import MLProcessError, ExceptionMessage, trim_callstack
+from .exception import (
+	GameProcessError, MLProcessError, ExceptionMessage, trim_callstack
+)
 
 class ProcessManager:
 	"""Create and manage the processes, and set up communication channels between them
@@ -65,6 +67,7 @@ class ProcessManager:
 		self._create_pipes()
 		self._start_ml_processes()
 		self._start_game_process()
+
 		self._terminate()
 
 	def _create_pipes(self):
@@ -94,7 +97,11 @@ class ProcessManager:
 	def _start_game_process(self):
 		"""Start the game process
 		"""
-		_game_process_entry_point(self._game_proc_helper)
+		try:
+			_game_process_entry_point(self._game_proc_helper)
+		except (MLProcessError, GameProcessError) as e:
+			print("*** Error occurred in \"{}\" process:".format(e.process_name))
+			print(e.message)
 
 	def _terminate(self):
 		"""Stop all spawned ml processes
@@ -227,9 +234,10 @@ def _game_process_entry_point(helper: GameProcessHelper):
 
 	try:
 		helper.target_function(*helper.args, **helper.kwargs)
-	except MLProcessError as e:
-		print("*** Error occurred in \"{}\" process:".format(e.process_name))
-		print(e.message)
+	except MLProcessError:
+		raise
+	except Exception as e:
+		raise GameProcessError(helper.name, traceback.format_exc())
 
 def _ml_process_entry_point(helper: MLProcessHelper):
 	"""The real entry point of the ml process

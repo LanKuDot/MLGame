@@ -1,9 +1,11 @@
 class ProcessError(Exception):
-	"""The base class for the exception in the processes
+	"""
+	The base class for the exception occurred in the process
 	"""
 
 	def __init__(self, process_name, message):
-		"""Constructor
+		"""
+		Constructor
 
 		@param process_name The name of the process in which the error occurred
 		@param message The error message
@@ -11,14 +13,22 @@ class ProcessError(Exception):
 		self.process_name = process_name
 		self.message = message
 
+class GameProcessError(ProcessError):
+	"""
+	Exception raised when an error occurred in the game process
+	"""
+	pass
+
 class MLProcessError(ProcessError):
-	"""Exception raised when the main process received the ExceptionMessage
+	"""
+	Exception raised when the main process received the ExceptionMessage
 	from the ml process
 	"""
 	pass
 
 class ExceptionMessage:
-	"""The exception message object to be passed to another process
+	"""
+	The exception message object to be passed to another process
 	"""
 
 	def __init__(self, process_name, exc_msg):
