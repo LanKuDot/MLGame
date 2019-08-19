@@ -40,7 +40,7 @@ class ProcessManager:
 		@param kwargs The keyword arguments to be passed to the `ml_loop` function
 		"""
 		if name == "":
-			name = "ml_" + len(self._ml_proc_helpers)
+			name = "ml_" + str(len(self._ml_proc_helpers))
 
 		for helper in self._ml_proc_helpers:
 			if name == helper.name:
