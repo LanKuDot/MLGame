@@ -25,6 +25,11 @@ recv_from_ml = FunctionDelegate()
 # in the ProcessManager.
 recv_from_all_ml = FunctionDelegate()
 
+# The handler for sending object to the transition process
+# The handler takes 1 arguments: the object to be sent
+# Usage: send_to_transition(obj)
+send_to_transition = FunctionDelegate()
+
 
 def wait_ml_ready(ml_name):
 	"""
