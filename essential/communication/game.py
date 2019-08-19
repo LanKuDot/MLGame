@@ -1,34 +1,44 @@
-from ..utils.delegate import FunctionDelegate
+from . import base
 
-# The handler for sending an object to a ml process
-# The handler takes 2 arguments: the object and the name of the ml process
-# Usage: send_to_ml(obj, to_ml)
-send_to_ml = FunctionDelegate()
+def send_to_ml(obj, ml_name: str):
+	"""
+	Send an object to the specified ml process
 
-# The handler for sending an object to all ml processes
-# The handler takes 1 argument: the object to be sent
-# Usage: send_to_all_ml(obj)
-send_to_all_ml = FunctionDelegate()
+	@param obj The object to be sent
+	@param ml_name The name of the target ml process
+	"""
+	base.send_to_ml(obj, ml_name)
 
-# The handler for receiving an object from a ml process
-# The handler takes 1 argument: `from_ml` - the name of the ml process, and
-# 1 optional argument: `to_wait` - [default: False]
-# whether to wait the object sent from the ml process.
-# If `to_wait` is False and there is no object available, return None.
-# Usage: recv_from_ml(from_ml[, to_wait = False])
-recv_from_ml = FunctionDelegate()
+def send_to_all_ml(obj):
+	"""
+	Send an object to all ml processes
 
-# The handler for receiving objects from all ml processes
-# The handler take 1 optional argument: `to_wait`. See `recv_from_ml` for the usage.
-# Usage: recv_from_all_ml([to_wait = False])
-# Return: a list of received objects, the order is the same as the registered order
-# in the ProcessManager.
-recv_from_all_ml = FunctionDelegate()
+	@param obj The object to be sent
+	"""
+	base.send_to_all_ml(obj)
 
-# The handler for sending object to the transition process
-# The handler takes 1 arguments: the object to be sent
-# Usage: send_to_transition(obj)
-send_to_transition = FunctionDelegate()
+def recv_from_ml(ml_name, to_wait = False):
+	"""
+	Receive an object sent from the specified ml process
+
+	@param ml_name The name of the target ml process
+	@param to_wait Whether to wait the object or not
+	@return The received object.
+	        If `to_wait` is False and there is nothing to receive, return None.
+	"""
+	return base.recv_from_ml(ml_name, to_wait)
+
+def recv_from_all_ml(to_wait = False):
+	"""
+	Receive objects from all ml processes
+
+	@param to_wait Whether to wait objects or not
+	@return A dictionary. The key is the game of the ml process,
+	        the value is the received object from that process.
+	        If `to_wait` is False and there is nothing to receive from that process,
+	        the value will be None.
+	"""
+	return base.recv_from_all_ml(to_wait)
 
 
 def wait_ml_ready(ml_name):

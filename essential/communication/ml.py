@@ -1,16 +1,24 @@
 """The handlers for exchanging objects with the game process
-
-The corresponding handler will be initialized by the process manager
 """
-from ..utils.delegate import FunctionDelegate
+from . import base
 
-# The handler for sending object to the game process
-# The handler only takes 1 argument which is an object to be sent.
-send_to_game = FunctionDelegate()
+def send_to_game(obj):
+	"""
+	Send an object to the game process
 
-# The handler for receiving object from the game process
-# The handler takes no argument.
-recv_from_game = FunctionDelegate()
+	@param obj The object to be sent
+	"""
+	base.send_to_game(obj)
+
+def recv_from_game():
+	"""
+	Receive an object from the game process
+
+	The method will wait until it receives the object.
+
+	@return The received object.
+	"""
+	return base.recv_from_game()
 
 
 def ml_ready():

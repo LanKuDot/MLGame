@@ -306,12 +306,12 @@ def _game_process_entry_point(helper: GameProcessHelper):
 	"""The real entry point of the game process
 	"""
 	# Bind the helper functions to the handlers
-	from .communication import game
-	game.send_to_ml.set_function(helper.send_to_ml)
-	game.send_to_all_ml.set_function(helper.send_to_all_ml)
-	game.recv_from_ml.set_function(helper.recv_from_ml)
-	game.recv_from_all_ml.set_function(helper.recv_from_all_ml)
-	game.send_to_transition.set_function(helper.send_to_transition)
+	from .communication import base
+	base.send_to_ml.set_function(helper.send_to_ml)
+	base.send_to_all_ml.set_function(helper.send_to_all_ml)
+	base.recv_from_ml.set_function(helper.recv_from_ml)
+	base.recv_from_all_ml.set_function(helper.recv_from_all_ml)
+	base.send_to_transition.set_function(helper.send_to_transition)
 
 	try:
 		helper.target_function(*helper.args, **helper.kwargs)
@@ -337,9 +337,9 @@ def _ml_process_entry_point(helper: MLProcessHelper):
 	"""The real entry point of the ml process
 	"""
 	# Bind the helper functions to the handlers
-	from .communication import ml
-	ml.send_to_game.set_function(helper.send_to_game)
-	ml.recv_from_game.set_function(helper.recv_from_game)
+	from .communication import base
+	base.send_to_game.set_function(helper.send_to_game)
+	base.recv_from_game.set_function(helper.recv_from_game)
 
 	try:
 		ml_module = importlib.import_module(helper.target_module, __package__)
