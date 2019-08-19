@@ -19,6 +19,12 @@ class GameProcessError(ProcessError):
 	"""
 	pass
 
+class TransitionProcessError(ProcessError):
+	"""
+	Exception raised when an error occurred in the transition process
+	"""
+	pass
+
 class MLProcessError(ProcessError):
 	"""
 	Exception raised when the main process received the ExceptionMessage

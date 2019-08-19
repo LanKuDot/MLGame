@@ -4,7 +4,8 @@ import traceback
 from multiprocessing import Process, Pipe
 from .communication.base import CommunicationSet
 from .exception import (
-	GameProcessError, MLProcessError, ExceptionMessage, trim_callstack
+	GameProcessError, MLProcessError, TransitionProcessError, \
+		ExceptionMessage, trim_callstack
 )
 
 class ProcessManager:
@@ -99,11 +100,14 @@ class ProcessManager:
 			ml_proc_helper._comm_set.send_end[self._game_proc_helper.name] = send_pipe
 			self._game_proc_helper._comm_set.recv_end[ml_proc_helper.name] = recv_pipe
 
-		# Create pipe for Game process -> Transition process
+		# Create pipe for Game process <-> Transition process
 		if self._transition_proc_helper is not None:
 			recv_pipe, send_pipe = Pipe(False)
 			self._game_proc_helper._comm_set.send_end[TransitionProcessHelper.name] = send_pipe
 			self._transition_proc_helper._comm_set.recv_end[GameProcessHelper.name] = recv_pipe
+			recv_pipe, send_pipe = Pipe(False)
+			self._transition_proc_helper._comm_set.send_end[GameProcessHelper.name] = send_pipe
+			self._game_proc_helper._comm_set.recv_end[TransitionProcessHelper.name] = recv_pipe
 
 	def _start_ml_processes(self):
 		"""Spawn and start all ml processes
@@ -130,7 +134,7 @@ class ProcessManager:
 		"""
 		try:
 			_game_process_entry_point(self._game_proc_helper)
-		except (MLProcessError, GameProcessError) as e:
+		except (MLProcessError, GameProcessError, TransitionProcessError) as e:
 			print("*** Error occurred in \"{}\" process:".format(e.process_name))
 			print(e.message)
 
@@ -142,6 +146,7 @@ class ProcessManager:
 
 		if self._transition_proc_helper is not None:
 			self._transition_process.terminate()
+
 
 class GameProcessHelper:
 	"""The helper class that helps build the game process
@@ -166,7 +171,7 @@ class GameProcessHelper:
 	def send_to_ml(self, obj, to_ml: str):
 		"""Send an object to the specified ml process
 
-		@param obj The object
+		@param obj The object to be sent
 		@param to_ml The name of the ml process
 		"""
 		self._comm_set.send_end[to_ml].send(obj)
@@ -174,13 +179,25 @@ class GameProcessHelper:
 	def send_to_all_ml(self, obj):
 		"""Send an object to all ml processes
 
-		@param obj The object
+		@param obj The object to be sent
 		"""
 		for send_end in self._comm_set.send_end.values():
 			send_end.send(obj)
 
 	def send_to_transition(self, obj):
+		"""Send an object to the transition process
+
+		@param obj The object to be sent
+		"""
 		self._comm_set.send_end[TransitionProcessHelper.name].send(obj)
+		self.check_transition_exception()
+
+	def check_transition_exception(self):
+		"""Check if there has the exception message sent from the transition process
+		"""
+		if self._comm_set.recv_end[TransitionProcessHelper.name].poll():
+			exc_msg = self._comm_set.recv_end[TransitionProcessHelper.name].recv()
+			raise TransitionProcessError(exc_msg.process_name, exc_msg.exc_msg)
 
 	def recv_from_ml(self, from_ml: str, to_wait: bool = False):
 		"""Receive an object from the specified ml process
@@ -237,6 +254,11 @@ class TransitionProcessHelper:
 	def recv_from_game(self):
 		return self._comm_set.recv_end[GameProcessHelper.name].recv()
 
+	def send_exception(self, exc_msg: ExceptionMessage):
+		"""Send an exception to the game process
+		"""
+		self._comm_set.send_end[GameProcessHelper.name].send(exc_msg)
+
 class MLProcessHelper:
 	"""The helper class that helps build ml process
 
@@ -279,6 +301,7 @@ class MLProcessHelper:
 		"""
 		self._comm_set.send_end["game"].send(exc_msg)
 
+
 def _game_process_entry_point(helper: GameProcessHelper):
 	"""The real entry point of the game process
 	"""
@@ -307,8 +330,8 @@ def _transition_process_entry_point(helper: TransitionProcessHelper):
 			(helper.server_ip, helper.server_port, helper.channel_name))
 		transition_manager.transition_loop()
 	except Exception as e:
-		# TODO Send the exception to the main process
-		print(e)
+		exc_msg = ExceptionMessage(helper.name, traceback.format_exc())
+		helper.send_exception(exc_msg)
 
 def _ml_process_entry_point(helper: MLProcessHelper):
 	"""The real entry point of the ml process
