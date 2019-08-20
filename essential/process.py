@@ -154,7 +154,7 @@ class GameProcessHelper:
 	Store the information for starting the game process and
 	provide the helper functions to communicate with the ml processes.
 	"""
-	name = "game"
+	name = "_game"
 
 	def __init__(self, target_function, args = (), kwargs = {}):
 		"""Constructor
@@ -237,7 +237,7 @@ class GameProcessHelper:
 class TransitionProcessHelper:
 	"""The helper class for building the transition process
 	"""
-	name = "transition"
+	name = "_transition"
 
 	def __init__(self, server_ip, server_port, channel_name):
 		"""Constructor
@@ -285,21 +285,21 @@ class MLProcessHelper:
 
 		@return The received object
 		"""
-		return self._comm_set.recv_end["game"].recv()
+		return self._comm_set.recv_end[GameProcessHelper.name].recv()
 
 	def send_to_game(self, obj):
 		"""Send an object to the game process
 
 		@param obj An object to be sent
 		"""
-		self._comm_set.send_end["game"].send(obj)
+		self._comm_set.send_end[GameProcessHelper.name].send(obj)
 
 	def send_exception(self, exc_msg: ExceptionMessage):
 		"""Send an exception to the game process
 
 		@param exc_msg The exception message
 		"""
-		self._comm_set.send_end["game"].send(exc_msg)
+		self._comm_set.send_end[GameProcessHelper.name].send(exc_msg)
 
 
 def _game_process_entry_point(helper: GameProcessHelper):
