@@ -1,7 +1,6 @@
 import pygame
-from enum import Enum
 
-from .communication.game import recv_from_ml, recv_from_all_ml
+from ..communication.game import recv_from_ml, recv_from_all_ml
 
 def quit_or_esc() -> bool:
 	"""
@@ -24,18 +23,6 @@ class BasicSceneInfo:
 
 	def __str__(self):
 		return "# Frame {}\n# Status {}".format(self.frame, self.status)
-
-class StringEnum(Enum):
-	def __eq__(self, other):
-		if isinstance(other, StringEnum):
-			return super().__eq__(other)
-		elif isinstance(other, str):
-			return self.value == other
-
-		return False
-
-	def __ne__(self, other):
-		return not self.__eq__(other)
 
 class KeyCommandMap:
 	"""

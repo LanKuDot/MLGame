@@ -130,7 +130,7 @@ def _start_transition_process(main_pipe, server_ip, server_port, channel_name):
 	       for sending the scene info.
 	"""
 	import os.path
-	from essential.recorder import Recorder
+	from essential.gamedev.recorder import Recorder
 	from .game.arkanoid_ml import TransitionServer
 	from .game import gamecore
 

@@ -1,7 +1,7 @@
 import pygame
 from pygame import Rect, Surface
 from pygame.sprite import Sprite
-from essential import physics
+from essential.gamedev import physics
 
 class Brick(Sprite):
 	def __init__(self, init_pos, *groups):

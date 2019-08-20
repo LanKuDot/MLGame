@@ -2,7 +2,7 @@ import pygame, time
 from multiprocessing.connection import Connection
 
 from essential.exception import ExceptionMessage
-from essential.game_base import quit_or_esc
+from essential.gamedev.generic import quit_or_esc
 
 from . import gamecore, gameobject
 from ..communication import GameInstruction, SceneInfo

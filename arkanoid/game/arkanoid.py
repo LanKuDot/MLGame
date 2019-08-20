@@ -1,7 +1,7 @@
 import pygame
 from . import gamecore
 from ..communication import SceneInfo
-from essential.game_base import quit_or_esc, KeyCommandMap
+from essential.gamedev.generic import quit_or_esc, KeyCommandMap
 
 class Arkanoid:
 	def __init__(self, fps: int, level: int, record_handler = None):

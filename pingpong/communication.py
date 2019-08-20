@@ -1,4 +1,4 @@
-from essential.game_base import StringEnum
+from essential.utils.enum import StringEnum
 
 class GameStatus(StringEnum):
 	GAME_1P_WIN = "GAME_1P_WIN"

@@ -1,4 +1,4 @@
-from essential.game_base import BasicSceneInfo
+from essential.gamedev.generic import BasicSceneInfo
 
 class SceneInfo(BasicSceneInfo):
 	"""The data structure for the information of the scene

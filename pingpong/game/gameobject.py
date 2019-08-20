@@ -1,5 +1,5 @@
-from essential import physics
-from essential.game_base import StringEnum
+from essential.gamedev import physics
+from essential.utils.enum import StringEnum
 
 from pygame.math import Vector2
 import pygame

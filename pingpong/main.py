@@ -173,7 +173,7 @@ def _start_transition_process(main_pipe, server_ip, server_port, channel_name, \
 	       reaches that score
 	"""
 	import os
-	from essential.recorder import Recorder
+	from essential.gamedev.recorder import Recorder
 	from .game.pingpong_ml import TransitionServer
 	from .game.gamecore import GameStatus
 
