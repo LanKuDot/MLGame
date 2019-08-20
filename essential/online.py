@@ -43,9 +43,6 @@ class TransitionManager:
 		"""
 		The infinite loop for passing data to the remote server
 		"""
-		try:
-			while True:
-				data = self._recv_data_func()
-				self._message_server.send(data)
-		except Exception as e:
-			print(e)
+		while True:
+			data = self._recv_data_func()
+			self._message_server.send(data)
