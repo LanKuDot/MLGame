@@ -1,6 +1,10 @@
 """
 The interface for communicating with the message server
 """
+from asgiref.sync import async_to_sync
+from channels_redis.core import RedisChannelLayer
+
+from essential.exception import ExceptionMessage
 
 class RedisTransition:
 	def __init__(self, server_ip, server_port, channel_name):
@@ -12,9 +16,6 @@ class RedisTransition:
 		@param channel_name Specify the name of the channel in the redis server
 		       to be communicated.
 		"""
-		from asgiref.sync import async_to_sync
-		from channels_redis.core import RedisChannelLayer
-
 		self._redis_server = RedisChannelLayer(hosts = [(server_ip, int(server_port))])
 		self._channel_name = channel_name
 
@@ -42,7 +43,27 @@ class TransitionManager:
 	def transition_loop(self):
 		"""
 		The infinite loop for passing data to the remote server
+
+		If it receives `None`, then quit the transition loop.
 		"""
 		while True:
 			data = self._recv_data_func()
-			self._message_server.send(data)
+
+			if not data:
+				return
+			elif isinstance(data, ExceptionMessage):
+				self._send_exception(data)
+			else:
+				self._message_server.send(data)
+
+	def _send_exception(self, exc_msg: ExceptionMessage):
+		"""
+		Generate and send the exception message to the remote server
+		"""
+		self._message_server.send({
+			"type": "game_error",
+			"data": {
+				"message": "Error occurred in \"{}\" process:\n{}" \
+					.format(exc_msg.process_name, exc_msg.exc_msg)
+			}
+		})

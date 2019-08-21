@@ -141,6 +141,12 @@ class ProcessManager:
 			print("*** Error occurred in \"{}\" process:".format(e.process_name))
 			print(e.message)
 
+			# If the transition process is set, pass the exception.
+			if self._transition_proc_helper and \
+				isinstance(e, (MLProcessError, GameProcessError)):
+				self._game_proc_helper._comm_transition.send( \
+					ExceptionMessage(e.process_name, e.message))
+
 	def _terminate(self):
 		"""Stop all spawned ml processes and transition process if it exists
 		"""
@@ -148,7 +154,9 @@ class ProcessManager:
 			ml_process.terminate()
 
 		if self._transition_proc_helper is not None:
-			self._transition_process.terminate()
+			# Send a stop signal
+			self._game_proc_helper._comm_transition.send(None)
+			self._transition_process.join()
 
 
 class GameProcessHelper:
@@ -321,7 +329,7 @@ def _game_process_entry_point(helper: GameProcessHelper):
 		helper.target_function(*helper.args, **helper.kwargs)
 	except (MLProcessError, TransitionProcessError):
 		raise
-	except Exception as e:
+	except Exception:
 		raise GameProcessError(helper.name, traceback.format_exc())
 
 def _transition_process_entry_point(helper: TransitionProcessHelper):
