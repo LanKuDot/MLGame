@@ -88,8 +88,8 @@ class GameConfig:
 		self.game_name = parsed_args.game[0]
 		self.game_params = parsed_args.game_params
 
-		self.one_shot_mode = parsed_args.one_shot_mode
 		self.game_mode = self.get_game_mode(parsed_args)
+		self.one_shot_mode = parsed_args.one_shot_mode
 		self.record_progress = parsed_args.record_progress
 		self.online_channel = self.get_online_channel(parsed_args.online_channel)
 
@@ -104,8 +104,6 @@ class GameConfig:
 			return GameMode.MANUAL
 
 		if parsed_args.online_channel:
-			# In online mode, the game always only runs once
-			self.one_shot_mode = True
 			return GameMode.ONLINE
 
 		return GameMode.ML
