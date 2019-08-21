@@ -5,7 +5,7 @@ from multiprocessing import Process, Pipe
 from .communication.base import CommunicationSet, CommunicationHandler
 from .exception import (
 	GameProcessError, MLProcessError, TransitionProcessError, \
-		ExceptionMessage, trim_callstack
+		trim_callstack
 )
 
 class ProcessManager:
@@ -144,8 +144,7 @@ class ProcessManager:
 			# If the transition process is set, pass the exception.
 			if self._transition_proc_helper and \
 				isinstance(e, (MLProcessError, GameProcessError)):
-				self._game_proc_helper._comm_transition.send( \
-					ExceptionMessage(e.process_name, e.message))
+				self._game_proc_helper._comm_transition.send(e)
 
 	def _terminate(self):
 		"""Stop all spawned ml processes and transition process if it exists
@@ -213,8 +212,8 @@ class GameProcessHelper:
 			return None
 
 		obj = self._comm_ml_set.recv_end[from_ml].recv()
-		if isinstance(obj, ExceptionMessage):
-			raise MLProcessError(obj.process_name, obj.exc_msg)
+		if isinstance(obj, MLProcessError):
+			raise obj
 
 		return obj
 
@@ -243,8 +242,8 @@ class GameProcessHelper:
 		"""Check if there has the exception message sent from the transition process
 		"""
 		if self._comm_transition.poll():
-			exc_msg = self._comm_transition.recv()
-			raise TransitionProcessError(exc_msg.process_name, exc_msg.exc_msg)
+			exception = self._comm_transition.recv()
+			raise exception
 
 class TransitionProcessHelper:
 	"""The helper class for building the transition process
@@ -266,10 +265,10 @@ class TransitionProcessHelper:
 	def recv_from_game(self):
 		return self._comm_game.recv()
 
-	def send_exception(self, exc_msg: ExceptionMessage):
+	def send_exception(self, exception: TransitionProcessError):
 		"""Send an exception to the game process
 		"""
-		self._comm_game.send(exc_msg)
+		self._comm_game.send(exception)
 
 class MLProcessHelper:
 	"""The helper class that helps build ml process
@@ -306,12 +305,10 @@ class MLProcessHelper:
 		"""
 		self._comm_game.send(obj)
 
-	def send_exception(self, exc_msg: ExceptionMessage):
+	def send_exception(self, exception: MLProcessError):
 		"""Send an exception to the game process
-
-		@param exc_msg The exception message
 		"""
-		self._comm_game.send(exc_msg)
+		self._comm_game.send(exception)
 
 
 def _game_process_entry_point(helper: GameProcessHelper):
@@ -342,8 +339,8 @@ def _transition_process_entry_point(helper: TransitionProcessHelper):
 			(helper.server_ip, helper.server_port, helper.channel_name))
 		transition_manager.transition_loop()
 	except Exception as e:
-		exc_msg = ExceptionMessage(helper.name, traceback.format_exc())
-		helper.send_exception(exc_msg)
+		exception = TransitionProcessError(helper.name, traceback.format_exc())
+		helper.send_exception(exception)
 
 def _ml_process_entry_point(helper: MLProcessHelper):
 	"""The real entry point of the ml process
@@ -357,5 +354,5 @@ def _ml_process_entry_point(helper: MLProcessHelper):
 		ml_module = importlib.import_module(helper.target_module, __package__)
 		ml_module.ml_loop(*helper.args, **helper.kwargs)
 	except Exception as e:
-		exc_msg = ExceptionMessage(helper.name, traceback.format_exc())
-		helper.send_exception(exc_msg)
+		exception = MLProcessError(helper.name, traceback.format_exc())
+		helper.send_exception(exception)

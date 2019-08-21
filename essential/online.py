@@ -4,7 +4,7 @@ The interface for communicating with the message server
 from asgiref.sync import async_to_sync
 from channels_redis.core import RedisChannelLayer
 
-from essential.exception import ExceptionMessage
+from essential.exception import ProcessError
 
 class RedisTransition:
 	def __init__(self, server_ip, server_port, channel_name):
@@ -51,12 +51,12 @@ class TransitionManager:
 
 			if not data:
 				return
-			elif isinstance(data, ExceptionMessage):
+			elif isinstance(data, ProcessError):
 				self._send_exception(data)
 			else:
 				self._message_server.send(data)
 
-	def _send_exception(self, exc_msg: ExceptionMessage):
+	def _send_exception(self, exception: ProcessError):
 		"""
 		Generate and send the exception message to the remote server
 		"""
@@ -64,6 +64,6 @@ class TransitionManager:
 			"type": "game_error",
 			"data": {
 				"message": "Error occurred in \"{}\" process:\n{}" \
-					.format(exc_msg.process_name, exc_msg.exc_msg)
+					.format(exception.process_name, exception.message)
 			}
 		})
