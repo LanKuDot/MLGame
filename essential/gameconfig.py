@@ -41,11 +41,12 @@ def get_command_parser():
 		help = "specify the script(s) used in the machine learning mode. " \
 		"The script must have function `ml_loop()` and " \
 		"be put in the \"<game>/ml/\" directory. [default: %(default)s]")
-	parser.add_argument("--online-channel", type = str, \
-		default = None, metavar = "ONLINE_CHANNEL", \
-		help = "specify the remote server and the channel name with the format " \
-		"\"<server_ip>:<server_port>:<channel_name>\", and " \
-		"start the game in the online mode [default : %(default)s]")
+	parser.add_argument("--transition-channel", type = str, \
+		default = None, metavar = "SERVER_IP:SERVER_PORT:CHANNEL_NAME", \
+		help = "specify the transition server and the channel name. " \
+		"The game will pass the game progress to the transition server " \
+		"instead of displaying it. Only supported in the machine learning mode. " \
+		"[default : %(default)s]")
 
 	return parser
 
@@ -75,8 +76,8 @@ class GameConfig:
 	@var one_shot_mode Whether to execute the game for only once
 	@var game_mode The mode of the game to be executed
 	@var record_progress Whether to record the game progress
-	@var online_channel The information of the remote server
-	     This member could be None, if the game_mode is not GameMode.ONLINE.
+	@var transition_channel The information of the transition server
+	     This member can be None.
 	@var fps The FPS of the game
 	@var input_scripts A list of user scripts for running the ML mode
 	"""
@@ -91,7 +92,7 @@ class GameConfig:
 		self.game_mode = self.get_game_mode(parsed_args)
 		self.one_shot_mode = parsed_args.one_shot_mode
 		self.record_progress = parsed_args.record_progress
-		self.online_channel = self.get_online_channel(parsed_args.online_channel)
+		self.transition_channel = self.get_transition_channel(parsed_args.transition_channel)
 
 		self.fps = parsed_args.fps
 		self.input_scripts = self.get_ml_scripts(parsed_args.input_script)
@@ -102,9 +103,6 @@ class GameConfig:
 		"""
 		if parsed_args.manual_mode:
 			return GameMode.MANUAL
-
-		if parsed_args.online_channel:
-			return GameMode.ONLINE
 
 		return GameMode.ML
 
@@ -129,7 +127,7 @@ class GameConfig:
 
 		return input_scripts
 
-	def get_online_channel(self, channel_str):
+	def get_transition_channel(self, channel_str):
 		"""
 		Check the format of the channel information string
 
@@ -141,7 +139,7 @@ class GameConfig:
 
 		splited_str = channel_str.split(":")
 		if len(splited_str) != 3:
-			raise ValueError("Invalid ONLINE_CHANNEL format. Must be " \
+			raise ValueError("Invalid transition channel format. Must be " \
 				"\"<server_ip>:<server_port>:<channel_nane>\".")
 		return splited_str
 
@@ -152,6 +150,6 @@ class GameConfig:
 			"'game_mode': {}, ".format(self.game_mode) + \
 			"'one_shot_mode': {}, ".format(self.one_shot_mode) + \
 			"'record_progress': {}, ".format(self.record_progress) + \
-			"'online_channel': {}, ".format(self.online_channel) + \
+			"'transition_channel': {}, ".format(self.transition_channel) + \
 			"'fps': {}, ".format(self.fps) + \
 			"'input_scripts': {}".format(self.input_scripts)
