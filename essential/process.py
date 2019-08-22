@@ -333,7 +333,7 @@ def _transition_process_entry_point(helper: TransitionProcessHelper):
 	"""The entry point of the transition process
 	"""
 	try:
-		from .online import TransitionManager
+		from .transition import TransitionManager
 		transition_manager = TransitionManager( \
 			helper.recv_from_game, \
 			(helper.server_ip, helper.server_port, helper.channel_name))
