@@ -10,7 +10,10 @@ def get_command_parser():
 	"""
 	usage_str = "python %(prog)s [options] <game> [game_params]"
 	description_str = "A platform for applying machine learning algorithm " \
-		"to play pixel games"
+		"to play pixel games. " \
+		"In default, the game runs in the machine learning mode. " \
+		"Use \"--input-script\" or \"--input-module\" flag at the end of the command " \
+		"to specify script(s) or module(s) for playing the game."
 
 	parser = ArgumentParser(usage = usage_str, description = description_str)
 
@@ -35,12 +38,16 @@ def get_command_parser():
 		help = "quit the game when the game is passed or is over. " \
 		"Otherwise, the game will restart automatically. " \
 		"Only supported in the machine learning mode. [default: %(default)s]")
-	# TODO: Set the default script to the ml_play_template.py
 	parser.add_argument("-i", "--input-script", type = str, nargs = '+', \
-		default = ["ml_play.py"], metavar = "SCRIPT", \
-		help = "specify the script(s) used in the machine learning mode. " \
+		default = None, metavar = "SCRIPT", \
+		help = "specify user script(s) for the machine learning mode. " \
 		"The script must have function `ml_loop()` and " \
 		"be put in the \"<game>/ml/\" directory. [default: %(default)s]")
+	parser.add_argument("--input-module", type = str, nargs = '+', \
+		default = None, metavar = "MODULE", \
+		help = "specify the absolute import path of user module(s) " \
+		"for the machine learning mode. The module must have function " \
+		"`ml_loop()`. [default: %(default)s]")
 	parser.add_argument("--transition-channel", type = str, \
 		default = None, metavar = "SERVER_IP:SERVER_PORT:CHANNEL_NAME", \
 		help = "specify the transition server and the channel name. " \
@@ -79,7 +86,7 @@ class GameConfig:
 	@var transition_channel The information of the transition server
 	     This member can be None.
 	@var fps The FPS of the game
-	@var input_scripts A list of user scripts for running the ML mode
+	@var input_modules A list of user modules for running the ML mode
 	"""
 
 	def __init__(self, parsed_args):
@@ -95,7 +102,13 @@ class GameConfig:
 		self.transition_channel = self.get_transition_channel(parsed_args.transition_channel)
 
 		self.fps = parsed_args.fps
-		self.input_scripts = self.get_ml_scripts(parsed_args.input_script)
+
+		self.input_modules = []
+		self.input_modules.extend(self._parse_ml_scripts(parsed_args.input_script))
+		self.input_modules.extend(self._parse_ml_modules(parsed_args.input_module))
+		if self.game_mode == GameMode.ML and len(self.input_modules) == 0:
+			raise FileNotFoundError("No script or module is specified. " \
+				"Cannot start the game in the machine learning mode.")
 
 	def get_game_mode(self, parsed_args):
 		"""
@@ -106,26 +119,60 @@ class GameConfig:
 
 		return GameMode.ML
 
-	def get_ml_scripts(self, input_scripts):
+	def _parse_ml_scripts(self, input_scripts):
 		"""
-		Check whether the provided input scripts are all existing or not.
+		Check whether the provided input scripts are all existing or not
 
-		If it passes, return a list of input scripts.
+		If it passes, the name of scripts is converted to the absolute import path and
+		return a list of them.
 		Otherwise, raise the FileNotFoundError.
 		"""
+		if not input_scripts:
+			return []
+
 		top_dir_path = os.path.dirname(os.path.dirname(__file__))
+		module_list = []
 
 		for script_name in input_scripts:
-			script_path = os.path.join(top_dir_path, self.game_name,
-				"ml", script_name)
+			local_script_path = os.path.join(self.game_name, "ml", script_name)
+			full_script_path = os.path.join(top_dir_path, local_script_path)
 
-			if not os.path.exists(script_path):
+			if not os.path.exists(full_script_path):
 				raise FileNotFoundError( \
-					"The script \"{}/ml/{}\" does not exist. " \
-					"Cannot start the game." \
-					.format(self.game_name, script_name))
+					"The script \"{}\" does not exist. " \
+					"Cannot start the game in the machine learning mode." \
+					.format(local_script_path))
 
-		return input_scripts
+			module_list.append("{}.ml.{}" \
+				.format(self.game_name, script_name.split('.py')[0]))
+
+		return module_list
+
+	def _parse_ml_modules(self, input_modules):
+		"""
+		Check whether the provided input modules are all existing or not
+
+		This method only check the existing of the target file,
+		not the directory which the target file is in is a package or not.
+		"""
+		if not input_modules:
+			return []
+
+		top_dir_path = os.path.dirname(os.path.dirname(__file__))
+
+		for module_path in input_modules:
+			module_nodes = module_path.split('.')
+			module_nodes[-1] += ".py"
+			local_script_path = os.path.join(*module_nodes)
+			full_script_path = os.path.join(top_dir_path, local_script_path)
+
+			if not os.path.exists(full_script_path):
+				raise FileNotFoundError( \
+					"The script \"{}\" does not exist. " \
+					"Cannot start the game in the machine learning mode." \
+					.format(local_script_path))
+
+		return input_modules
 
 	def get_transition_channel(self, channel_str):
 		"""
@@ -152,4 +199,4 @@ class GameConfig:
 			"'record_progress': {}, ".format(self.record_progress) + \
 			"'transition_channel': {}, ".format(self.transition_channel) + \
 			"'fps': {}, ".format(self.fps) + \
-			"'input_scripts': {}".format(self.input_scripts)
+			"'input_modules': {}".format(self.input_modules)

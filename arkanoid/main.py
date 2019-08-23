@@ -14,8 +14,7 @@ def ml_mode(config: GameConfig):
 	process_manager.set_game_process(_start_game_process, \
 		args = (config.fps, level, \
 		config.record_progress, config.one_shot_mode, to_transition))
-	process_manager.add_ml_process("arkanoid.ml.{}" \
-		.format(config.input_scripts[0].split('.')[0]), "ml")
+	process_manager.add_ml_process(config.input_modules[0], "ml")
 
 	if to_transition:
 		process_manager.set_transition_process(*config.transition_channel)
