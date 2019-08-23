@@ -96,9 +96,9 @@ class Arkanoid:
 		time.sleep(self._ml_execute_time)
 		instruction = self._instruct_receiver.recv(self._ml_name)
 
-		if instruction and \
-		   scene_info.frame - instruction.frame == self._frame_delayed + 1:
-			self._frame_delayed += 1
+		if instruction.frame != -1 and \
+		   scene_info.frame - instruction.frame > self._frame_delayed:
+			self._frame_delayed = scene_info.frame - instruction.frame
 			print("Delayed {} frame(s)".format(self._frame_delayed))
 
 		return instruction
