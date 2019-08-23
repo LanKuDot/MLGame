@@ -2,6 +2,7 @@ import pygame, time
 
 from essential.gamedev.generic import quit_or_esc
 from essential.communication import game as comm
+from essential.communication.game import CommandReceiver
 
 from . import gamecore, gameobject
 from ..communication import GameInstruction, SceneInfo
@@ -18,6 +19,10 @@ class Arkanoid:
 		self._one_shot_mode = one_shot_mode
 		self._to_transition = to_transition
 		self._frame_delayed = 0
+		self._instruct_receiver = CommandReceiver( \
+			GameInstruction, { "command": \
+				[GameInstruction.CMD_LEFT, GameInstruction.CMD_RIGHT, GameInstruction.CMD_NONE], \
+			}, GameInstruction(-1, GameInstruction.CMD_NONE))
 
 		if not self._to_transition:
 			self._init_display()
@@ -89,7 +94,7 @@ class Arkanoid:
 		"""
 		comm.send_to_ml(scene_info, self._ml_name)
 		time.sleep(self._ml_execute_time)
-		instruction = comm.recv_from_ml(self._ml_name)
+		instruction = self._instruct_receiver.recv(self._ml_name)
 
 		if instruction and \
 		   scene_info.frame - instruction.frame == self._frame_delayed + 1:
