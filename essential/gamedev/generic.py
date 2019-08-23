@@ -1,7 +1,5 @@
 import pygame
 
-from ..communication.game import recv_from_ml, recv_from_all_ml
-
 def quit_or_esc() -> bool:
 	"""
 	Check if the quit event is triggered or the ESC key is pressed.
@@ -58,75 +56,3 @@ class KeyCommandMap:
 			if key_pressed_list[key]:
 				return command
 		return self._default_command
-
-class GameInstructionReceiver:
-	"""
-	Receive and check the game instruction sent from the ml process
-
-	If the received instruction is invalid, return the specified default instruction.
-	The instruction is invalid, if one of the conditions below is matched:
-	- No instruction available from the ml process,
-	- Received instruction is not the instance of the `instruct_class`,
-	- The value of the member of received instruction is not in the `valid_members`.
-	"""
-
-	def __init__(self, instruct_class, valid_members, default_instruct):
-		"""
-		Constructor
-
-		@param instruct_class The desired class of the received instruction
-		@param valid_members A dictionary indicating the desired values of the members
-		       of the received instruction. The key is the name of the member,
-		       the value is a list of desired values of that member.
-		@param default_instruct The instruction to be returned when received instruction
-		       is invalid.
-		"""
-		self._instruct_class = instruct_class
-		self._valid_members = valid_members
-		self._default_instruct = default_instruct
-
-	def _is_instruct_valid(self, instruct):
-		"""
-		Check if the instruction is valid
-		"""
-		if not isinstance(instruct, self._instruct_class):
-			return False
-
-		try:
-			for name, value in self._valid_members.items():
-				if instruct.__dict__[name] not in value:
-					return False
-		except (KeyError, AttributeError):
-			return False
-
-		return True
-
-	def recv(self, from_ml: str):
-		"""
-		Receive the instruction from the specified ml process
-
-		@param from_ml The name of the ml process
-		@return Received instruction
-		        If the instruction is invalid, return `default_instruct`.
-		"""
-		received_obj = recv_from_ml(from_ml)
-
-		if self._is_instruct_valid(received_obj):
-			return received_obj
-
-		return self._default_instruct
-
-	def recv_all(self):
-		"""
-		Receive the instructions from all ml processes
-
-		@return A dictionary of which the key is the name of the process,
-		        and the value is the received instruction or the `default_instruct`.
-		"""
-		received_list = recv_from_all_ml()
-
-		for from_ml, obj in received_list.items():
-			if not self._is_instruct_valid(obj):
-				received_list[from_ml] = self._default_instruct
-
-		return received_list
