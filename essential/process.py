@@ -135,6 +135,9 @@ class ProcessManager:
 	def _start_game_process(self):
 		"""Start the game process
 		"""
+		if self._transition_proc_helper:
+			self._game_proc_helper.to_transition = True
+
 		try:
 			_game_process_entry_point(self._game_proc_helper)
 		except (MLProcessError, GameProcessError, TransitionProcessError) as e:
@@ -142,9 +145,9 @@ class ProcessManager:
 			print(e.message)
 
 			# If the transition process is set, pass the exception.
-			if self._transition_proc_helper and \
+			if self._game_proc_helper.to_transition and \
 				isinstance(e, (MLProcessError, GameProcessError)):
-				self._game_proc_helper._comm_transition.send(e)
+				self._game_proc_helper.send_to_transition(e)
 
 	def _terminate(self):
 		"""Stop all spawned ml processes and transition process if it exists
@@ -152,9 +155,9 @@ class ProcessManager:
 		for ml_process in self._ml_procs:
 			ml_process.terminate()
 
-		if self._transition_proc_helper is not None:
+		if self._game_proc_helper.to_transition:
 			# Send a stop signal
-			self._game_proc_helper._comm_transition.send(None)
+			self._game_proc_helper.send_to_transition(None)
 			self._transition_process.join()
 
 
@@ -176,6 +179,7 @@ class GameProcessHelper:
 		self.target_function = target_function
 		self.args = args
 		self.kwargs = kwargs
+		self.to_transition = False
 		self._comm_ml_set = CommunicationSet()
 		self._comm_transition = CommunicationHandler()
 
@@ -236,6 +240,9 @@ class GameProcessHelper:
 		@param obj The object to be sent
 		"""
 		self._comm_transition.send(obj)
+		# FIXME The exception will not be received immediately.
+		# The send() will be stuck (the process is dead) before receiving exception.
+		# Set the transition process as the main process to fix it.
 		self.check_transition_exception()
 
 	def check_transition_exception(self):
@@ -320,7 +327,9 @@ def _game_process_entry_point(helper: GameProcessHelper):
 	base.send_to_all_ml.set_function(helper.send_to_all_ml)
 	base.recv_from_ml.set_function(helper.recv_from_ml)
 	base.recv_from_all_ml.set_function(helper.recv_from_all_ml)
-	base.send_to_transition.set_function(helper.send_to_transition)
+
+	if helper.to_transition:
+		base.send_to_transition.set_function(helper.send_to_transition)
 
 	try:
 		helper.target_function(*helper.args, **helper.kwargs)
