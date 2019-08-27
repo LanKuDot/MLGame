@@ -27,19 +27,9 @@ class TransitionProcessError(ProcessError):
 
 class MLProcessError(ProcessError):
 	"""
-	Exception raised when the main process received the ExceptionMessage
-	from the ml process
+	Exception raised when an error occurred in the ml process
 	"""
 	pass
-
-class ExceptionMessage:
-	"""
-	The exception message object to be passed to another process
-	"""
-
-	def __init__(self, process_name, exc_msg):
-		self.process_name = process_name
-		self.exc_msg = exc_msg
 
 def trim_callstack(exception_msg: str, target_user_file: str):
 	"""
