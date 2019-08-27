@@ -6,7 +6,6 @@ class GameStatus(StringEnum):
 	GAME_ALIVE = "GAME_ALIVE"
 
 class PlatformAction(StringEnum):
-	READY = "READY"
 	NONE = "NONE"
 	MOVE_LEFT = "LEFT"
 	MOVE_RIGHT = "RIGHT"
@@ -82,17 +81,14 @@ class GameInstruction:
 	def __str__(self):
 		return "# Frame {}\n# Command {}".format(self.frame, self.command)
 
-# Communication pipes between ml process and game processes
-# They are initialized before the ml process starts.
-_scene_info_pipe = None
-_instruct_pipe = None
+from essential.communication import ml as comm
 
 # ====== Helper functions ====== #
 def get_scene_info() -> SceneInfo:
-	return _scene_info_pipe.recv()
+	return comm.recv_from_game()
 
 def send_instruction(frame: int, command: PlatformAction):
-	_instruct_pipe.send(GameInstruction(frame, command))
+	comm.send_to_game(GameInstruction(frame, command))
 
 def ml_ready():
-	send_instruction(0, PlatformAction.READY)
+	comm.ml_ready()

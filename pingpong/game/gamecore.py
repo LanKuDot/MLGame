@@ -15,9 +15,8 @@ class GameStatus(StringEnum):
 	GAME_ALIVE = "GAME_ALIVE"
 
 class Scene:
-	def __init__(self, display_on_screen: bool, screen = None):
-		self._display_on_screen = display_on_screen
-		self._screen = screen
+	def __init__(self, to_create_surface: bool):
+		self._to_create_surface = to_create_surface
 		self._frame_count = 0
 		self._game_status = GameStatus.GAME_ALIVE
 
@@ -36,9 +35,7 @@ class Scene:
 		self._platform_2P = Platform((80, 50), \
 			display_area_rect, self._draw_group)
 
-		if self._display_on_screen:
-			self._background = pygame.Surface(display_area_size)
-			self._background.fill((0, 0, 0))
+		if self._to_create_surface:
 			self._ball.create_surface()
 			self._platform_1P.create_surface("1P", color_1P)
 			self._platform_2P.create_surface("2P", color_2P)
@@ -75,9 +72,8 @@ class Scene:
 
 		return self._game_status
 
-	def draw(self):
-		self._screen.blit(self._background, (0, 0))
-		self._draw_group.draw(self._screen)
+	def draw_gameobjects(self, surface):
+		self._draw_group.draw(surface)
 
 	def fill_scene_info_obj(self, scene_info_obj):
 		"""

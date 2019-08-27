@@ -1,18 +1,33 @@
 import pygame
+
 from . import gamecore
 from .gamecore import GameStatus
 from .gameobject import PlatformMoveAction
 from ..communication import SceneInfo
+from essential.gamedev.generic import quit_or_esc, KeyCommandMap
 
 class PingPong:
-	def __init__(self):
+	def __init__(self, fps: int, game_over_score: int , record_handler):
 		self._init_pygame()
+
+		self._fps = fps
+		self._game_over_score = game_over_score
+		self._record_handler = record_handler
+		self._scene = gamecore.Scene(True)
+		self._keyboard_action_1P = KeyCommandMap({
+			pygame.K_LEFT:  PlatformMoveAction.LEFT,
+			pygame.K_RIGHT: PlatformMoveAction.RIGHT,
+		}, PlatformMoveAction.NONE)
+		self._keyboard_action_2P = KeyCommandMap({
+			pygame.K_a: PlatformMoveAction.LEFT,
+			pygame.K_d: PlatformMoveAction.RIGHT,
+		}, PlatformMoveAction.NONE)
 
 	def _init_pygame(self):
 		pygame.display.init()
-		self._clock = pygame.time.Clock()
-		self._screen = pygame.display.set_mode(gamecore.display_area_size)
 		pygame.display.set_caption("PingPong")
+		self._screen = pygame.display.set_mode(gamecore.display_area_size)
+		self._clock = pygame.time.Clock()
 
 		pygame.font.init()
 		self._font = pygame.font.Font(None, 22)
@@ -21,80 +36,50 @@ class PingPong:
 		self._font_pos_speed = (gamecore.display_area_size[0] - 75, \
 			gamecore.display_area_size[1] - 21)
 
-	def _check_going(self):
-		for event in pygame.event.get():
-			if event.type == pygame.QUIT or \
-				(event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE):
-				return False
-		return True
+	def game_loop(self):
+		while not quit_or_esc():
+			command_1P = self._keyboard_action_1P.get_command()
+			command_2P = self._keyboard_action_2P.get_command()
 
-	def _keyboard_action(self):
-		"""
-		Get the action from the keyboard
+			scene_info = self._scene.fill_scene_info_obj(SceneInfo())
+			scene_info.command_1P = command_1P.value
+			scene_info.command_2P = command_2P.value
+			self._record_handler(scene_info)
 
-		@return An action tuple (1P action, 2P action)
-		"""
-		action_1P = PlatformMoveAction.NONE
-		action_2P = PlatformMoveAction.NONE
-
-		key_pressed_list = pygame.key.get_pressed()
-		if key_pressed_list[pygame.K_LEFT]:
-			action_1P = PlatformMoveAction.LEFT
-		elif key_pressed_list[pygame.K_RIGHT]:
-			action_1P = PlatformMoveAction.RIGHT
-
-		if key_pressed_list[pygame.K_a]:
-			action_2P = PlatformMoveAction.LEFT
-		elif key_pressed_list[pygame.K_d]:
-			action_2P = PlatformMoveAction.RIGHT
-
-		return action_1P, action_2P
-
-	def game_loop(self, fps: int, game_over_score: int, \
-		record_handler = lambda x: None):
-		scene = gamecore.Scene(True, self._screen)
-
-		while self._check_going():
-			keyboard_action = self._keyboard_action()
-
-			scene_info = scene.fill_scene_info_obj(SceneInfo())
-			scene_info.command_1P = keyboard_action[0].value
-			scene_info.command_2P = keyboard_action[1].value
-			record_handler(scene_info)
-
-			game_status = scene.update(*keyboard_action)
+			game_status = self._scene.update(command_1P, command_2P)
 
 			if game_status == GameStatus.GAME_1P_WIN or \
 			   game_status == GameStatus.GAME_2P_WIN:
-				scene_info = scene.fill_scene_info_obj(SceneInfo())
-				record_handler(scene_info)
 				print(game_status.value)
-				if scene.score[0] == game_over_score or \
-				   scene.score[1] == game_over_score:
+				self._record_handler(self._scene.fill_scene_info_obj(SceneInfo()))
+				if self._scene.score[0] == self._game_over_score or \
+				   self._scene.score[1] == self._game_over_score:
 					break
 
-				scene.reset()
+				self._scene.reset()
 
-			scene.draw()
-
-			font_1P_surface = self._font.render( \
-				"1P score: {}".format(scene.score[0]), True, gamecore.color_1P)
-			font_2P_surface = self._font.render( \
-				"2P score: {}".format(scene.score[1]), True, gamecore.color_2P)
-			font_speed_surface = self._font.render( \
-				"Speed: {}".format(abs(scene._ball._speed[0])), True, (255, 255, 255))
-			self._screen.blit(font_1P_surface, self._font_pos_1P)
-			self._screen.blit(font_2P_surface, self._font_pos_2P)
-			self._screen.blit(font_speed_surface, self._font_pos_speed)
-
+			self._screen.fill((0, 0, 0))
+			self._scene.draw_gameobjects(self._screen)
+			self._draw_game_status()
 			pygame.display.flip()
 
-			self._clock.tick(fps)
+			self._clock.tick(self._fps)
 
-		if scene.score[0] > scene.score[1]:
+		if self._scene.score[0] > self._scene.score[1]:
 			print("1P wins!")
 		else:
 			print("2P wins!")
-		print("Final score: {}-{}".format(*scene.score))
+		print("Final score: {}-{}".format(*self._scene.score))
 
 		pygame.quit()
+
+	def _draw_game_status(self):
+		font_1P_surface = self._font.render( \
+			"1P score: {}".format(self._scene.score[0]), True, gamecore.color_1P)
+		font_2P_surface = self._font.render( \
+			"2P score: {}".format(self._scene.score[1]), True, gamecore.color_2P)
+		font_speed_surface = self._font.render( \
+			"Speed: {}".format(abs(self._scene._ball._speed[0])), True, (255, 255, 255))
+		self._screen.blit(font_1P_surface, self._font_pos_1P)
+		self._screen.blit(font_2P_surface, self._font_pos_2P)
+		self._screen.blit(font_speed_surface, self._font_pos_speed)

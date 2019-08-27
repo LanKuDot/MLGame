@@ -1,221 +1,82 @@
-from essential.gameconfig import GameMode
+from essential.gameconfig import GameConfig
 
-def execute(config):
-	"""
-	Start the game in the selected mode
-
-	An additional game parameter (stored in options.game_params)
-	for the game pingpong is the game over score.
-
-	@param config The game configuration
-	"""
-	try:
-		game_over_score = int(config.game_params[0])
-		if game_over_score < 1:
-			raise ValueError
-	except IndexError:
-		print("Gameover score is not specified. Set to 3.")
-		game_over_score = 3
-	except ValueError:
-		print("Invalid game over score. Set to 3.")
-		game_over_score = 3
-
-	if config.game_mode == GameMode.MANUAL:
-		_manual_mode(config.fps, game_over_score, config.record_progress)
-	elif config.game_mode == GameMode.ONLINE:
-		script_1P, script_2P = get_scripts_name(config.input_scripts)
-		_ml_mode(config.fps, game_over_score, script_1P, script_2P, \
-			online_channel = config.online_channel)
-	else:
-		script_1P, script_2P = get_scripts_name(config.input_scripts)
-		_ml_mode(config.fps, game_over_score, \
-			script_1P, script_2P, config.record_progress)
-
-def get_scripts_name(input_scripts):
-	"""
-	Get the name of scripts for each side.
-
-	@param input_scripts A list of input scripts
-	"""
-	if len(input_scripts) == 1:
-		return input_scripts[0], input_scripts[0]
-
-	return input_scripts[0], input_scripts[1]
-
-def _ml_mode(fps, game_over_score, \
-	input_script_1P = "ml_play_template.py", input_script_2P = "ml_play_template.py", \
-	record_progress = False, online_channel = None):
+def ml_mode(config: GameConfig):
 	"""
 	Start the game in the machine learning mode
 	"""
-	from multiprocessing import Process, Pipe
-	from collections import namedtuple
+	game_over_score = _get_game_over_score(config.game_params, config.one_shot_mode)
+	module_1P, module_2P = _get_ml_modules(config.input_modules)
+	to_transition = True if config.transition_channel else False
 
-	CommunicationPipe = namedtuple("CommunicationPipe", ["recv_end", "send_end"])
+	from essential.process import ProcessManager
 
-	instruct_pipe_1P = CommunicationPipe(*Pipe(False))
-	instruct_pipe_2P = CommunicationPipe(*Pipe(False))
-	scene_info_pipe_1P = CommunicationPipe(*Pipe(False))
-	scene_info_pipe_2P = CommunicationPipe(*Pipe(False))
-	main_pipe = CommunicationPipe(*Pipe(False))
+	process_manager = ProcessManager()
+	process_manager.set_game_process(_start_game_process, \
+		args = (config.fps, game_over_score, \
+		config.record_progress, to_transition))
+	process_manager.add_ml_process(module_1P, "ml_1P", args = ("1P", ))
+	process_manager.add_ml_process(module_2P, "ml_2P", args = ("2P", ))
 
-	game_process = Process(target = _start_game_process, name = "game process", \
-		args = (fps, instruct_pipe_1P.recv_end, scene_info_pipe_1P.send_end, \
-		instruct_pipe_2P.recv_end, scene_info_pipe_2P.send_end, main_pipe.send_end))
-	ml_process_1P = Process(target = _start_ml_process, name = "1P ml process", \
-		args = ("1P", input_script_1P, \
-		instruct_pipe_1P.send_end, scene_info_pipe_1P.recv_end))
-	ml_process_2P = Process(target = _start_ml_process, name = "2P ml process", \
-		args = ("2P", input_script_2P, \
-		instruct_pipe_2P.send_end, scene_info_pipe_2P.recv_end))
+	if to_transition:
+		process_manager.set_transition_process(*config.transition_channel)
 
-	game_process.start()
-	ml_process_1P.start()
-	ml_process_2P.start()
+	process_manager.start()
 
-	if online_channel:
-		_start_transition_process(main_pipe.recv_end, *online_channel, game_over_score)
-	else:
-		_start_display_process(main_pipe.recv_end, record_progress, game_over_score)
+def _get_ml_modules(input_modules):
+	"""
+	Get the modules for 1P and 2P
+	
+	If only 1 input module specified, 1P and 2P use the same module.
+	"""
+	if len(input_modules) == 1:
+		return input_modules[0], input_modules[0]
 
-	game_process.terminate()
-	ml_process_1P.terminate()
-	ml_process_2P.terminate()
+	return input_modules[0], input_modules[1]
 
-def _start_game_process(fps, \
-	instruct_pipe_1P, scene_info_pipe_1P, \
-	instruct_pipe_2P, scene_info_pipe_2P, main_pipe):
+def _start_game_process(fps, game_over_score, record_progress, to_transition):
 	"""
 	Start the process to run the game core
 
 	@param fps The updating rate of the game
-	@param instruct_pipe_1P The pipe for receiving the instruction from 1P ml process
-	@param scene_info_pipe_1P The pipe for sending the scene info to 1P ml process
-	@param instruct_pipe_2P The pipe for receiving the instruction from 2P ml process
-	@param scene_info_pipe_2P The pipe for sending the scene info to 2P ml process
-	@param main_pipe The pipe for sending scene info to the main process
 	"""
 	from .game.pingpong_ml import PingPong
-	try:
-		game = PingPong(instruct_pipe_1P, scene_info_pipe_1P, \
-			instruct_pipe_2P, scene_info_pipe_2P, main_pipe)
-		game.game_loop(fps)
-	except Exception as e:
-		import traceback
-		from essential.exception import ExceptionMessage
-		exc_msg = ExceptionMessage("game", traceback.format_exc())
-		main_pipe.send((exc_msg, None))
 
-def _start_ml_process(side, target_script, instruct_pipe, scene_info_pipe):
-	"""
-	Start the process to execute the user script
+	record_handler = _get_record_handler(record_progress)
+	game = PingPong(fps, game_over_score, record_handler, to_transition)
+	game.game_loop()
 
-	@param side The side of the player. Should be either "1P" or "2P"
-	@param target_script The name of the script to be used.
-	       Note that the script must have function `ml_loop()` and
-	       be placed in the "ml" directory of the game.
-	@param instruct_pipe The pipe for sending the instruction to the game process
-	@param scene_info_pipe The pipe for receiving the scene info from the game process
-	"""
-	# Initialize the pipe defined in the communication.py
-	from . import communication as comm
-	comm._instruct_pipe = instruct_pipe
-	comm._scene_info_pipe = scene_info_pipe
-
-	try:
-		script_name = target_script.split('.')[0]
-
-		import importlib
-		ml = importlib.import_module(".ml.{}".format(script_name), __package__)
-		ml.ml_loop(side)
-	except Exception as e:
-		import traceback
-		from essential.exception import ExceptionMessage, trim_callstack
-		trimmed_callstack = trim_callstack(traceback.format_exc(), target_script)
-		exc_msg = ExceptionMessage("{} ml".format(side), trimmed_callstack)
-		comm._instruct_pipe.send(exc_msg)
-
-def _start_display_process(main_pipe, record_progress, game_over_score):
-	"""
-	Start the process for displaying the game progress
-
-	@param main_pipe The pipe for receiving the scene info from the game process
-	@param record_progress Whether to record the game progress or not
-	@param game_over_score The score which the game will stop if either of side
-	       reaches that score.
-	"""
-	from .game.pingpong_ml import Screen
-
-	try:
-		record_handler = _get_record_handler(record_progress)
-		screen = Screen(main_pipe, record_handler)
-		exception_msg = screen.draw_loop(game_over_score)
-	except Exception as e:
-		import traceback
-		print(traceback.format_exc())
-	else:
-		if exception_msg is not None:
-			print("Exception occurred in the {} process:" \
-				.format(exception_msg.process_name))
-			print(exception_msg.exc_msg)
-
-def _start_transition_process(main_pipe, server_ip, server_port, channel_name, \
-	game_over_score):
-	"""
-	Start the transition process for passing the game progress to the remote server
-
-	@param main_pipe The pipe for receving the scene info from the game process
-	@param server_ip The ip of the remote server
-	@param server_port The port of the remote server
-	@param channel_name The name of the channel for sending the scene info
-	       to the remote server
-	@param game_over_score The score that the game will stop oif either of side
-	       reaches that score
-	"""
-	import os
-	from essential.gamedev.recorder import Recorder
-	from .game.pingpong_ml import TransitionServer
-	from .game.gamecore import GameStatus
-
-	# XXX Prevent user from accessing the record files and the compressed file
-	# Seperate the user and the game container is a better way.
-	record_dir_path = os.path.join(os.path.dirname(__file__), "__pycache__")
-	recorder = Recorder((GameStatus.GAME_1P_WIN, GameStatus.GAME_2P_WIN), \
-		record_dir_path)
-
-	try:
-		transition_server = TransitionServer(server_ip, server_port, channel_name)
-		transition_server.transition_loop(main_pipe, game_over_score, \
-			recorder.record_scene_info)
-	except Exception as e:
-		import traceback
-		print("Exception occurred in the transition process:")
-		print(traceback.format_exc())
-	else:
-		# Collect the generated pickle files to a zip
-		import zipfile
-		ml_dir_path = os.path.join(os.path.dirname(__file__), "ml")
-		zipfile_path = os.path.join(ml_dir_path, "log_pickle.zip")
-		with zipfile.ZipFile(zipfile_path, "x") as z:
-			for filename in os.listdir(record_dir_path):
-				if filename.endswith(".pickle"):
-					pickle_file_path = os.path.join(record_dir_path, filename)
-					z.write(pickle_file_path, filename)
-
-
-def _manual_mode(fps, game_over_score, record_progress = False):
+def manual_mode(config: GameConfig):
 	"""
 	Play the game as a normal game
-
-	@param fps The updating rate of the game
-	@param game_over_score The score of game over. The game will be stopped
-	       when either of side reaches that score.
-	@param record_progress Whether to record the game progress or not
 	"""
 	from .game.pingpong import PingPong
 
-	record_handler = _get_record_handler(record_progress)
-	PingPong().game_loop(fps, game_over_score, record_handler)
+	game_over_score = _get_game_over_score(config.game_params)
+	record_handler = _get_record_handler(config.record_progress)
+
+	game = PingPong(config.fps, game_over_score, record_handler)
+	game.game_loop()
+
+def _get_game_over_score(game_params, one_shot_mode):
+	"""
+	Get game over score from the parameter
+	"""
+	if one_shot_mode:
+		print("One shot mode is on. Set game-over score to 1.")
+		return 1
+
+	try:
+		game_over_score = int(game_params[0])
+		if game_over_score < 1:
+			raise ValueError
+	except IndexError:
+		print("Game-over score is not specified. Set to 3.")
+		game_over_score = 3
+	except ValueError:
+		print("Invalid game-over score. Set to 3.")
+		game_over_score = 3
+
+	return game_over_score
 
 def _get_record_handler(record_progress: bool):
 	"""
