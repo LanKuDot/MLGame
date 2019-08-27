@@ -51,7 +51,7 @@ def manual_mode(config: GameConfig):
 	"""
 	from .game.pingpong import PingPong
 
-	game_over_score = _get_game_over_score(config.game_params)
+	game_over_score = _get_game_over_score(config.game_params, config.one_shot_mode)
 	record_handler = _get_record_handler(config.record_progress)
 
 	game = PingPong(config.fps, game_over_score, record_handler)

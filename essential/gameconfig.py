@@ -36,8 +36,7 @@ def get_command_parser():
 	parser.add_argument("-1", "--one-shot", action = "store_true", \
 		dest = "one_shot_mode", default = False, \
 		help = "quit the game when the game is passed or is over. " \
-		"Otherwise, the game will restart automatically. " \
-		"Only supported in the machine learning mode. [default: %(default)s]")
+		"Otherwise, the game will restart automatically. [default: %(default)s]")
 	parser.add_argument("-i", "--input-script", type = str, nargs = '+', \
 		default = None, metavar = "SCRIPT", \
 		help = "specify user script(s) for the machine learning mode. " \

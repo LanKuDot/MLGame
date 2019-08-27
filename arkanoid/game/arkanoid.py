@@ -4,16 +4,18 @@ from ..communication import SceneInfo
 from essential.gamedev.generic import quit_or_esc, KeyCommandMap
 
 class Arkanoid:
-	def __init__(self, fps: int, level: int, record_handler = None):
+	def __init__(self, fps: int, level: int, record_handler = None, one_shot_mode = False):
 		self._init_pygame()
 
 		self._fps = fps
-		self._record_handler = record_handler
 		self._scene = gamecore.Scene(level, True)
 		self._keyboard = KeyCommandMap({
 			pygame.K_LEFT:  gamecore.ACTION_LEFT,
 			pygame.K_RIGHT: gamecore.ACTION_RIGHT,
 		}, gamecore.ACTION_NONE)
+
+		self._record_handler = record_handler
+		self._one_shot_mode = one_shot_mode
 
 	def _init_pygame(self):
 		pygame.display.init()
@@ -31,6 +33,10 @@ class Arkanoid:
 			   game_status == gamecore.GAME_PASS_MSG:
 				print(game_status)
 				self._record_handler(self._scene.fill_scene_info_obj(SceneInfo()))
+
+				if self._one_shot_mode:
+					return
+
 				self._scene.reset()
 
 			self._screen.fill((0, 0, 0))

@@ -43,7 +43,7 @@ def manual_mode(config: GameConfig):
 
 	level = _get_level(config.game_params)
 	record_handler = _get_record_handler(config.record_progress)
-	game = Arkanoid(config.fps, level, record_handler)
+	game = Arkanoid(config.fps, level, record_handler, config.one_shot_mode)
 	game.game_loop()
 
 def _get_level(game_params):
