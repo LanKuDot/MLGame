@@ -23,7 +23,8 @@ class PingPong:
 		"""
 		self._ml_name = ["ml_1P", "ml_2P"]
 		self._ml_execute_time = 1.0 / fps
-		self._frame_delayed = [0, 0]
+		self._frame_delayed = [0, 0]	# 1P, 2P
+		self._score = [0, 0]	# 1P, 2P
 		self._game_over_score = game_over_score
 		self._cmd_receiver = CommandReceiver( \
 			GameInstruction, { "command": \
@@ -98,7 +99,7 @@ class PingPong:
 				print("Frame: {}, Status: {}\n-----" \
 					.format(scene_info.frame, game_status.value))
 
-				if self._game_over():
+				if self._game_over(game_status):
 					break
 
 				self._scene.reset()
@@ -108,7 +109,7 @@ class PingPong:
 
 		if self._to_transition:
 			self._transition_server._send_game_result(scene_info, self._frame_delayed, \
-				self._scene.score)
+				self._score)
 
 		self._print_result()
 		pygame.quit()
@@ -146,9 +147,9 @@ class PingPong:
 		self._scene.draw_gameobjects(self._screen)
 
 		font_surface_1P = self._font.render( \
-			"1P score: {}".format(self._scene.score[0]), True, gamecore.color_1P)
+			"1P score: {}".format(self._score[0]), True, gamecore.color_1P)
 		font_surface_2P = self._font.render( \
-			"2P score: {}".format(self._scene.score[1]), True, gamecore.color_2P)
+			"2P score: {}".format(self._score[1]), True, gamecore.color_2P)
 		font_surface_speed = self._font.render( \
 			"Speed: {}".format(abs(self._scene._ball._speed[0])), True, (255, 255, 255))
 		self._screen.blit(font_surface_1P, self._font_pos_1P)
@@ -157,17 +158,22 @@ class PingPong:
 
 		pygame.display.flip()
 
-	def _game_over(self):
-		return self._scene.score[0] == self._game_over_score or \
-			self._scene.score[1] == self._game_over_score
+	def _game_over(self, status):
+		if status == gamecore.GameStatus.GAME_1P_WIN:
+			self._score[0] += 1
+		else:
+			self._score[1] += 1
+
+		return self._score[0] == self._game_over_score or \
+			self._score[1] == self._game_over_score
 
 	def _print_result(self):
-		if self._scene.score[0] > self._scene.score[1]:
+		if self._score[0] > self._score[1]:
 			win_side = "1P"
 		else:
 			win_side = "2P"
 
-		print("{} wins! Final score: {}-{}".format(win_side, *self._scene.score))
+		print("{} wins! Final score: {}-{}".format(win_side, *self._score))
 
 from essential.communication.transition import send_to_transition
 

@@ -20,8 +20,6 @@ class Scene:
 		self._frame_count = 0
 		self._game_status = GameStatus.GAME_ALIVE
 
-		self.score = [0, 0]	# 1P, 2P
-
 		self._create_scene()
 		self.reset()
 
@@ -63,10 +61,8 @@ class Scene:
 
 		if self._ball.rect.top > self._platform_1P.rect.bottom:
 			self._game_status = GameStatus.GAME_2P_WIN
-			self.score[1] += 1
 		elif self._ball.rect.bottom < self._platform_2P.rect.top:
 			self._game_status = GameStatus.GAME_1P_WIN
-			self.score[0] += 1
 		else:
 			self._game_status = GameStatus.GAME_ALIVE
 
