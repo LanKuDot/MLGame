@@ -4,7 +4,7 @@ import importlib
 if __name__ == "__main__":
 	try:
 		config = gameconfig.get_game_config()
-		game = importlib.import_module("{}.main".format(config.game_name))
+		game = importlib.import_module("games.{}.main".format(config.game_name))
 
 		if config.game_mode == gameconfig.GameMode.MANUAL:
 			game.manual_mode(config)
