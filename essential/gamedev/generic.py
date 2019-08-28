@@ -10,18 +10,6 @@ def quit_or_esc() -> bool:
 			return True
 	return False
 
-class BasicSceneInfo:
-	STATUS_GAME_ALIVE = "GAME_ALIVE"
-	STATUS_GAME_PASS = "GAME_PASS"
-	STATUS_GAME_OVER = "GAME_OVER"
-
-	def __init__(self):
-		self.frame = -1
-		self.status = BasicSceneInfo.STATUS_GAME_ALIVE
-
-	def __str__(self):
-		return "# Frame {}\n# Status {}".format(self.frame, self.status)
-
 class KeyCommandMap:
 	"""
 	Map the keys to the commands and return the mapped command when the key is pressed
