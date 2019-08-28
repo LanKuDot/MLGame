@@ -1,28 +1,33 @@
 import pygame, time
 
 from essential.gamedev.generic import quit_or_esc
+from essential.gamedev.recorder import get_record_handler
 from essential.communication import game as comm
 from essential.communication.game import CommandReceiver
 
 from . import gamecore, gameobject
 from ..communication import GameInstruction, SceneInfo
+from ..main import get_log_dir
 
 class Arkanoid:
 	"""The game for the machine learning mode
 	"""
 
-	def __init__(self, fps: int, level: int, record_handler = None, \
-		one_shot_mode = False, to_transition = False):
+	def __init__(self, fps: int, level: int, \
+		record_progress: bool, one_shot_mode: bool, to_transition: bool):
 		self._ml_name = "ml"
 		self._ml_execute_time = 1.0 / fps
-		self._record_handler = record_handler
-		self._one_shot_mode = one_shot_mode
-		self._to_transition = to_transition
 		self._frame_delayed = 0
 		self._instruct_receiver = CommandReceiver( \
 			GameInstruction, { "command": \
 				[GameInstruction.CMD_LEFT, GameInstruction.CMD_RIGHT, GameInstruction.CMD_NONE], \
 			}, GameInstruction(-1, GameInstruction.CMD_NONE))
+
+		self._record_handler = get_record_handler(record_progress, { \
+				"status": (gamecore.GAME_OVER_MSG, gamecore.GAME_PASS_MSG) \
+			}, get_log_dir())
+		self._to_transition = to_transition
+		self._one_shot_mode = one_shot_mode
 
 		if not self._to_transition:
 			self._init_display()

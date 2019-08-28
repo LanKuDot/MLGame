@@ -41,8 +41,7 @@ def _start_game_process(fps, game_over_score, record_progress, to_transition):
 	"""
 	from .game.pingpong_ml import PingPong
 
-	record_handler = _get_record_handler(record_progress)
-	game = PingPong(fps, game_over_score, record_handler, to_transition)
+	game = PingPong(fps, game_over_score, record_progress, to_transition)
 	game.game_loop()
 
 def manual_mode(config: GameConfig):
@@ -52,9 +51,8 @@ def manual_mode(config: GameConfig):
 	from .game.pingpong import PingPong
 
 	game_over_score = _get_game_over_score(config.game_params, config.one_shot_mode)
-	record_handler = _get_record_handler(config.record_progress)
 
-	game = PingPong(config.fps, game_over_score, record_handler)
+	game = PingPong(config.fps, game_over_score, config.record_progress)
 	game.game_loop()
 
 def _get_game_over_score(game_params, one_shot_mode):
@@ -78,21 +76,6 @@ def _get_game_over_score(game_params, one_shot_mode):
 
 	return game_over_score
 
-def _get_record_handler(record_progress: bool):
-	"""
-	Get the record handler for record the game progress
-
-	If the `record_progress` is False, it will return a dummy function
-	"""
-	if record_progress:
-		import os.path
-		log_dir_path = os.path.join(os.path.dirname(__file__), "log")
-
-		from essential.recorder import Recorder
-		from .game import gamecore
-		recorder = Recorder( \
-			(gamecore.GameStatus.GAME_1P_WIN, gamecore.GameStatus.GAME_2P_WIN), \
-			log_dir_path)
-		return recorder.record_scene_info
-	else:
-		return lambda x: None
+def get_log_dir():
+	import os.path
+	return os.path.join(os.path.dirname(__file__), "log")

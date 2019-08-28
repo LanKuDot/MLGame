@@ -1,24 +1,28 @@
 import pygame
 import time
+import os.path
 
 from essential.gamedev.generic import quit_or_esc
+from essential.gamedev.recorder import get_record_handler
 from essential.communication import game as comm
 from essential.communication.game import CommandReceiver
 
-from . import gamecore, gameobject
+from . import gamecore
+from .gamecore import GameStatus
 from ..communication import SceneInfo, GameInstruction, PlatformAction
+from ..main import get_log_dir
 
 class PingPong:
 	"""
 	The game core for the machine learning mode
 	"""
-	def __init__(self, fps: int, game_over_score: int, record_handler, to_transition):
+	def __init__(self, fps: int, game_over_score: int, record_progress, to_transition):
 		"""
 		Constructor
 
 		@param fps The fps of the game
 		@param game_over_score The game will stop when either side reaches this score
-		@param record_handler The handler to record the game progress
+		@param record_progress Whether to record the game process or not
 		@param to_transition Whether to pass the game progress to the transition process
 		"""
 		self._ml_name = ["ml_1P", "ml_2P"]
@@ -27,11 +31,13 @@ class PingPong:
 		self._score = [0, 0]	# 1P, 2P
 		self._game_over_score = game_over_score
 		self._cmd_receiver = CommandReceiver( \
-			GameInstruction, { "command": \
-				[PlatformAction.MOVE_LEFT, PlatformAction.MOVE_LEFT, PlatformAction.NONE]
+			GameInstruction, { \
+				"command": [PlatformAction.MOVE_LEFT, PlatformAction.MOVE_LEFT, PlatformAction.NONE]
 			}, GameInstruction(-1, PlatformAction.NONE))
 
-		self._record_handler = record_handler
+		self._record_handler = get_record_handler(record_progress, {
+				"status": (GameStatus.GAME_1P_WIN, GameStatus.GAME_2P_WIN)
+			}, get_log_dir())
 		self._to_transition = to_transition
 
 		if not self._to_transition:
@@ -87,8 +93,8 @@ class PingPong:
 
 			# If either of two sides wins, reset the scene and wait for ml processes
 			# getting ready for the next round
-			if game_status == gamecore.GameStatus.GAME_1P_WIN or \
-			   game_status == gamecore.GameStatus.GAME_2P_WIN:
+			if game_status == GameStatus.GAME_1P_WIN or \
+			   game_status == GameStatus.GAME_2P_WIN:
 				scene_info = self._scene.fill_scene_info_obj(SceneInfo())
 				self._record_handler(scene_info)
 				comm.send_to_all_ml(scene_info)
@@ -159,7 +165,7 @@ class PingPong:
 		pygame.display.flip()
 
 	def _game_over(self, status):
-		if status == gamecore.GameStatus.GAME_1P_WIN:
+		if status == GameStatus.GAME_1P_WIN:
 			self._score[0] += 1
 		else:
 			self._score[1] += 1

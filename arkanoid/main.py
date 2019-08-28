@@ -32,8 +32,7 @@ def _start_game_process(fps, level, record_progress, one_shot_mode, to_transitio
 	"""
 	from .game.arkanoid_ml import Arkanoid
 
-	record_handler = _get_record_handler(record_progress)
-	game = Arkanoid(fps, level, record_handler, one_shot_mode, to_transition)
+	game = Arkanoid(fps, level, record_progress, one_shot_mode, to_transition)
 	game.game_loop()
 
 def manual_mode(config: GameConfig):
@@ -42,8 +41,8 @@ def manual_mode(config: GameConfig):
 	from .game.arkanoid import Arkanoid
 
 	level = _get_level(config.game_params)
-	record_handler = _get_record_handler(config.record_progress)
-	game = Arkanoid(config.fps, level, record_handler, config.one_shot_mode)
+
+	game = Arkanoid(config.fps, level, config.record_progress, config.one_shot_mode)
 	game.game_loop()
 
 def _get_level(game_params):
@@ -62,22 +61,6 @@ def _get_level(game_params):
 
 	return level
 
-def _get_record_handler(record_progress: bool):
-	"""Return the handler for record the game progress
-
-	If the `record_progress` is False, return a dummy function.
-	"""
-	if record_progress:
-		from essential.gamedev.recorder import Recorder
-		from .game import gamecore
-		recorder = Recorder( \
-			(gamecore.GAME_OVER_MSG, gamecore.GAME_PASS_MSG), \
-			_get_log_dir_path())
-		return recorder.record_scene_info
-	else:
-		return lambda x: None
-
-def _get_log_dir_path():
+def get_log_dir():
 	import os.path
-	dirpath = os.path.dirname(__file__)
-	return os.path.join(dirpath, "log")
+	return os.path.join(os.path.dirname(__file__), "log")
