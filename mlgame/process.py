@@ -363,5 +363,7 @@ def _ml_process_entry_point(helper: MLProcessHelper):
 		ml_module = importlib.import_module(helper.target_module, __package__)
 		ml_module.ml_loop(*helper.args, **helper.kwargs)
 	except Exception as e:
-		exception = MLProcessError(helper.name, traceback.format_exc())
+		target_script = helper.target_module.split('.')[-1] + ".py"
+		trimmed_callstack = trim_callstack(traceback.format_exc(), target_script)
+		exception = MLProcessError(helper.name, trimmed_callstack)
 		helper.send_exception(exception)
