@@ -5,9 +5,9 @@ from pygame.math import Vector2
 import pygame
 import random
 
-class PlatformMoveAction(StringEnum):
-	LEFT = "LEFT"
-	RIGHT = "RIGHT"
+class PlatformAction(StringEnum):
+	MOVE_LEFT = "LEFT"
+	MOVE_RIGHT = "RIGHT"
 	NONE = "NONE"
 
 class Platform(pygame.sprite.Sprite):
@@ -43,11 +43,11 @@ class Platform(pygame.sprite.Sprite):
 	def reset(self):
 		self.rect = self._init_pos.copy()
 
-	def move(self, move_action: PlatformMoveAction):
-		if move_action == PlatformMoveAction.LEFT and \
+	def move(self, move_action: PlatformAction):
+		if move_action == PlatformAction.MOVE_LEFT and \
 			self.rect.left > self._play_area_rect.left:
 			self._speed[0] = -self._shift_speed
-		elif move_action == PlatformMoveAction.RIGHT and \
+		elif move_action == PlatformAction.MOVE_RIGHT and \
 			self.rect.right < self._play_area_rect.right:
 			self._speed[0] = self._shift_speed
 		else:

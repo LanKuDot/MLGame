@@ -2,7 +2,7 @@ import pygame
 from mlgame.utils.enum import StringEnum
 
 from .gameobject import (
-	Ball, Platform, PlatformMoveAction
+	Ball, Platform, PlatformAction
 )
 
 display_area_size = (200, 500)	# (width, height)
@@ -46,7 +46,7 @@ class Scene:
 		self._platform_2P.reset()
 
 	def update(self, \
-		move_action_1P: PlatformMoveAction, move_action_2P: PlatformMoveAction):
+		move_action_1P: PlatformAction, move_action_2P: PlatformAction):
 		self._frame_count += 1
 
 		# Speed up the ball every 200 frames

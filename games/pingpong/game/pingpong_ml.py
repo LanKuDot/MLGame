@@ -8,8 +8,8 @@ from mlgame.communication import game as comm
 from mlgame.communication.game import CommandReceiver
 
 from . import gamecore
-from .gamecore import GameStatus
-from ..communication import SceneInfo, GameInstruction, PlatformAction
+from .gamecore import GameStatus, PlatformAction
+from ..communication import SceneInfo, GameInstruction
 from ..main import get_log_dir
 
 class PingPong:
@@ -32,7 +32,7 @@ class PingPong:
 		self._game_over_score = game_over_score
 		self._cmd_receiver = CommandReceiver( \
 			GameInstruction, { \
-				"command": [PlatformAction.MOVE_LEFT, PlatformAction.MOVE_LEFT, PlatformAction.NONE]
+				"command": [PlatformAction.MOVE_LEFT, PlatformAction.MOVE_RIGHT, PlatformAction.NONE]
 			}, GameInstruction(-1, PlatformAction.NONE))
 
 		self._record_handler = get_record_handler(record_progress, {
@@ -83,8 +83,7 @@ class PingPong:
 
 			# Update the scene
 			game_status = self._scene.update( \
-				gamecore.PlatformMoveAction[instruction_1P.command.value], \
-				gamecore.PlatformMoveAction[instruction_2P.command.value])
+				instruction_1P.command, instruction_2P.command)
 
 			if not self._to_transition:
 				self._draw_scene()

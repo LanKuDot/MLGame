@@ -4,8 +4,7 @@ from mlgame.gamedev.generic import quit_or_esc, KeyCommandMap
 from mlgame.gamedev.recorder import get_record_handler
 
 from . import gamecore
-from .gamecore import GameStatus
-from .gameobject import PlatformMoveAction
+from .gamecore import GameStatus, PlatformAction
 from ..communication import SceneInfo
 from ..main import get_log_dir
 
@@ -18,13 +17,13 @@ class PingPong:
 		self._game_over_score = game_over_score
 		self._scene = gamecore.Scene(True)
 		self._keyboard_action_1P = KeyCommandMap({
-				pygame.K_LEFT:  PlatformMoveAction.LEFT,
-				pygame.K_RIGHT: PlatformMoveAction.RIGHT,
-			}, PlatformMoveAction.NONE)
+				pygame.K_LEFT:  PlatformAction.MOVE_LEFT,
+				pygame.K_RIGHT: PlatformAction.MOVE_RIGHT,
+			}, PlatformAction.NONE)
 		self._keyboard_action_2P = KeyCommandMap({
-				pygame.K_a: PlatformMoveAction.LEFT,
-				pygame.K_d: PlatformMoveAction.RIGHT,
-			}, PlatformMoveAction.NONE)
+				pygame.K_a: PlatformAction.MOVE_LEFT,
+				pygame.K_d: PlatformAction.MOVE_RIGHT,
+			}, PlatformAction.NONE)
 
 		self._record_handler = get_record_handler(record_progress, {
 				"status": (GameStatus.GAME_1P_WIN, GameStatus.GAME_2P_WIN)

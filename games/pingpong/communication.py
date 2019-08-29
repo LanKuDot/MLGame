@@ -1,14 +1,4 @@
-from mlgame.utils.enum import StringEnum
-
-class GameStatus(StringEnum):
-	GAME_1P_WIN = "GAME_1P_WIN"
-	GAME_2P_WIN = "GAME_2P_WIN"
-	GAME_ALIVE = "GAME_ALIVE"
-
-class PlatformAction(StringEnum):
-	NONE = "NONE"
-	MOVE_LEFT = "LEFT"
-	MOVE_RIGHT = "RIGHT"
+from .game.gamecore import GameStatus, PlatformAction
 
 class SceneInfo:
 	"""
@@ -38,8 +28,8 @@ class SceneInfo:
 
 		# These fields will be filled after receiving the instruction
 		# from the ml process
-		self.command_1P = "NONE"
-		self.command_2P = "NONE"
+		self.command_1P = PlatformAction.NONE
+		self.command_2P = PlatformAction.NONE
 
 	def __str__(self):
 		output_str = "# Frame {}\n".format(self.frame)
