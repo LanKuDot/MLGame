@@ -1,4 +1,4 @@
-from essential import gameconfig
+from mlgame import gameconfig
 import importlib
 
 if __name__ == "__main__":

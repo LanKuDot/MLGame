@@ -1,5 +1,5 @@
-from essential.gamedev import physics
-from essential.utils.enum import StringEnum
+from mlgame.gamedev import physics
+from mlgame.utils.enum import StringEnum
 
 from pygame.math import Vector2
 import pygame

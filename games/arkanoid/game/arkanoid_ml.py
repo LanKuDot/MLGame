@@ -1,9 +1,9 @@
 import pygame, time
 
-from essential.gamedev.generic import quit_or_esc
-from essential.gamedev.recorder import get_record_handler
-from essential.communication import game as comm
-from essential.communication.game import CommandReceiver
+from mlgame.gamedev.generic import quit_or_esc
+from mlgame.gamedev.recorder import get_record_handler
+from mlgame.communication import game as comm
+from mlgame.communication.game import CommandReceiver
 
 from . import gamecore, gameobject
 from ..communication import GameInstruction, SceneInfo
@@ -115,7 +115,7 @@ class Arkanoid:
 		self._scene.draw_gameobjects(self._screen)
 		pygame.display.flip()
 
-from essential.communication.transition import send_to_transition
+from mlgame.communication.transition import send_to_transition
 
 class TransitionServer:
 	"""Pass the scene info received to the message server

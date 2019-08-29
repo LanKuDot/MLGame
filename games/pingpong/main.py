@@ -1,4 +1,4 @@
-from essential.gameconfig import GameConfig
+from mlgame.gameconfig import GameConfig
 
 def ml_mode(config: GameConfig):
 	"""
@@ -8,7 +8,7 @@ def ml_mode(config: GameConfig):
 	module_1P, module_2P = _get_ml_modules(config.input_modules)
 	to_transition = True if config.transition_channel else False
 
-	from essential.process import ProcessManager
+	from mlgame.process import ProcessManager
 
 	process_manager = ProcessManager()
 	process_manager.set_game_process(_start_game_process, \

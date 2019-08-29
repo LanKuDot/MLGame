@@ -69,7 +69,7 @@ class GameInstruction:
 		return "# Frame {}\n# Command {}".format(self.frame, self.command)
 
 # Communication pipes between ml and game processes
-from essential.communication import ml as comm
+from mlgame.communication import ml as comm
 
 # ====== Helper functions ====== #
 def get_scene_info() -> SceneInfo:

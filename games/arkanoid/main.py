@@ -1,4 +1,4 @@
-from essential.gameconfig import GameConfig
+from mlgame.gameconfig import GameConfig
 
 def ml_mode(config: GameConfig):
 	"""Start the game in the machine learning mode
@@ -8,7 +8,7 @@ def ml_mode(config: GameConfig):
 	level = _get_level(config.game_params)
 	to_transition = True if config.transition_channel else False
 
-	from essential.process import ProcessManager
+	from mlgame.process import ProcessManager
 
 	process_manager = ProcessManager()
 	process_manager.set_game_process(_start_game_process, \

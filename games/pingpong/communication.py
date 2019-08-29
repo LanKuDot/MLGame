@@ -1,4 +1,4 @@
-from essential.utils.enum import StringEnum
+from mlgame.utils.enum import StringEnum
 
 class GameStatus(StringEnum):
 	GAME_1P_WIN = "GAME_1P_WIN"
@@ -81,7 +81,7 @@ class GameInstruction:
 	def __str__(self):
 		return "# Frame {}\n# Command {}".format(self.frame, self.command)
 
-from essential.communication import ml as comm
+from mlgame.communication import ml as comm
 
 # ====== Helper functions ====== #
 def get_scene_info() -> SceneInfo:

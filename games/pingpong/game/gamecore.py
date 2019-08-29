@@ -1,5 +1,5 @@
 import pygame
-from essential.utils.enum import StringEnum
+from mlgame.utils.enum import StringEnum
 
 from .gameobject import (
 	Ball, Platform, PlatformMoveAction

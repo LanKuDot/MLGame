@@ -4,7 +4,7 @@ The interface for communicating with the message server
 from asgiref.sync import async_to_sync
 from channels_redis.core import RedisChannelLayer
 
-from essential.exception import ProcessError
+from .exception import ProcessError
 
 class RedisTransition:
 	def __init__(self, server_ip, server_port, channel_name):

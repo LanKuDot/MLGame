@@ -1,7 +1,7 @@
 import pygame
 
-from essential.gamedev.generic import quit_or_esc, KeyCommandMap
-from essential.gamedev.recorder import get_record_handler
+from mlgame.gamedev.generic import quit_or_esc, KeyCommandMap
+from mlgame.gamedev.recorder import get_record_handler
 
 from . import gamecore
 from ..communication import SceneInfo

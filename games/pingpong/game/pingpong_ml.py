@@ -2,10 +2,10 @@ import pygame
 import time
 import os.path
 
-from essential.gamedev.generic import quit_or_esc
-from essential.gamedev.recorder import get_record_handler
-from essential.communication import game as comm
-from essential.communication.game import CommandReceiver
+from mlgame.gamedev.generic import quit_or_esc
+from mlgame.gamedev.recorder import get_record_handler
+from mlgame.communication import game as comm
+from mlgame.communication.game import CommandReceiver
 
 from . import gamecore
 from .gamecore import GameStatus
@@ -181,7 +181,7 @@ class PingPong:
 
 		print("{} wins! Final score: {}-{}".format(win_side, *self._score))
 
-from essential.communication.transition import send_to_transition
+from mlgame.communication.transition import send_to_transition
 
 class TransitionServer:
 	"""
