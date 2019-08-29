@@ -76,10 +76,13 @@ class PingPong:
 
 		while keep_going():
 			scene_info = self._scene.fill_scene_info_obj(SceneInfo())
-			self._record_handler(scene_info)
 
 			# Send the scene info to the ml processes and wait for instructions
 			instruction_1P, instruction_2P = self._make_ml_execute(scene_info)
+
+			scene_info.command_1P = instruction_1P.command.value
+			scene_info.command_2P = instruction_2P.command.value
+			self._record_handler(scene_info)
 
 			# Update the scene
 			game_status = self._scene.update( \

@@ -28,8 +28,8 @@ class SceneInfo:
 
 		# These fields will be filled after receiving the instruction
 		# from the ml process
-		self.command_1P = PlatformAction.NONE
-		self.command_2P = PlatformAction.NONE
+		self.command_1P = PlatformAction.NONE.value
+		self.command_2P = PlatformAction.NONE.value
 
 	def __str__(self):
 		output_str = "# Frame {}\n".format(self.frame)
