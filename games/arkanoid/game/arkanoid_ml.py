@@ -90,8 +90,10 @@ class Arkanoid:
 				if self._one_shot_mode:
 					return
 
-				# TODO Wait the ml process before reset the scene
 				self._scene.reset()
+				self._frame_delayed = 0
+				# Wait for ml process doing resetting jobs
+				comm.wait_ml_ready(self._ml_name)
 
 		pygame.quit()
 

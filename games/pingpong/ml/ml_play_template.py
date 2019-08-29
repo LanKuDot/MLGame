@@ -40,7 +40,7 @@ def ml_loop(side: str):
 		#      is ready.
 		if scene_info.status == GameStatus.GAME_1P_WIN or \
 		   scene_info.status == GameStatus.GAME_2P_WIN:
-			# Do something updating or resetting stuff
+			# Do some updating or resetting stuff
 
 			# 3.2.1 Inform the game process that
 			#       the ml process is ready for the next round
