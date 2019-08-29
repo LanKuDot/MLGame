@@ -3,8 +3,8 @@ The script that send the instruction according to the keyboard input
 """
 
 import pygame
-import pingpong.communication as comm
-from pingpong.communication import (
+import games.pingpong.communication as comm
+from games.pingpong.communication import (
 	SceneInfo, GameInstruction, GameStatus, PlatformAction
 )
 

@@ -133,7 +133,7 @@ class GameConfig:
 		module_list = []
 
 		for script_name in input_scripts:
-			local_script_path = os.path.join(self.game_name, "ml", script_name)
+			local_script_path = os.path.join("games", self.game_name, "ml", script_name)
 			full_script_path = os.path.join(top_dir_path, local_script_path)
 
 			if not os.path.exists(full_script_path):
@@ -142,7 +142,7 @@ class GameConfig:
 					"Cannot start the game in the machine learning mode." \
 					.format(local_script_path))
 
-			module_list.append("{}.ml.{}" \
+			module_list.append("games.{}.ml.{}" \
 				.format(self.game_name, script_name.split('.py')[0]))
 
 		return module_list

@@ -3,8 +3,8 @@ The template of the script for the machine learning process in game pingpong
 """
 
 # Import the necessary modules and classes
-import pingpong.communication as comm
-from pingpong.communication import (
+import games.pingpong.communication as comm
+from games.pingpong.communication import (
 	SceneInfo, GameInstruction, GameStatus, PlatformAction
 )
 
