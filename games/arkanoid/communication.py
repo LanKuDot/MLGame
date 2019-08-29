@@ -1,3 +1,5 @@
+from .game.gamecore import GameStatus, PlatformAction
+
 class SceneInfo:
 	"""The data structure for the information of the scene
 
@@ -5,16 +7,12 @@ class SceneInfo:
 	Note that the position is the coordinate at the top-left corner of the gameobject.
 
 	@var frame The frame number of the game. Used as the timestamp.
-	@var status The status of the game. It will only be STATUS_GAME_ALIVE,
-	     STATUS_GAME_PASS, or STATUS_GAME_OVER.
+	@var status The status of the game. It will only be one of `GameStatus`
 	@var ball A (x, y) tuple which is the position of the ball.
 	@var platform A (x, y) tuple which is the position of the platform.
 	@var bricks A list containing multiple (x, y) tuple which is
 	     the position of the remaining bricks.
 	"""
-	STATUS_GAME_ALIVE = "GAME_ALIVE"
-	STATUS_GAME_PASS = "GAME_PASS"
-	STATUS_GAME_OVER = "GAME_OVER"
 
 	def __init__(self):
 		# These members will be filled in the game process.
@@ -45,22 +43,20 @@ class GameInstruction:
 
 	@var frame The frame no. this GameInstruction for. It is recommended to set it
 	     as the SceneInfo.frame
-	@var command The command for controlling the platform. It could only be CMD_READY,
-	     CMD_LEFT, CMD_RIGHT, CMD_NONE.
+	@var command The command for controlling the platform. It could only be one of
+	     `PlatformAction`.
 	"""
 
-	CMD_READY = "READY"
-	CMD_LEFT = "LEFT"
-	CMD_RIGHT = "RIGHT"
-	CMD_NONE = ""
-
-	def __init__(self, frame: int, command: str):
+	def __init__(self, frame: int, command: PlatformAction):
 		# Check the type of the arguments
 		if not isinstance(frame, int):
 			raise TypeError("Invalid type of 'frame' for 'GameInstruction'." \
 				" Type 'int' is needed, but '{}' is given." \
 				.format(type(frame).__name__))
-		# TODO: Check the type or the content of the command
+		if not isinstance(command, PlatformAction):
+			raise TypeError("Invalid type of 'command' for 'GameInstruction'." \
+				" Type 'PlatformAction' is needed, but '{}' is given." \
+				.format(type(command).__name__))
 
 		self.frame = frame
 		self.command = command
@@ -68,7 +64,6 @@ class GameInstruction:
 	def __str__(self):
 		return "# Frame {}\n# Command {}".format(self.frame, self.command)
 
-# Communication pipes between ml and game processes
 from mlgame.communication import ml as comm
 
 # ====== Helper functions ====== #

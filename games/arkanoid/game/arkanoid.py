@@ -4,6 +4,7 @@ from mlgame.gamedev.generic import quit_or_esc, KeyCommandMap
 from mlgame.gamedev.recorder import get_record_handler
 
 from . import gamecore
+from .gamecore import GameStatus, PlatformAction
 from ..communication import SceneInfo
 from ..main import get_log_dir
 
@@ -14,12 +15,12 @@ class Arkanoid:
 		self._fps = fps
 		self._scene = gamecore.Scene(level, True)
 		self._keyboard = KeyCommandMap({
-				pygame.K_LEFT:  gamecore.ACTION_LEFT,
-				pygame.K_RIGHT: gamecore.ACTION_RIGHT,
-			}, gamecore.ACTION_NONE)
+				pygame.K_LEFT:  PlatformAction.MOVE_LEFT,
+				pygame.K_RIGHT: PlatformAction.MOVE_RIGHT,
+			}, PlatformAction.NONE)
 
 		self._record_handler = get_record_handler(record_progress, {
-				"status": (gamecore.GAME_OVER_MSG, gamecore.GAME_PASS_MSG)
+				"status": (GameStatus.GAME_OVER, GameStatus.GAME_PASS)
 			}, get_log_dir())
 		self._one_shot_mode = one_shot_mode
 
@@ -35,9 +36,9 @@ class Arkanoid:
 			control_action = self._keyboard.get_command()
 			game_status = self._scene.update(control_action)
 
-			if game_status == gamecore.GAME_OVER_MSG or \
-			   game_status == gamecore.GAME_PASS_MSG:
-				print(game_status)
+			if game_status == GameStatus.GAME_OVER or \
+			   game_status == GameStatus.GAME_PASS:
+				print(game_status.value)
 				self._record_handler(self._scene.fill_scene_info_obj(SceneInfo()))
 
 				if self._one_shot_mode:

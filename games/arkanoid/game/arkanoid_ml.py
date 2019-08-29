@@ -5,7 +5,8 @@ from mlgame.gamedev.recorder import get_record_handler
 from mlgame.communication import game as comm
 from mlgame.communication.game import CommandReceiver
 
-from . import gamecore, gameobject
+from . import gamecore
+from .gamecore import GameStatus, PlatformAction
 from ..communication import GameInstruction, SceneInfo
 from ..main import get_log_dir
 
@@ -20,11 +21,11 @@ class Arkanoid:
 		self._frame_delayed = 0
 		self._instruct_receiver = CommandReceiver( \
 			GameInstruction, { "command": \
-				[GameInstruction.CMD_LEFT, GameInstruction.CMD_RIGHT, GameInstruction.CMD_NONE], \
-			}, GameInstruction(-1, GameInstruction.CMD_NONE))
+				[PlatformAction.MOVE_LEFT, PlatformAction.MOVE_RIGHT, PlatformAction.NONE], \
+			}, GameInstruction(-1, PlatformAction.NONE))
 
 		self._record_handler = get_record_handler(record_progress, { \
-				"status": (gamecore.GAME_OVER_MSG, gamecore.GAME_PASS_MSG) \
+				"status": (GameStatus.GAME_OVER, GameStatus.GAME_PASS) \
 			}, get_log_dir())
 		self._to_transition = to_transition
 		self._one_shot_mode = one_shot_mode
@@ -76,8 +77,8 @@ class Arkanoid:
 			else:
 				self._transition_server._send_scene_info(scene_info, self._frame_delayed)
 
-			if game_status == gamecore.GAME_OVER_MSG or \
-			   game_status == gamecore.GAME_PASS_MSG:
+			if game_status == GameStatus.GAME_OVER or \
+			   game_status == GameStatus.GAME_PASS:
 				scene_info = self._scene.fill_scene_info_obj(SceneInfo())
 				self._record_handler(scene_info)
 				comm.send_to_ml(scene_info, self._ml_name)

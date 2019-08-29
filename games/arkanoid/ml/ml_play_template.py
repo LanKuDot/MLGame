@@ -2,7 +2,9 @@
 """
 
 import games.arkanoid.communication as comm
-from games.arkanoid.communication import SceneInfo, GameInstruction
+from games.arkanoid.communication import ( \
+	SceneInfo, GameInstruction, GameStatus, PlatformAction
+)
 
 def ml_loop():
 	"""The main loop of the machine learning process
@@ -30,11 +32,11 @@ def ml_loop():
 		#      the scene immediately and send the scene information again.
 		#      Therefore, receive the reset scene information.
 		#      You can do proper actions, when the game is over or passed.
-		if scene_info.status == SceneInfo.STATUS_GAME_OVER or \
-			scene_info.status == SceneInfo.STATUS_GAME_PASS:
+		if scene_info.status == GameStatus.GAME_OVER or \
+			scene_info.status == GameStatus.GAME_PASS:
 			scene_info = comm.get_scene_info()
 
 		# 3.3. Put the code here to handle the scene information
 
 		# 3.4. Send the instruction for this frame to the game process
-		comm.send_instruction(scene_info.frame, GameInstruction.CMD_LEFT)
+		comm.send_instruction(scene_info.frame, PlatformAction.MOVE_LEFT)

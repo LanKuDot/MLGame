@@ -1,7 +1,9 @@
 import pygame
 from pygame import Rect, Surface
 from pygame.sprite import Sprite
+
 from mlgame.gamedev import physics
+from mlgame.utils.enum import StringEnum
 
 class Brick(Sprite):
 	def __init__(self, init_pos, *groups):
@@ -18,6 +20,11 @@ class Brick(Sprite):
 			(0, self.rect.height - 1), (self.rect.width - 1, self.rect.height - 1))
 
 		self.image = surface.convert()
+
+class PlatformAction(StringEnum):
+	MOVE_LEFT = "LEFT"
+	MOVE_RIGHT = "RIGHT"
+	NONE = "NONE"
 
 class Platform(Sprite):
 	def __init__(self, init_pos, play_area_rect: Rect, *groups):
@@ -39,11 +46,11 @@ class Platform(Sprite):
 	def reset(self):
 		self.rect.topleft = self._init_pos
 
-	def move(self, move_action: str):
-		if move_action == "LEFT" and \
+	def move(self, move_action: PlatformAction):
+		if move_action == PlatformAction.MOVE_LEFT and \
 		   self.rect.left > self._play_area_rect.left:
 			self._speed[0] = -self._shift_speed
-		elif move_action == "RIGHT" and \
+		elif move_action == PlatformAction.MOVE_RIGHT and \
 		     self.rect.right < self._play_area_rect.right:
 			self._speed[0] = self._shift_speed
 		else:

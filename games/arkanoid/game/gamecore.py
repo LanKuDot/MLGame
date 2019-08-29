@@ -1,21 +1,21 @@
 import pygame
-from . import gameobject
+
+from mlgame.utils.enum import StringEnum
+
+from .gameobject import Ball, Platform, Brick, PlatformAction
 
 scene_area_size = (200, 500)	# (width, height)
 
-GAME_ALIVE_MSG = "GAME_ALIVE"
-GAME_OVER_MSG = "GAME_OVER"
-GAME_PASS_MSG = "GAME_PASS"
-
-ACTION_LEFT = "LEFT"
-ACTION_RIGHT = "RIGHT"
-ACTION_NONE = ""
+class GameStatus(StringEnum):
+	GAME_ALIVE = "GAME_ALIVE"
+	GAME_OVER = "GAME_OVER"
+	GAME_PASS = "GAME_PASS"
 
 class Scene:
 	def __init__(self, level, to_create_surface = False):
 		self._level = level
 		self._frame_count = 0
-		self._game_status = GAME_ALIVE_MSG
+		self._game_status = GameStatus.GAME_ALIVE
 		self._to_create_surface = to_create_surface
 
 		self._create_scene()
@@ -28,9 +28,9 @@ class Scene:
 		game_area_rect = pygame.Rect((0, 0), scene_area_size)
 
 		self._group_move = pygame.sprite.RenderPlain()
-		self._ball = gameobject.Ball((100, 100), \
+		self._ball = Ball((100, 100), \
 			game_area_rect, self._group_move)
-		self._platform = gameobject.Platform((75, 400), \
+		self._platform = Platform((75, 400), \
 			game_area_rect, self._group_move)
 
 		if self._to_create_surface:
@@ -53,7 +53,7 @@ class Scene:
 			offset_x, offset_y = get_coordinate(input_file.readline())
 			for input_pos in input_file:
 				pos_x, pos_y = get_coordinate(input_pos.rstrip("\n"))
-				brick = gameobject.Brick((pos_x + offset_x, pos_y + offset_y), \
+				brick = Brick((pos_x + offset_x, pos_y + offset_y), \
 					self._group_brick)
 				self._brick_container.append(brick)
 
@@ -62,13 +62,13 @@ class Scene:
 
 	def reset(self):
 		self._frame_count = 0
-		self._game_status = GAME_ALIVE_MSG
+		self._game_status = GameStatus.GAME_ALIVE
 		self._ball.reset()
 		self._platform.reset()
 		self._group_brick.empty()
 		self._group_brick.add(*self._brick_container)
 
-	def update(self, move_action: str) -> str:
+	def update(self, move_action: PlatformAction) -> GameStatus:
 		self._frame_count += 1
 
 		self._ball.move()
@@ -78,11 +78,11 @@ class Scene:
 		self._ball.check_bouncing(self._platform)
 
 		if len(self._group_brick) == 0:
-			self._game_status = GAME_PASS_MSG
+			self._game_status = GameStatus.GAME_PASS
 		elif self._ball.rect.top >= self._platform.rect.bottom:
-			self._game_status = GAME_OVER_MSG
+			self._game_status = GameStatus.GAME_OVER
 		else:
-			self._game_status = GAME_ALIVE_MSG
+			self._game_status = GameStatus.GAME_ALIVE
 
 		return self._game_status
 
@@ -111,7 +111,7 @@ class Scene:
 			return (rect.x, rect.y)
 
 		scene_info_obj.frame = self._frame_count
-		scene_info_obj.status = self._game_status
+		scene_info_obj.status = self._game_status.value
 		scene_info_obj.ball = get_pivot_point(self._ball.rect)
 		scene_info_obj.platform = get_pivot_point(self._platform.rect)
 		scene_info_obj.bricks = []
