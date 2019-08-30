@@ -4,6 +4,8 @@ A platform for applying machine learning algorithm to play pixel games
 
 MLGame separates the machine learning part from the game core, which makes users easily apply codes to play the game.
 
+**MLGame Beta 4.0+ is not compatible with the previous version.**
+
 ## Requirements
 
 * Python 3.5+
