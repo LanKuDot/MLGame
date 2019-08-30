@@ -16,14 +16,13 @@ class PingPong:
     """
     The game core for the machine learning mode
     """
-    def __init__(self, fps: int, game_over_score: int, record_progress, to_transition):
+    def __init__(self, fps: int, game_over_score: int, record_progress):
         """
         Constructor
 
         @param fps The fps of the game
         @param game_over_score The game will stop when either side reaches this score
         @param record_progress Whether to record the game process or not
-        @param to_transition Whether to pass the game progress to the transition process
         """
         self._ml_name = ["ml_1P", "ml_2P"]
         self._ml_execute_time = 1.0 / fps
@@ -38,14 +37,9 @@ class PingPong:
         self._record_handler = get_record_handler(record_progress, {
                 "status": (GameStatus.GAME_1P_WIN, GameStatus.GAME_2P_WIN)
             }, get_log_dir())
-        self._to_transition = to_transition
 
-        if not self._to_transition:
-            self._init_display()
-            self._scene = gamecore.Scene(True)
-        else:
-            self._scene = gamecore.Scene(False)
-            self._transition_server = TransitionServer()
+        self._init_display()
+        self._scene = gamecore.Scene(True)
 
     def _init_display(self):
         """
@@ -66,11 +60,7 @@ class PingPong:
         """
         The main loop of the game execution
         """
-        if self._to_transition:
-            keep_going = lambda : True
-            self._transition_server._send_game_info()
-        else:
-            keep_going = lambda : not quit_or_esc()
+        keep_going = lambda : not quit_or_esc()
 
         comm.wait_all_ml_ready()
 
@@ -88,10 +78,7 @@ class PingPong:
             game_status = self._scene.update( \
                 instruction_1P.command, instruction_2P.command)
 
-            if not self._to_transition:
-                self._draw_scene()
-            else:
-                self._transition_server._send_scene_info(scene_info, self._frame_delayed)
+            self._draw_scene()
 
             # If either of two sides wins, reset the scene and wait for ml processes
             # getting ready for the next round
@@ -100,9 +87,6 @@ class PingPong:
                 scene_info = self._scene.fill_scene_info_obj(SceneInfo())
                 self._record_handler(scene_info)
                 comm.send_to_all_ml(scene_info)
-
-                if self._to_transition:
-                    self._transition_server._send_scene_info(scene_info, self._frame_delayed)
 
                 print("Frame: {}, Status: {}\n-----" \
                     .format(scene_info.frame, game_status.value))
@@ -114,10 +98,6 @@ class PingPong:
                 self._frame_delayed = [0, 0]
                 # Wait for ml processes doing their resetting jobs
                 comm.wait_all_ml_ready()
-
-        if self._to_transition:
-            self._transition_server._send_game_result(scene_info, self._frame_delayed, \
-                self._score)
 
         self._print_result()
         pygame.quit()
@@ -182,79 +162,3 @@ class PingPong:
             win_side = "2P"
 
         print("{} wins! Final score: {}-{}".format(win_side, *self._score))
-
-from mlgame.communication.transition import send_to_transition
-
-class TransitionServer:
-    """
-    Pass the scene info received to the message server
-    """
-    def __init__(self):
-        """
-        Constructor
-        """
-        pass
-
-    def _send_game_info(self):
-        """
-        Send the game information to the message server
-        """
-        info_dict = {
-            "scene": {
-                "size": [200, 500],
-            },
-            "game_object": [
-                { "name": "platform_1P", "size": [40, 30], "color": [84, 149, 255] },
-                { "name": "platform_2P", "size": [40, 30], "color": [219, 70, 92] },
-                { "name": "ball", "size": [5, 5], "color": [66, 226, 126] },
-            ]
-        }
-
-        send_to_transition({
-            "type": "game_info",
-            "data": info_dict,
-        })
-
-    def _send_scene_info(self, scene_info: SceneInfo, frame_delayed):
-        """
-        Send the scene info to the message server
-        """
-        status_dict = {
-            "frame": scene_info.frame,
-            "frame_delayed": frame_delayed,
-            "ball_speed": scene_info.ball_speed,
-        }
-        gameobject_dict = {
-            "ball": [scene_info.ball],
-            "platform_1P": [scene_info.platform_1P],
-            "platform_2P": [scene_info.platform_2P],
-        }
-
-        send_to_transition({
-            "type": "game_progress",
-            "data": {
-                "status": status_dict,
-                "game_object": gameobject_dict,
-            }
-        })
-
-    def _send_game_result(self, scene_info: SceneInfo, frame_delayed, final_score):
-        """
-        Send the game result to the message server
-        """
-        if final_score[0] > final_score[1]:
-            status = ["GAME_PASS", "GAME_OVER"]
-        else:
-            status = ["GAME_OVER", "GAME_PASS"]
-
-        game_result_dict = {
-            "frame_used": scene_info.frame,
-            "frame_delayed": frame_delayed,
-            "result": status,
-            "ball_speed": scene_info.ball_speed,
-        }
-
-        send_to_transition({
-            "type": "game_result",
-            "data": game_result_dict,
-        })

@@ -6,33 +6,28 @@ def ml_mode(config: GameConfig):
     Create a game and a machine learning processes.
     """
     level = _get_level(config.game_params)
-    to_transition = True if config.transition_channel else False
 
     from mlgame.process import ProcessManager
 
     process_manager = ProcessManager()
     process_manager.set_game_process(_start_game_process, \
         args = (config.fps, level, \
-        config.record_progress, config.one_shot_mode, to_transition))
+        config.record_progress, config.one_shot_mode))
     process_manager.add_ml_process(config.input_modules[0], "ml")
-
-    if to_transition:
-        process_manager.set_transition_process(*config.transition_channel)
 
     process_manager.start()
 
-def _start_game_process(fps, level, record_progress, one_shot_mode, to_transition):
+def _start_game_process(fps, level, record_progress, one_shot_mode):
     """Start the game process
 
     @param fps Specify the updating rate of the game
     @param level Specify the level of the game
     @param record_progress Whether to record the game progress
     @param one_shot_mode Whether to run the game for only one round
-    @param to_transition Whether to pass the game progress to transition process
     """
     from .game.arkanoid_ml import Arkanoid
 
-    game = Arkanoid(fps, level, record_progress, one_shot_mode, to_transition)
+    game = Arkanoid(fps, level, record_progress, one_shot_mode)
     game.game_loop()
 
 def manual_mode(config: GameConfig):

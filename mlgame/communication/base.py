@@ -46,12 +46,6 @@ recv_from_ml = FunctionDelegate()
 # See GameProcessHelper.recv_from_all_ml
 recv_from_all_ml = FunctionDelegate()
 
-##### The handlers for game process communicating with transition process #####
-
-# The handler for sending object to the transition process
-# See GameProcessHelper.send_to_transition
-send_to_transition = FunctionDelegate()
-
 ##### The handlers for ml process communicating with game process #####
 
 # The handler for sending object to the game process

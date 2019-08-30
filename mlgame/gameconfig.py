@@ -47,12 +47,6 @@ def get_command_parser():
         help = "specify the absolute import path of user module(s) " \
         "for the machine learning mode. The module must have function " \
         "`ml_loop()`. [default: %(default)s]")
-    parser.add_argument("--transition-channel", type = str, \
-        default = None, metavar = "SERVER_IP:SERVER_PORT:CHANNEL_NAME", \
-        help = "specify the transition server and the channel name. " \
-        "The game will pass the game progress to the transition server " \
-        "instead of displaying it. Only supported in the machine learning mode. " \
-        "[default : %(default)s]")
 
     return parser
 
@@ -82,8 +76,6 @@ class GameConfig:
     @var one_shot_mode Whether to execute the game for only once
     @var game_mode The mode of the game to be executed
     @var record_progress Whether to record the game progress
-    @var transition_channel The information of the transition server
-         This member can be None.
     @var fps The FPS of the game
     @var input_modules A list of user modules for running the ML mode
     """
@@ -98,7 +90,6 @@ class GameConfig:
         self.game_mode = self.get_game_mode(parsed_args)
         self.one_shot_mode = parsed_args.one_shot_mode
         self.record_progress = parsed_args.record_progress
-        self.transition_channel = self.get_transition_channel(parsed_args.transition_channel)
 
         self.fps = parsed_args.fps
 
@@ -173,22 +164,6 @@ class GameConfig:
 
         return input_modules
 
-    def get_transition_channel(self, channel_str):
-        """
-        Check the format of the channel information string
-
-        If it passes, return the parsed channel information.
-        Otherwise, raise ValueError.
-        """
-        if not channel_str:
-            return None
-
-        splited_str = channel_str.split(":")
-        if len(splited_str) != 3:
-            raise ValueError("Invalid transition channel format. Must be " \
-                "\"<server_ip>:<server_port>:<channel_nane>\".")
-        return splited_str
-
     def __str__(self):
         return "{" + \
             "'game_name': '{}', ".format(self.game_name) + \
@@ -196,6 +171,5 @@ class GameConfig:
             "'game_mode': {}, ".format(self.game_mode) + \
             "'one_shot_mode': {}, ".format(self.one_shot_mode) + \
             "'record_progress': {}, ".format(self.record_progress) + \
-            "'transition_channel': {}, ".format(self.transition_channel) + \
             "'fps': {}, ".format(self.fps) + \
             "'input_modules': {}".format(self.input_modules)

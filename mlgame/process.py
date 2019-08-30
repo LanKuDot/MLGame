@@ -4,7 +4,7 @@ import traceback
 from multiprocessing import Process, Pipe
 from .communication.base import CommunicationSet, CommunicationHandler
 from .exception import (
-    GameProcessError, MLProcessError, TransitionProcessError, \
+    GameProcessError, MLProcessError, \
         trim_callstack
 )
 
@@ -18,8 +18,6 @@ class ProcessManager:
 
     def __init__(self):
         self._game_proc_helper = None
-        self._transition_proc_helper = None
-        self._transition_process = None
         self._ml_proc_helpers = []
         self._ml_procs = []
 
@@ -31,18 +29,6 @@ class ProcessManager:
         @param kwargs The keyword arguments to be passed to the target function
         """
         self._game_proc_helper = GameProcessHelper(target, args, kwargs)
-
-    def set_transition_process(self, server_ip, server_port, channel_name):
-        """Set the transition process
-
-        If the game runs in the online mode, set the transition process
-        for sending the game progress to the remote server.
-
-        @param server_ip The IP of the remote server
-        @param server_port The port of the remote server
-        @param channel_name The name of the communication channel in the remote server
-        """
-        self._transition_proc_helper = TransitionProcessHelper(server_ip, server_port, channel_name)
 
     def add_ml_process(self, target_module, name = "", args = (), kwargs = {}):
         """Add a ml process
@@ -81,7 +67,6 @@ class ProcessManager:
 
         self._create_pipes()
         self._start_ml_processes()
-        self._start_transition_process()
         self._start_game_process()
 
         self._terminate()
@@ -100,18 +85,6 @@ class ProcessManager:
             ml_proc_helper._comm_game.send_end = send_pipe
             self._game_proc_helper._comm_ml_set.recv_end[ml_proc_helper.name] = recv_pipe
 
-        # Create pipe for Game process <-> Transition process
-        if self._transition_proc_helper is not None:
-            # Transition -> Game
-            recv_pipe, send_pipe = Pipe(False)
-            self._game_proc_helper._comm_transition.send_end = send_pipe
-            self._transition_proc_helper._comm_game.recv_end = recv_pipe
-
-            # Game -> Transition
-            recv_pipe, send_pipe = Pipe(False)
-            self._transition_proc_helper._comm_game.send_end = send_pipe
-            self._game_proc_helper._comm_transition.recv_end = recv_pipe
-
     def _start_ml_processes(self):
         """Spawn and start all ml processes
         """
@@ -122,43 +95,20 @@ class ProcessManager:
 
             self._ml_procs.append(process)
 
-    def _start_transition_process(self):
-        """Start the transition process
-        """
-        if self._transition_proc_helper is None:
-            return
-
-        self._transition_process = Process(target = _transition_process_entry_point, \
-            name = TransitionProcessHelper.name, args = (self._transition_proc_helper, ))
-        self._transition_process.start()
-
     def _start_game_process(self):
         """Start the game process
         """
-        if self._transition_proc_helper:
-            self._game_proc_helper.to_transition = True
-
         try:
             _game_process_entry_point(self._game_proc_helper)
-        except (MLProcessError, GameProcessError, TransitionProcessError) as e:
+        except (MLProcessError, GameProcessError) as e:
             print("*** Error occurred in \"{}\" process:".format(e.process_name))
             print(e.message)
 
-            # If the transition process is set, pass the exception.
-            if self._game_proc_helper.to_transition and \
-                isinstance(e, (MLProcessError, GameProcessError)):
-                self._game_proc_helper.send_to_transition(e)
-
     def _terminate(self):
-        """Stop all spawned ml processes and transition process if it exists
+        """Stop all spawned ml processes if it exists
         """
         for ml_process in self._ml_procs:
             ml_process.terminate()
-
-        if self._game_proc_helper.to_transition:
-            # Send a stop signal
-            self._game_proc_helper.send_to_transition(None)
-            self._transition_process.join()
 
 
 class GameProcessHelper:
@@ -179,9 +129,7 @@ class GameProcessHelper:
         self.target_function = target_function
         self.args = args
         self.kwargs = kwargs
-        self.to_transition = False
         self._comm_ml_set = CommunicationSet()
-        self._comm_transition = CommunicationHandler()
 
     def send_to_ml(self, obj, to_ml: str):
         """Send an object to the specified ml process
@@ -234,49 +182,6 @@ class GameProcessHelper:
 
         return objs
 
-    def send_to_transition(self, obj):
-        """Send an object to the transition process
-
-        @param obj The object to be sent
-        """
-        self._comm_transition.send(obj)
-        # FIXME The exception will not be received immediately.
-        # The send() will be stuck (the process is dead) before receiving exception.
-        # Set the transition process as the main process to fix it.
-        self.check_transition_exception()
-
-    def check_transition_exception(self):
-        """Check if there has the exception message sent from the transition process
-        """
-        if self._comm_transition.poll():
-            exception = self._comm_transition.recv()
-            raise exception
-
-class TransitionProcessHelper:
-    """The helper class for building the transition process
-    """
-    name = "_transition"
-
-    def __init__(self, server_ip, server_port, channel_name):
-        """Constructor
-
-        @param server_ip The IP of the remote server
-        @param server_port The port of the remote server
-        @param channel_name The target communication channel in the remote server
-        """
-        self.server_ip = server_ip
-        self.server_port = server_port
-        self.channel_name = channel_name
-        self._comm_game = CommunicationHandler()
-
-    def recv_from_game(self):
-        return self._comm_game.recv()
-
-    def send_exception(self, exception: TransitionProcessError):
-        """Send an exception to the game process
-        """
-        self._comm_game.send(exception)
-
 class MLProcessHelper:
     """The helper class that helps build ml process
 
@@ -328,28 +233,12 @@ def _game_process_entry_point(helper: GameProcessHelper):
     base.recv_from_ml.set_function(helper.recv_from_ml)
     base.recv_from_all_ml.set_function(helper.recv_from_all_ml)
 
-    if helper.to_transition:
-        base.send_to_transition.set_function(helper.send_to_transition)
-
     try:
         helper.target_function(*helper.args, **helper.kwargs)
-    except (MLProcessError, TransitionProcessError):
+    except MLProcessError:
         raise
     except Exception:
         raise GameProcessError(helper.name, traceback.format_exc())
-
-def _transition_process_entry_point(helper: TransitionProcessHelper):
-    """The entry point of the transition process
-    """
-    try:
-        from .transition import TransitionManager
-        transition_manager = TransitionManager( \
-            helper.recv_from_game, \
-            (helper.server_ip, helper.server_port, helper.channel_name))
-        transition_manager.transition_loop()
-    except Exception as e:
-        exception = TransitionProcessError(helper.name, traceback.format_exc())
-        helper.send_exception(exception)
 
 def _ml_process_entry_point(helper: MLProcessHelper):
     """The real entry point of the ml process

@@ -6,19 +6,15 @@ def ml_mode(config: GameConfig):
     """
     game_over_score = _get_game_over_score(config.game_params, config.one_shot_mode)
     module_1P, module_2P = _get_ml_modules(config.input_modules)
-    to_transition = True if config.transition_channel else False
 
     from mlgame.process import ProcessManager
 
     process_manager = ProcessManager()
     process_manager.set_game_process(_start_game_process, \
         args = (config.fps, game_over_score, \
-        config.record_progress, to_transition))
+        config.record_progress))
     process_manager.add_ml_process(module_1P, "ml_1P", args = ("1P", ))
     process_manager.add_ml_process(module_2P, "ml_2P", args = ("2P", ))
-
-    if to_transition:
-        process_manager.set_transition_process(*config.transition_channel)
 
     process_manager.start()
 
@@ -33,7 +29,7 @@ def _get_ml_modules(input_modules):
 
     return input_modules[0], input_modules[1]
 
-def _start_game_process(fps, game_over_score, record_progress, to_transition):
+def _start_game_process(fps, game_over_score, record_progress):
     """
     Start the process to run the game core
 
@@ -41,7 +37,7 @@ def _start_game_process(fps, game_over_score, record_progress, to_transition):
     """
     from .game.pingpong_ml import PingPong
 
-    game = PingPong(fps, game_over_score, record_progress, to_transition)
+    game = PingPong(fps, game_over_score, record_progress)
     game.game_loop()
 
 def manual_mode(config: GameConfig):
