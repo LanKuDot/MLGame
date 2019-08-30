@@ -25,7 +25,7 @@ $ python MLGame.py [options] <game> [game_params]
   * `-m`: Play the game in the manual mode (as a normal game)
   * `-1`: Quit the game when the game is over or is passed. Otherwise, the game will restart automatically.
   * `-r`: Pickle the game progress (a list of `SceneInfo`) to log files.
-  * `-i SCRIPT [SCRIPT ...]`: Specify the script(s) used in the machine learning mode. The script must have function `ml_loop()` and be put in the `<game>/ml/` directory.
+  * `-i SCRIPT [SCRIPT ...]`: Specify the script(s) used in the machine learning mode. The script must have function `ml_loop()` and be put in the `games/<game>/ml/` directory.
 
 Use `python MLGame.py -h` for more information. Note that `-i` flag and the following "SCRIPTs" should be placed at the end of the command.
 
@@ -48,7 +48,7 @@ If `-m` flag is **not** specified, the game will execute in the machine learning
 
 ![](https://i.imgur.com/Wlai4Bh.png)
 
-`SceneInfo` is the data structure that stores the game status and the position of gameobjects in the scene. `GameInstruction` is the data structure that stores the command for controlling the gameobject (such as a platform). Both are defined in the file `<game>/communication.py`.
+`SceneInfo` is the data structure that stores the game status and the position of gameobjects in the scene. `GameInstruction` is the data structure that stores the command for controlling the gameobject (such as a platform). Both are defined in the file `games/<game>/communication.py`.
 
 ### Execution Order
 
@@ -60,7 +60,11 @@ The example script for the ml process is in the file `<game>/ml/ml_play_template
 
 ## Log Game Progress
 
-if `-r` flag is specified, the game progress will be logged into a file. When a game round is ended, a list of `SceneInfo` is dumped to a file `<timestamp>.pickle` by using `pickle.dump()`. The file is saved in `<game>/log/` directory. These log files can be used to train the model.
+if `-r` flag is specified, the game progress will be logged into a file. When a game round is ended, a list of `SceneInfo` is dumped to a file `<timestamp>.pickle` by using `pickle.dump()`. The file is saved in `games/<game>/log/` directory. These log files can be used to train the model.
+
+## Change Log
+
+View [CHANGELOG.md](./CHANGELOG.md)
 
 ## External Links
 
