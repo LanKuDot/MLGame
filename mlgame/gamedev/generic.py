@@ -1,4 +1,5 @@
 import pygame
+import time
 
 def quit_or_esc() -> bool:
 	"""
@@ -44,3 +45,37 @@ class KeyCommandMap:
 			if key_pressed_list[key]:
 				return command
 		return self._default_command
+
+class FPSCounter:
+	"""
+	The counter for calculating the FPS
+
+	Invoke `get_FPS()` at each frame. The counter will count how many calls within
+	a specified updating interval. Within a updating interval, the returned FPS value
+	won't be updated until the starting of next updating interval.
+	"""
+
+	def __init__(self, update_interval = 1.0):
+		"""
+		Constructor
+
+		@param update_interval The time interval in seconds for updating the FPS value
+		"""
+		self._update_interval = update_interval
+		self._fps = 0
+		self._tick_count = 0
+		self._last_time_updated = time.time()
+
+	def get_FPS(self) -> int:
+		"""
+		Update and get the calculated FPS
+		"""
+		self._tick_count += 1
+
+		current_time = time.time()
+		if current_time - self._last_time_updated > self._update_interval:
+			self._fps = int(round(self._tick_count / (current_time - self._last_time_updated)))
+			self._tick_count = 0
+			self._last_time_updated = current_time
+
+		return self._fps
