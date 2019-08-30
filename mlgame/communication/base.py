@@ -1,27 +1,27 @@
 class CommunicationSet:
-	"""
-	A data class for storing communicating sets
-	"""
-	def __init__(self):
-		self.recv_end = {}
-		self.send_end = {}
+    """
+    A data class for storing communicating sets
+    """
+    def __init__(self):
+        self.recv_end = {}
+        self.send_end = {}
 
 class CommunicationHandler:
-	"""
-	A data class for storing a sending and a receiving handler
-	"""
-	def __init__(self):
-		self.recv_end = None
-		self.send_end = None
+    """
+    A data class for storing a sending and a receiving handler
+    """
+    def __init__(self):
+        self.recv_end = None
+        self.send_end = None
 
-	def poll(self):
-		return self.recv_end.poll()
+    def poll(self):
+        return self.recv_end.poll()
 
-	def recv(self):
-		return self.recv_end.recv()
+    def recv(self):
+        return self.recv_end.recv()
 
-	def send(self, obj):
-		self.send_end.send(obj)
+    def send(self, obj):
+        self.send_end.send(obj)
 
 from ..utils.delegate import FunctionDelegate
 
