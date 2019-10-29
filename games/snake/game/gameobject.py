@@ -92,7 +92,7 @@ class Snake:
 
     def grow(self):
         """
-        Add a new snake body
+        Add a new snake body at the tail
         """
         new_body = SnakeBody(self.body[-1].pos)
         new_body.create_surface(self.body_color)

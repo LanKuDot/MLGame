@@ -1,3 +1,7 @@
+"""
+The game execution for the manual mode
+"""
+
 import pygame
 
 from mlgame.gamedev.generic import quit_or_esc, KeyCommandMap
@@ -8,6 +12,10 @@ from .gameobject import SnakeAction
 from ..main import get_log_dir
 
 class Snake:
+    """
+    The game execution manager
+    """
+
     def __init__(self, fps, one_shot_mode, record_progress):
         self._init_pygame()
 
@@ -27,6 +35,9 @@ class Snake:
         }, get_log_dir())
 
     def _init_pygame(self):
+        """
+        Initialize the required pygame module
+        """
         pygame.display.init()
         pygame.display.set_caption("Snake")
         self._screen = pygame.display.set_mode( \
@@ -39,14 +50,25 @@ class Snake:
         self._font_pos = (1, Scene.area_size.width + 5)
 
     def game_loop(self):
+        """
+        The game execution loop
+        """
         while not quit_or_esc():
+            # Get the command from the keyboard
             command = self._keyboard_action.get_command()
+
+            # Record the scene information
             self._record_scene(command)
 
+            # Update the scene
             game_status = self._scene.update(command)
 
+            # If the game is over, reset the scene or
+            # quit the game loop if one shot mode is set.
             if game_status == GameStatus.GAME_OVER:
+                # Record the scene info with the game over status
                 self._record_scene(None)
+
                 print("Score: {}".format(self._scene.score))
 
                 if self._one_shot_mode:
@@ -54,10 +76,16 @@ class Snake:
 
                 self._scene.reset()
 
+            # Draw the scene to the display
             self._draw_scene()
+
+            # Wait for the next frame
             self._clock.tick(self._fps)
 
     def _draw_scene(self):
+        """
+        Draw the scene to the display
+        """
         self._screen.fill((50, 50, 50))
         self._screen.fill((0, 0, 0), Scene.area_size)
         self._scene.draw_gameobjects(self._screen)
@@ -70,6 +98,9 @@ class Snake:
         pygame.display.flip()
 
     def _record_scene(self, command):
+        """
+        Record the scene information
+        """
         scene_info = self._scene.get_scene_info()
         scene_info.command = command
         self._record_handler(scene_info)

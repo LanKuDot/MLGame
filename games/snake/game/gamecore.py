@@ -18,6 +18,14 @@ class GameStatus(StringEnum):
 class SceneInfo:
     """
     The data structure for storing the scene information
+
+    @var frame The number of frame for this scene information
+    @var status The game status
+    @var snake_head The position of the snake head
+    @var snake_body A list of the position of snake bodies which
+         are stored from the head (excluded) to the tail
+    @var food The position of the food
+    @var command The command used accroding to this scene information
     """
 
     def __init__(self):
@@ -42,6 +50,10 @@ class SceneInfo:
         return output_str
 
 class Scene:
+    """
+    The main game scene
+    """
+
     area_size = Rect(0, 0, 300, 300)
 
     def __init__(self):
