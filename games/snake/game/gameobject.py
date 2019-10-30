@@ -102,7 +102,7 @@ class Snake:
 
     def move(self, action):
         """
-        Move the snake accroding to the given action
+        Move the snake according to the given action
         """
         # Move the body 1 step ahead
         tail = self.body.pop()
@@ -119,7 +119,7 @@ class Snake:
         if self.body[1].pos == possible_head_pos:
             action = self._action
 
-        # Get the next head position accroding to the valid action
+        # Get the next head position according to the valid action
         next_head_pos = self._get_possible_head_pos(action)
         self.head.pos = next_head_pos
 
@@ -128,7 +128,7 @@ class Snake:
 
     def _get_possible_head_pos(self, action):
         """
-        Get the possible head position accroding to the given action
+        Get the possible head position according to the given action
         """
         if action == SnakeAction.UP:
             move_delta = (0, -10)

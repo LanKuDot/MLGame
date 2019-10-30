@@ -25,7 +25,7 @@ class SceneInfo:
     @var snake_body A list of the position of snake bodies which
          are stored from the head (excluded) to the tail
     @var food The position of the food
-    @var command The command used accroding to this scene information
+    @var command The command decided according to this scene information
     """
 
     def __init__(self):
