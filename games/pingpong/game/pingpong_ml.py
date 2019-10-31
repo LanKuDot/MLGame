@@ -100,7 +100,6 @@ class PingPong:
                 comm.wait_all_ml_ready()
 
         self._print_result()
-        pygame.quit()
 
     def _make_ml_execute(self, scene_info):
         """

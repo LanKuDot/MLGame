@@ -50,5 +50,3 @@ class Arkanoid:
             pygame.display.flip()
 
             self._clock.tick(self._fps)
-
-        pygame.quit()

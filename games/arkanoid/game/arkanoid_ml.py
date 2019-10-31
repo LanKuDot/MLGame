@@ -79,8 +79,6 @@ class Arkanoid:
                 # Wait for ml process doing resetting jobs
                 comm.wait_ml_ready(self._ml_name)
 
-        pygame.quit()
-
     def _make_ml_execute(self, scene_info):
         """Send the scene_info to the ml process and wait for the instruction
         """

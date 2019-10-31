@@ -75,8 +75,6 @@ class PingPong:
             print("2P wins!")
         print("Final score: {}-{}".format(*self._score))
 
-        pygame.quit()
-
     def _draw_game_status(self):
         font_1P_surface = self._font.render( \
             "1P score: {}".format(self._score[0]), True, gamecore.color_1P)
