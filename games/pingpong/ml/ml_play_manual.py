@@ -5,7 +5,7 @@ The script that send the instruction according to the keyboard input
 import pygame
 import games.pingpong.communication as comm
 from games.pingpong.communication import (
-    SceneInfo, GameInstruction, GameStatus, PlatformAction
+    SceneInfo, GameCommand, GameStatus, PlatformAction
 )
 
 def wait_enter_key():

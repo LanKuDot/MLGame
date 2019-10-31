@@ -1,6 +1,6 @@
 from .game.gamecore import GameStatus, PlatformAction, SceneInfo
 
-class GameInstruction:
+class GameCommand:
     """
     The data structure for ml process to control the platform
     """
@@ -14,11 +14,11 @@ class GameInstruction:
         """
         # Check the type of the arguments
         if not isinstance(frame, int):
-            raise TypeError("Invalid type of 'frame' for 'GameInstruction'." \
+            raise TypeError("Invalid type of 'frame' for 'GameCommand'." \
                 " Type 'int' is needed, but '{}' is given." \
                 .format(type(frame).__name__))
         if not isinstance(command, PlatformAction):
-            raise TypeError("Invalid type of 'command' for 'GameInstruction'." \
+            raise TypeError("Invalid type of 'command' for 'GameCommand'." \
                 " Type 'PlatformAction' is needed, but '{}' is given." \
                 .format(type(command).__name__))
 
@@ -35,7 +35,7 @@ def get_scene_info() -> SceneInfo:
     return comm.recv_from_game()
 
 def send_instruction(frame: int, command: PlatformAction):
-    comm.send_to_game(GameInstruction(frame, command))
+    comm.send_to_game(GameCommand(frame, command))
 
 def ml_ready():
     comm.ml_ready()

@@ -5,7 +5,7 @@ The template of the script for the machine learning process in game pingpong
 # Import the necessary modules and classes
 import games.pingpong.communication as comm
 from games.pingpong.communication import (
-    SceneInfo, GameInstruction, GameStatus, PlatformAction
+    SceneInfo, GameStatus, PlatformAction
 )
 
 def ml_loop(side: str):

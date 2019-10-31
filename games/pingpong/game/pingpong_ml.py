@@ -9,7 +9,7 @@ from mlgame.communication.game import CommandReceiver
 
 from . import gamecore
 from .gamecore import GameStatus, PlatformAction
-from ..communication import GameInstruction
+from ..communication import GameCommand
 from ..main import get_log_dir
 
 class PingPong:
@@ -30,9 +30,9 @@ class PingPong:
         self._score = [0, 0]    # 1P, 2P
         self._game_over_score = game_over_score
         self._cmd_receiver = CommandReceiver( \
-            GameInstruction, { \
-                "command": [PlatformAction.MOVE_LEFT, PlatformAction.MOVE_RIGHT, PlatformAction.NONE]
-            }, GameInstruction(-1, PlatformAction.NONE))
+            GameCommand, {
+                "command": PlatformAction
+            }, GameCommand(-1, PlatformAction.NONE))
 
         self._record_handler = get_record_handler(record_progress, {
                 "status": (GameStatus.GAME_1P_WIN, GameStatus.GAME_2P_WIN)

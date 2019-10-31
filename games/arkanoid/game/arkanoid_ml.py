@@ -7,7 +7,7 @@ from mlgame.communication.game import CommandReceiver
 
 from . import gamecore
 from .gamecore import GameStatus, PlatformAction
-from ..communication import GameInstruction
+from ..communication import GameCommand
 from ..main import get_log_dir
 
 class Arkanoid:
@@ -19,10 +19,10 @@ class Arkanoid:
         self._ml_name = "ml"
         self._ml_execute_time = 1.0 / fps
         self._frame_delayed = 0
-        self._instruct_receiver = CommandReceiver( \
-            GameInstruction, { "command": \
-                [PlatformAction.MOVE_LEFT, PlatformAction.MOVE_RIGHT, PlatformAction.NONE], \
-            }, GameInstruction(-1, PlatformAction.NONE))
+        self._cmd_receiver = CommandReceiver( \
+            GameCommand, {
+                "command": PlatformAction
+            }, GameCommand(-1, PlatformAction.NONE))
 
         self._record_handler = get_record_handler(record_progress, { \
                 "status": (GameStatus.GAME_OVER, GameStatus.GAME_PASS) \
@@ -86,7 +86,7 @@ class Arkanoid:
         """
         comm.send_to_ml(scene_info, self._ml_name)
         time.sleep(self._ml_execute_time)
-        instruction = self._instruct_receiver.recv(self._ml_name)
+        instruction = self._cmd_receiver.recv(self._ml_name)
 
         if instruction.frame != -1 and \
            scene_info.frame - instruction.frame > self._frame_delayed:
