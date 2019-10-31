@@ -11,6 +11,40 @@ class GameStatus(StringEnum):
     GAME_OVER = "GAME_OVER"
     GAME_PASS = "GAME_PASS"
 
+class SceneInfo:
+    """The data structure for the information of the scene
+
+    Containing the frame no, the status, and the position of the gameobjects.
+    Note that the position is the coordinate at the top-left corner of the gameobject.
+
+    @var frame The frame number of the game. Used as the timestamp.
+    @var status The status of the game. It will only be one of `GameStatus`
+    @var ball A (x, y) tuple which is the position of the ball.
+    @var platform A (x, y) tuple which is the position of the platform.
+    @var bricks A list storing (x, y) tuples which are
+         the position of the remaining bricks.
+    """
+
+    def __init__(self):
+        # These members will be filled in the game process.
+        self.frame = -1
+        self.status = None
+        self.ball = None
+        self.platform = None
+        self.bricks = None
+
+    def __str__(self):
+        output_str = \
+            "# Frame {}\n".format(self.frame) + \
+            "# Status {}\n".format(self.status) + \
+            "# Ball {}\n".format(self.ball) + \
+            "# Platform {}\n".format(self.platform) + \
+            "# Brick"
+        for brick in self.bricks:
+            output_str += " {}".format(brick)
+
+        return output_str
+
 class Scene:
     def __init__(self, level, to_create_surface = False):
         self._level = level
@@ -90,32 +124,19 @@ class Scene:
         self._group_brick.draw(surface)
         self._group_move.draw(surface)
 
-    def fill_scene_info_obj(self, scene_info_obj):
-        """Fill the information of scene to the `scene_info_obj`
-
-        This is a helper function. `scene_info_obj` has the basic member "frame" and
-        "status", and it must have member "ball", "platform", and "bricks".
-        The position of the objects will be assigned to these members according to
-        the name. Here are the data:
-        - scene_info_obj.ball: a (x, y) tuple, the position of the ball
-        - scene_info_obj.platform: a (x, y) tuple, the position of the platform
-        - scene_info_obj.bricks: a list whose elements are all (x, y) tuple,
-          the position of remaining bricks.
-
-        @param scene The game scene containing the target gameobjects
-        @param scene_info_obj The instance of some class to be filled with the
-               scene info.
-        @return The filled `scene_info_obj`
+    def get_scene_info(self) -> SceneInfo:
+        """Get the scene information
         """
         def get_pivot_point(rect):
             return (rect.x, rect.y)
 
-        scene_info_obj.frame = self._frame_count
-        scene_info_obj.status = self._game_status.value
-        scene_info_obj.ball = get_pivot_point(self._ball.rect)
-        scene_info_obj.platform = get_pivot_point(self._platform.rect)
-        scene_info_obj.bricks = []
+        scene_info = SceneInfo()
+        scene_info.frame = self._frame_count
+        scene_info.status = self._game_status.value
+        scene_info.ball = get_pivot_point(self._ball.rect)
+        scene_info.platform = get_pivot_point(self._platform.rect)
+        scene_info.bricks = []
         for brick in self._group_brick:
-            scene_info_obj.bricks.append(get_pivot_point(brick.rect))
+            scene_info.bricks.append(get_pivot_point(brick.rect))
 
-        return scene_info_obj
+        return scene_info

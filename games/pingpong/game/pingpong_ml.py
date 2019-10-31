@@ -9,7 +9,7 @@ from mlgame.communication.game import CommandReceiver
 
 from . import gamecore
 from .gamecore import GameStatus, PlatformAction
-from ..communication import SceneInfo, GameInstruction
+from ..communication import GameInstruction
 from ..main import get_log_dir
 
 class PingPong:
@@ -65,7 +65,7 @@ class PingPong:
         comm.wait_all_ml_ready()
 
         while keep_going():
-            scene_info = self._scene.fill_scene_info_obj(SceneInfo())
+            scene_info = self._scene.get_scene_info()
 
             # Send the scene info to the ml processes and wait for instructions
             instruction_1P, instruction_2P = self._make_ml_execute(scene_info)
@@ -84,7 +84,7 @@ class PingPong:
             # getting ready for the next round
             if game_status == GameStatus.GAME_1P_WIN or \
                game_status == GameStatus.GAME_2P_WIN:
-                scene_info = self._scene.fill_scene_info_obj(SceneInfo())
+                scene_info = self._scene.get_scene_info()
                 self._record_handler(scene_info)
                 comm.send_to_all_ml(scene_info)
 

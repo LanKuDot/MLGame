@@ -5,7 +5,6 @@ from mlgame.gamedev.recorder import get_record_handler
 
 from . import gamecore
 from .gamecore import GameStatus, PlatformAction
-from ..communication import SceneInfo
 from ..main import get_log_dir
 
 class PingPong:
@@ -47,7 +46,7 @@ class PingPong:
             command_1P = self._keyboard_action_1P.get_command()
             command_2P = self._keyboard_action_2P.get_command()
 
-            scene_info = self._scene.fill_scene_info_obj(SceneInfo())
+            scene_info = self._scene.get_scene_info()
             scene_info.command_1P = command_1P.value
             scene_info.command_2P = command_2P.value
             self._record_handler(scene_info)
@@ -57,7 +56,7 @@ class PingPong:
             if game_status == GameStatus.GAME_1P_WIN or \
                game_status == GameStatus.GAME_2P_WIN:
                 print(game_status.value)
-                self._record_handler(self._scene.fill_scene_info_obj(SceneInfo()))
+                self._record_handler(self._scene.get_scene_info())
                 if self._game_over(game_status):
                     break
 

@@ -5,7 +5,6 @@ from mlgame.gamedev.recorder import get_record_handler
 
 from . import gamecore
 from .gamecore import GameStatus, PlatformAction
-from ..communication import SceneInfo
 from ..main import get_log_dir
 
 class Arkanoid:
@@ -32,14 +31,14 @@ class Arkanoid:
 
     def game_loop(self):
         while not quit_or_esc():
-            self._record_handler(self._scene.fill_scene_info_obj(SceneInfo()))
+            self._record_handler(self._scene.get_scene_info())
             control_action = self._keyboard.get_command()
             game_status = self._scene.update(control_action)
 
             if game_status == GameStatus.GAME_OVER or \
                game_status == GameStatus.GAME_PASS:
                 print(game_status.value)
-                self._record_handler(self._scene.fill_scene_info_obj(SceneInfo()))
+                self._record_handler(self._scene.get_scene_info())
 
                 if self._one_shot_mode:
                     return
