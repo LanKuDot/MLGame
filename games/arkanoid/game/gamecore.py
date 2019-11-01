@@ -123,16 +123,13 @@ class Scene:
     def get_scene_info(self) -> SceneInfo:
         """Get the scene information
         """
-        def get_pivot_point(rect):
-            return (rect.x, rect.y)
-
         scene_info = SceneInfo()
         scene_info.frame = self._frame_count
         scene_info.status = self._game_status.value
-        scene_info.ball = get_pivot_point(self._ball.rect)
-        scene_info.platform = get_pivot_point(self._platform.rect)
+        scene_info.ball = self._ball.pos
+        scene_info.platform = self._platform.pos
         scene_info.bricks = []
         for brick in self._group_brick:
-            scene_info.bricks.append(get_pivot_point(brick.rect))
+            scene_info.bricks.append(brick.pos)
 
         return scene_info

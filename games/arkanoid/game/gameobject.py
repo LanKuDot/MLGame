@@ -11,6 +11,10 @@ class Brick(Sprite):
 
         self.rect = Rect(init_pos[0], init_pos[1], 25, 10)
 
+    @property
+    def pos(self):
+        return self.rect.topleft
+
     def create_surface(self):
         surface = Surface((self.rect.width, self.rect.height))
         surface.fill((244, 158, 66)) # Orange
@@ -36,6 +40,10 @@ class Platform(Sprite):
         self._init_pos = init_pos
 
         self.rect = Rect(init_pos[0], init_pos[1], 40, 5)
+
+    @property
+    def pos(self):
+        return self.rect.topleft
 
     def create_surface(self):
         surface = Surface((self.rect.width, self.rect.height))
@@ -67,6 +75,10 @@ class Ball(Sprite):
         self._init_pos = init_pos
 
         self.rect = Rect(init_pos[0], init_pos[1], 5, 5)
+
+    @property
+    def pos(self):
+        return self.rect.topleft
 
     def create_surface(self):
         surface = pygame.Surface((self.rect.width, self.rect.height))

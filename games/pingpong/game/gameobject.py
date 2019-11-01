@@ -21,6 +21,10 @@ class Platform(pygame.sprite.Sprite):
 
         self.rect = self._init_pos.copy()
 
+    @property
+    def pos(self):
+        return self.rect.topleft
+
     def create_surface(self, side, color):
         self.image = pygame.Surface((self.rect.width, self.rect.height))
 
@@ -68,6 +72,10 @@ class Ball(pygame.sprite.Sprite):
 
         # Used in additional collision detection
         self._last_pos = Vector2(self.rect.x, self.rect.y)
+
+    @property
+    def pos(self):
+        return self.rect.topleft
 
     def create_surface(self):
         self.image = pygame.Surface((self.rect.width, self.rect.height))
