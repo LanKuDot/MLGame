@@ -88,7 +88,7 @@ class PingPong:
                 self._record_handler(scene_info)
                 comm.send_to_all_ml(scene_info)
 
-                print("Frame: {}, Status: {}\n-----" \
+                print("Frame: {}, Status: {}" \
                     .format(scene_info.frame, game_status.value))
 
                 if self._game_over(game_status):
@@ -157,6 +157,8 @@ class PingPong:
     def _print_result(self):
         if self._score[0] > self._score[1]:
             win_side = "1P"
+        elif self._score[0] == self._score[1]:
+            win_side = "No one"
         else:
             win_side = "2P"
 

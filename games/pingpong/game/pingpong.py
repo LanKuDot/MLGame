@@ -65,11 +65,7 @@ class PingPong:
             self._draw_scene()
             self._clock.tick(self._fps)
 
-        if self._score[0] > self._score[1]:
-            print("1P wins!")
-        else:
-            print("2P wins!")
-        print("Final score: {}-{}".format(*self._score))
+        self._print_result()
 
     def _draw_scene(self):
         self._screen.fill((0, 0, 0))
@@ -98,3 +94,13 @@ class PingPong:
             self._score[1] == self._game_over_score
 
         return is_game_over
+
+    def _print_result(self):
+        if self._score[0] > self._score[1]:
+            win_side = "1P"
+        elif self._score[0] == self._score[1]:
+            win_side = "No one"
+        else:
+            win_side = "2P"
+
+        print("{} wins! Final score: {}-{}".format(win_side, *self._score))
