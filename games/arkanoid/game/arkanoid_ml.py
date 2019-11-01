@@ -5,8 +5,7 @@ from mlgame.gamedev.recorder import get_record_handler
 from mlgame.communication import game as comm
 from mlgame.communication.game import CommandReceiver
 
-from . import gamecore
-from .gamecore import GameStatus, PlatformAction
+from .gamecore import GameStatus, PlatformAction, Scene
 from ..communication import GameCommand
 from ..main import get_log_dir
 
@@ -30,12 +29,12 @@ class Arkanoid:
         self._one_shot_mode = one_shot_mode
 
         self._init_display()
-        self._scene = gamecore.Scene(level, True)
+        self._scene = Scene(level, True)
 
     def _init_display(self):
         pygame.display.init()
         pygame.display.set_caption("Arkanoid")
-        self._screen = pygame.display.set_mode(gamecore.scene_area_size)
+        self._screen = pygame.display.set_mode(Scene.area_rect.size)
 
     def game_loop(self):
         """The main loop of the game in machine learning mode

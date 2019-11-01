@@ -4,7 +4,7 @@ from mlgame.gamedev.generic import quit_or_esc, KeyCommandMap
 from mlgame.gamedev.recorder import get_record_handler
 
 from . import gamecore
-from .gamecore import GameStatus, PlatformAction
+from .gamecore import GameStatus, PlatformAction, Scene
 from ..main import get_log_dir
 
 class PingPong:
@@ -14,7 +14,7 @@ class PingPong:
         self._fps = fps
         self._score = [0, 0]    # 1P, 2P
         self._game_over_score = game_over_score
-        self._scene = gamecore.Scene(True)
+        self._scene = Scene(True)
         self._keyboard_action_1P = KeyCommandMap({
                 pygame.K_LEFT:  PlatformAction.MOVE_LEFT,
                 pygame.K_RIGHT: PlatformAction.MOVE_RIGHT,
@@ -31,15 +31,15 @@ class PingPong:
     def _init_pygame(self):
         pygame.display.init()
         pygame.display.set_caption("PingPong")
-        self._screen = pygame.display.set_mode(gamecore.display_area_size)
+        self._screen = pygame.display.set_mode(Scene.area_rect.size)
         self._clock = pygame.time.Clock()
 
         pygame.font.init()
         self._font = pygame.font.Font(None, 22)
-        self._font_pos_1P = (1, gamecore.display_area_size[1] - 21)
+        self._font_pos_1P = (1, self._screen.get_height() - 21)
         self._font_pos_2P = (1, 4)
-        self._font_pos_speed = (gamecore.display_area_size[0] - 75, \
-            gamecore.display_area_size[1] - 21)
+        self._font_pos_speed = (self._screen.get_width() - 75, \
+            self._screen.get_height() - 21)
 
     def game_loop(self):
         while not quit_or_esc():

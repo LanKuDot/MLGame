@@ -54,7 +54,7 @@ class Scene:
     The main game scene
     """
 
-    area_size = Rect(0, 0, 300, 300)
+    area_rect = Rect(0, 0, 300, 300)
 
     def __init__(self):
         self._create_scene()
@@ -80,8 +80,8 @@ class Scene:
         """
         while True:
             candidate_pos = \
-                (random.randrange(0, Scene.area_size.width, 10), \
-                 random.randrange(0, Scene.area_size.height, 10))
+                (random.randrange(0, Scene.area_rect.width, 10), \
+                 random.randrange(0, Scene.area_rect.height, 10))
 
             if candidate_pos != self._snake.head_pos and \
                not self._snake.is_body_pos(candidate_pos):
@@ -120,7 +120,7 @@ class Scene:
             new_body = self._snake.grow()
             self._draw_group.add(new_body)
 
-        if not Scene.area_size.collidepoint(self._snake.head_pos) or \
+        if not Scene.area_rect.collidepoint(self._snake.head_pos) or \
            self._snake.is_body_pos(self._snake.head_pos):
             self._status = GameStatus.GAME_OVER
 

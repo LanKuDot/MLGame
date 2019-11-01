@@ -4,8 +4,6 @@ from mlgame.utils.enum import StringEnum
 
 from .gameobject import Ball, Platform, Brick, PlatformAction
 
-scene_area_size = (200, 500)    # (width, height)
-
 class GameStatus(StringEnum):
     GAME_ALIVE = "GAME_ALIVE"
     GAME_OVER = "GAME_OVER"
@@ -46,6 +44,8 @@ class SceneInfo:
         return output_str
 
 class Scene:
+    area_rect = pygame.Rect(0, 0, 200, 500)
+
     def __init__(self, level, to_create_surface = False):
         self._level = level
         self._frame_count = 0
@@ -59,13 +59,9 @@ class Scene:
         self._create_bricks(self._level)
 
     def _create_moves(self):
-        game_area_rect = pygame.Rect((0, 0), scene_area_size)
-
         self._group_move = pygame.sprite.RenderPlain()
-        self._ball = Ball((100, 100), \
-            game_area_rect, self._group_move)
-        self._platform = Platform((75, 400), \
-            game_area_rect, self._group_move)
+        self._ball = Ball((100, 100), Scene.area_rect, self._group_move)
+        self._platform = Platform((75, 400), Scene.area_rect, self._group_move)
 
         if self._to_create_surface:
             self._ball.create_surface()

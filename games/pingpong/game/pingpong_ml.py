@@ -8,7 +8,7 @@ from mlgame.communication import game as comm
 from mlgame.communication.game import CommandReceiver
 
 from . import gamecore
-from .gamecore import GameStatus, PlatformAction
+from .gamecore import GameStatus, PlatformAction, Scene
 from ..communication import GameCommand
 from ..main import get_log_dir
 
@@ -39,7 +39,7 @@ class PingPong:
             }, get_log_dir())
 
         self._init_display()
-        self._scene = gamecore.Scene(True)
+        self._scene = Scene(True)
 
     def _init_display(self):
         """
@@ -47,14 +47,14 @@ class PingPong:
         """
         pygame.display.init()
         pygame.display.set_caption("PingPong")
-        self._screen = pygame.display.set_mode(gamecore.display_area_size)
+        self._screen = pygame.display.set_mode(Scene.area_rect.size)
 
         pygame.font.init()
         self._font = pygame.font.Font(None, 22)
-        self._font_pos_1P = (1, gamecore.display_area_size[1] - 21)
+        self._font_pos_1P = (1, self._screen.get_height() - 21)
         self._font_pos_2P = (1, 4)
-        self._font_pos_speed = (gamecore.display_area_size[0] - 75, \
-            gamecore.display_area_size[1] - 21)
+        self._font_pos_speed = (self._screen.get_width() - 75, \
+            self._screen.get_height() - 21)
 
     def game_loop(self):
         """

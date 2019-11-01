@@ -5,7 +5,6 @@ from .gameobject import (
     Ball, Platform, PlatformAction
 )
 
-display_area_size = (200, 500)    # (width, height)
 color_1P = (219, 70, 92)    # Red
 color_2P = (84, 149, 255)    # Blue
 
@@ -61,6 +60,8 @@ class SceneInfo:
         return output_str
 
 class Scene:
+    area_rect = pygame.Rect(0, 0, 200, 500)
+
     def __init__(self, to_create_surface: bool):
         self._to_create_surface = to_create_surface
         self._frame_count = 0
@@ -70,14 +71,12 @@ class Scene:
         self.reset()
 
     def _create_scene(self):
-        display_area_rect = pygame.Rect((0, 0), display_area_size)
-
         self._draw_group = pygame.sprite.RenderPlain()
-        self._ball = Ball(display_area_rect, self._draw_group)
-        self._platform_1P = Platform((80, display_area_size[1] - 80), \
-            display_area_rect, self._draw_group)
+        self._ball = Ball(Scene.area_rect, self._draw_group)
+        self._platform_1P = Platform((80, Scene.area_rect.height - 80), \
+            Scene.area_rect, self._draw_group)
         self._platform_2P = Platform((80, 50), \
-            display_area_rect, self._draw_group)
+            Scene.area_rect, self._draw_group)
 
         if self._to_create_surface:
             self._ball.create_surface()
