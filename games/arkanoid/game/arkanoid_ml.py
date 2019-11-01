@@ -43,9 +43,9 @@ class Arkanoid:
         1. Send the SceneInfo to the machine learning process.
         2. Wait for the key frame (During this period, machine learning process can
            process the SceneInfo and generate the GameInstruction.)
-        3. Check if there has a GameInstruction to receive. If it has, receive the
-           instruction. Otherwise, generate a dummy one.
-        4. Pass the GameInstruction to the game and update the scene (and frame no.)
+        3. Check if there has a command to receive. If it has, receive the
+           command. Otherwise, generate a dummy one.
+        4. Pass the command received to the game and update the scene.
         5. If the game is over or passed, send the SceneInfo containing the
            game status to the machine learning process, and reset the game.
         6. Back to 1.
@@ -57,10 +57,12 @@ class Arkanoid:
 
         while keep_going():
             scene_info = self._scene.get_scene_info()
+            command = self._make_ml_execute(scene_info)
+
+            scene_info.command = command.value
             self._record_handler(scene_info)
 
-            instruction = self._make_ml_execute(scene_info)
-            game_status = self._scene.update(instruction.command)
+            game_status = self._scene.update(command)
 
             self._draw_scene()
 
@@ -69,6 +71,8 @@ class Arkanoid:
                 scene_info = self._scene.get_scene_info()
                 self._record_handler(scene_info)
                 comm.send_to_ml(scene_info, self._ml_name)
+
+                print(game_status.value)
 
                 if self._one_shot_mode:
                     return
@@ -83,14 +87,14 @@ class Arkanoid:
         """
         comm.send_to_ml(scene_info, self._ml_name)
         time.sleep(self._ml_execute_time)
-        instruction = self._cmd_receiver.recv(self._ml_name)
+        game_cmd = self._cmd_receiver.recv(self._ml_name)
 
-        if instruction.frame != -1 and \
-           scene_info.frame - instruction.frame > self._frame_delayed:
-            self._frame_delayed = scene_info.frame - instruction.frame
+        if game_cmd.frame != -1 and \
+           scene_info.frame - game_cmd.frame > self._frame_delayed:
+            self._frame_delayed = scene_info.frame - game_cmd.frame
             print("Delayed {} frame(s)".format(self._frame_delayed))
 
-        return instruction
+        return game_cmd.command
 
     def _draw_scene(self):
         """Draw the scene to the display

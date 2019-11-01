@@ -30,14 +30,14 @@ class Arkanoid:
 
     def game_loop(self):
         while not quit_or_esc():
-            self._record_handler(self._scene.get_scene_info())
-            control_action = self._keyboard.get_command()
-            game_status = self._scene.update(control_action)
+            command = self._keyboard.get_command()
+            self._record_scene_info(command)
+            game_status = self._scene.update(command)
 
             if game_status == GameStatus.GAME_OVER or \
                game_status == GameStatus.GAME_PASS:
                 print(game_status.value)
-                self._record_handler(self._scene.get_scene_info())
+                self._record_scene_info(None)
 
                 if self._one_shot_mode:
                     return
@@ -49,3 +49,8 @@ class Arkanoid:
             pygame.display.flip()
 
             self._clock.tick(self._fps)
+
+    def _record_scene_info(self, command):
+        scene_info = self._scene.get_scene_info()
+        scene_info.command = command.value
+        self._record_handler(scene_info)

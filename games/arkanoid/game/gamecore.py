@@ -21,6 +21,7 @@ class SceneInfo:
     @var platform A (x, y) tuple which is the position of the platform.
     @var bricks A list storing (x, y) tuples which are
          the position of the remaining bricks.
+    @var command The command decided according to this scene information
     """
 
     def __init__(self):
@@ -31,6 +32,9 @@ class SceneInfo:
         self.platform = None
         self.bricks = None
 
+        # The member is filled after received the command
+        self.command = None
+
     def __str__(self):
         output_str = \
             "# Frame {}\n".format(self.frame) + \
@@ -40,6 +44,8 @@ class SceneInfo:
             "# Brick"
         for brick in self.bricks:
             output_str += " {}".format(brick)
+
+        output_str += "\n# Command {}".format(self.command)
 
         return output_str
 
