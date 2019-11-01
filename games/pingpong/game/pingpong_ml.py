@@ -24,7 +24,8 @@ class PingPong:
         @param game_over_score The game will stop when either side reaches this score
         @param record_progress Whether to record the game process or not
         """
-        self._ml_name = ["ml_1P", "ml_2P"]
+        self._ml_1P = "ml_1P"
+        self._ml_2P = "ml_2P"
         self._ml_execute_time = 1.0 / fps
         self._frame_delayed = [0, 0]    # 1P, 2P
         self._score = [0, 0]    # 1P, 2P
@@ -67,16 +68,15 @@ class PingPong:
         while keep_going():
             scene_info = self._scene.get_scene_info()
 
-            # Send the scene info to the ml processes and wait for instructions
-            instruction_1P, instruction_2P = self._make_ml_execute(scene_info)
+            # Send the scene info to the ml processes and wait for commands
+            command_1P, command_2P = self._make_ml_execute(scene_info)
 
-            scene_info.command_1P = instruction_1P.command.value
-            scene_info.command_2P = instruction_2P.command.value
+            scene_info.command_1P = command_1P.value
+            scene_info.command_2P = command_2P.value
             self._record_handler(scene_info)
 
             # Update the scene
-            game_status = self._scene.update( \
-                instruction_1P.command, instruction_2P.command)
+            game_status = self._scene.update(command_1P, command_2P)
 
             self._draw_scene()
 
@@ -109,22 +109,22 @@ class PingPong:
         time.sleep(self._ml_execute_time)
         instructions = self._cmd_receiver.recv_all()
 
-        self._check_frame_delayed(0, scene_info.frame, instructions)
-        self._check_frame_delayed(1, scene_info.frame, instructions)
+        self._check_frame_delayed(0, self._ml_1P, \
+            scene_info.frame, instructions[self._ml_1P].frame)
+        self._check_frame_delayed(1, self._ml_2P, \
+            scene_info.frame, instructions[self._ml_2P].frame)
 
-        return instructions[self._ml_name[0]], instructions[self._ml_name[1]]
+        return instructions[self._ml_1P].command, instructions[self._ml_2P].command
 
-    def _check_frame_delayed(self, ml_index, scene_frame, instructs):
+    def _check_frame_delayed(self, ml_index, ml_name, scene_frame, instruct_frame):
         """
         Update the `frame_delayed` if the received instruction frame is delayed
         """
-        instruct_frame = instructs[self._ml_name[ml_index]].frame
-
         if instruct_frame != -1 and \
            scene_frame - instruct_frame > self._frame_delayed[ml_index]:
             self._frame_delayed[ml_index] = scene_frame - instruct_frame
             print("{} delayed {} frame(s)" \
-                .format(self._ml_name[ml_index], self._frame_delayed[ml_index]))
+                .format(ml_name, self._frame_delayed[ml_index]))
 
     def _draw_scene(self):
         """
