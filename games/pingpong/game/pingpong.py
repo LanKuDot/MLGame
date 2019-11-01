@@ -62,11 +62,7 @@ class PingPong:
 
                 self._scene.reset()
 
-            self._screen.fill((0, 0, 0))
-            self._scene.draw_gameobjects(self._screen)
-            self._draw_game_status()
-            pygame.display.flip()
-
+            self._draw_scene()
             self._clock.tick(self._fps)
 
         if self._score[0] > self._score[1]:
@@ -75,7 +71,11 @@ class PingPong:
             print("2P wins!")
         print("Final score: {}-{}".format(*self._score))
 
-    def _draw_game_status(self):
+    def _draw_scene(self):
+        self._screen.fill((0, 0, 0))
+        self._scene.draw_gameobjects(self._screen)
+
+        # Game status
         font_1P_surface = self._font.render( \
             "1P score: {}".format(self._score[0]), True, gamecore.color_1P)
         font_2P_surface = self._font.render( \
@@ -85,6 +85,8 @@ class PingPong:
         self._screen.blit(font_1P_surface, self._font_pos_1P)
         self._screen.blit(font_2P_surface, self._font_pos_2P)
         self._screen.blit(font_speed_surface, self._font_pos_speed)
+
+        pygame.display.flip()
 
     def _game_over(self, status):
         if status == GameStatus.GAME_1P_WIN:
