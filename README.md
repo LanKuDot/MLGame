@@ -46,17 +46,17 @@ For example:
 
 If `-m` flag is **not** specified, the game will execute in the machine learning mode. In the machine learning mode, the main process will generate two new processes, one is for executing the machine learning code (called ml process), the other is for executing the game core (called game process). They use pipes to communicate with each other.
 
-![](https://i.imgur.com/Wlai4Bh.png)
+![Imgur](https://i.imgur.com/ELXiFIZ.png)
 
-`SceneInfo` is the data structure that stores the game status and the position of gameobjects in the scene. `GameInstruction` is the data structure that stores the command for controlling the gameobject (such as a platform). Both are defined in the file `games/<game>/communication.py`.
+`SceneInfo` is the data structure that stores the game status and the position of gameobjects in the scene. `GameCommand` is the data structure that stores the command for controlling the gameobject (such as a platform).  `SceneInfo` is defined in the file `games/<game>/game/gamecore.py` and `GameCommand` is defined in the file `games/<game>/communication.py`.
 
 ### Execution Order
 
-![](https://i.imgur.com/D3D5Mm3.png)
+![Imgur](https://i.imgur.com/t7itbDH.png)
 
-Note that the game process won't wait for the ml process. Therefore, if the ml process cannot send a `GameInstruction` in time, the instruction will be consumed in the next frame in the game process, which is "delayed".
+Note that the game process won't wait for the ml process (except for the initialization). Therefore, if the ml process cannot send a `GameCommand` in time, the instruction will be consumed in the next frame in the game process, which is "delayed".
 
-The example script for the ml process is in the file `<game>/ml/ml_play_template.py`, which is a script that simply sent a "moving left" command to the game process. There are detailed comments in the script to describe how to write your own script.
+The example script for the ml process is in the file `games/<game>/ml/ml_play_template.py`, which is a script that simply sent the same command to the game process. There are detailed comments in the script to describe how to write your own script.
 
 ## Log Game Progress
 
