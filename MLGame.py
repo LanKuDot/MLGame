@@ -7,11 +7,13 @@ if __name__ == "__main__":
         game = importlib.import_module("games.{}.main".format(config.game_name))
 
         if config.game_mode == gameconfig.GameMode.MANUAL:
-            game.manual_mode(config)
+            game_execution = game.manual_mode
         elif config.game_mode == gameconfig.GameMode.ML:
-            game.ml_mode(config)
+            game_execution = game.ml_mode
     except ModuleNotFoundError:
         print("Error: Game \"{}\" is not found.".format(config.game_name))
-    except AttributeError:
+    except AttributeError as e:
         print("Error: Game \"{}\" does not provide {} mode." \
             .format(config.game_name, config.game_mode.name.lower()))
+    else:
+        game_execution(config)
