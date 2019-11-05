@@ -52,5 +52,6 @@ class Arkanoid:
 
     def _record_scene_info(self, command):
         scene_info = self._scene.get_scene_info()
-        scene_info.command = command.value
+        if command:
+            scene_info.command = command.value
         self._record_handler(scene_info)
