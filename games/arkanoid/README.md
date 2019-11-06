@@ -5,7 +5,7 @@
 ## Execution
 
 * Manual mode: `python MLGame.py arkanoid [level_id] -m`
-    * Controlling: ก๖, ก๗
+    * Controlling: `left`, `right` arrow key
 * ML mode: `python MLGame.py arkanoid [level_id] -i ml_play_template.py`
 
 `[level_id]` is used to specify the level map. If it is not specified, it will be 1. The available `[level_id]` can be checked in `game/level_data/` directory.
@@ -21,13 +21,13 @@
 #### Ball
 
 * The ball is a 5-by-5-pixel blue square.
-* The moving speed is (กำ7, กำ7) pixels per frame.
+* The moving speed is (&plusmn;7, &plusmn;7) pixels per frame.
 * The initial position is at (100, 100), and it moves toward the lower right.
 
 #### Platform
 
 * The platform is a 40-by-5-pixel green rectangle.
-* The moving speed is (กำ5, 0) pixels per frame.
+* The moving speed is (&plusmn;5, 0) pixels per frame.
 * The initial position is at (75, 400).
 
 #### Brick

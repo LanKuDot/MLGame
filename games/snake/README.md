@@ -5,7 +5,7 @@
 ## Execution
 
 * Manual mode: `python MLGame.py snake -m`
-    * Controlling: ¡ô, ¡õ, ¡ö, ¡÷
+    * Controlling: arrow keys
     * Perhaps 30 fps is too fast to play.
 * ML mode: `python MLGame.py snake -i ml_play_template.py`
 

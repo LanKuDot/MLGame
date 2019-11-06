@@ -5,7 +5,7 @@
 ## Execution
 
 * Manual mode: `python MLGame.py pingpong [game_over_score] -m`
-    * Controlling: 1P - ก๖, ก๗; 2P - A, D
+    * Controlling: 1P - `left`, `right` arrow keys; 2P - A, D
 * ML mode: `python MLGame.py pingpong [game_over_score] -i ml_play_template.py`
 
 When the score of either side reaches `[game_over_score]`, the game will be exited. If `[game_over_score]` is not specified, it will be 3. If the `-1` flag is set, `[game_over_score]` will be 1.
@@ -38,7 +38,7 @@ You can specify `ml_play_manual.py` as the input script. It will create an invis
 #### Ball
 
 * The ball is a 5-by-5-pixel green square.
-* The initial moving speed is (กำ7, กำ7) pixels per frame, and it increases every 200 frames.
+* The initial moving speed is (&plusmn;7, &plusmn;7) pixels per frame, and it increases every 200 frames.
 * The ball will be served from the 1P side first, and then changing side for each round.
 * When the ball is served from the 1P side, its initial position is at (120, 395), and it moves toward the upper left. When the ball is served from the 2P side, its initial position is at (75, 100), and it moves toward the lower right.
 
@@ -46,7 +46,7 @@ You can specify `ml_play_manual.py` as the input script. It will create an invis
 
 * The platform is a 40-by-30-pixel rectangle.
 * The color of the 1P platform is red, and it of the 2P platform is blue.
-* The moving speed is (กำ5, 0) pixels per frame.
+* The moving speed is (&plusmn;5, 0) pixels per frame.
 * The initial position of the 1P platform is at (80, 420), and it of the 2P platform is at (80, 50).
 
 ### Game Status
