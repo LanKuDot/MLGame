@@ -9,7 +9,7 @@ MLGame separates the machine learning part from the game core, which makes users
 ## Requirements
 
 * Python 3.5+
-* pygame==1.9.4
+* pygame==1.9.6
 * Other machine learning libraries you needed
 
 ## Usage
