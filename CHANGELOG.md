@@ -2,6 +2,23 @@
 
 The format is modified from [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+### [Beta 4.1] - 2019.11.06
+
+**Added**
+
+* New game - Snake
+* Add README to the game Arkanoid and Pingpong
+
+**Changed**
+
+* Update pygame from 1.9.4 to 1.9.6
+* Arkanoid and Pingpong (Follow the structure of the game Snake):
+  * Move `SceneInfo` to the `gamecore.py`
+  * Rename `GameInstruction` to `GameCommand`
+* Arkanoid: Add `command` member to `SceneInfo`
+  * Trying to load the record files generated before beta 4.1 will get `AttributeError: 'SceneInfo' object has no attribute 'command'` error.
+* Code refactoring
+
 ### [Beta 4.0] - 2019.08.30
 
 **Added**
