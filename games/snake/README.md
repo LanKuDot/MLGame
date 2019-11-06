@@ -4,7 +4,9 @@
 
 ## Execution
 
-* Manual mode: `python MLGame.py snake -m -f 15`
+* Manual mode: `python MLGame.py snake -m`
+    * Controlling: ¡ô, ¡õ, ¡ö, ¡÷
+    * Perhaps 30 fps is too fast to play.
 * ML mode: `python MLGame.py snake -i ml_play_template.py`
 
 ## Overview
@@ -20,7 +22,7 @@
 * The snake is composed of squares. The size of a square is 10 \* 10 pixels.
 * The head is a green square, the bodies are white squares.
 * The head is initially at (40, 40), and the bodies are at (40, 30), (40, 20), (40, 10).
-* The snake initially goes downward. It moves 10 pixels long per step.
+* The snake initially goes downward. It moves 10 pixels long per frame.
 
 #### Food
 
@@ -65,5 +67,5 @@ The following methods are defined in [`communication.py`](communication.py).
 * `ml_ready()`: Inform the game process that ml process is ready.
 * `get_scene_info()`: Receive the `SceneInfo` sent from the game process.
 * `send_command(frame, command)`: Send the command to the game process.
-	* `frame`: The number of frame that this command is for. This value should be the same as the `frame` of the received `SceneInfo`.
-	* `command`: The command for controlling the snake. It's one of `SnakeAction`.
+    * `frame`: The number of frame that this command is for. This value should be the same as the `frame` of the received `SceneInfo`.
+    * `command`: The command for controlling the snake. It's one of `SnakeAction`.
