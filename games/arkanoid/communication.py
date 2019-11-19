@@ -37,12 +37,12 @@ def get_scene_info() -> SceneInfo:
     """
     return comm.recv_from_game()
 
-def send_instruction(frame: int, command: str):
+def send_instruction(frame: int, command: PlatformAction):
     """Send a game instruction to the game process
 
     @param frame The frame number for the corresponding scene information
     @param command The game command. It could only be the command defined
-           in the class GameInstruction.
+           in the class PlatformAction.
     """
     comm.send_to_game(GameCommand(frame, command))
 
