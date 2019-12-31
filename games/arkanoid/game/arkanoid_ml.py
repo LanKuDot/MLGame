@@ -50,12 +50,9 @@ class Arkanoid:
            game status to the machine learning process, and reset the game.
         6. Back to 1.
         """
-
-        keep_going = lambda : not quit_or_esc()
-
         comm.wait_ml_ready(self._ml_name)
 
-        while keep_going():
+        while not quit_or_esc():
             scene_info = self._scene.get_scene_info()
             command = self._make_ml_execute(scene_info)
 

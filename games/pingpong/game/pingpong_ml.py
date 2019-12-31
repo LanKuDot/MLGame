@@ -61,11 +61,9 @@ class PingPong:
         """
         The main loop of the game execution
         """
-        keep_going = lambda : not quit_or_esc()
-
         comm.wait_all_ml_ready()
 
-        while keep_going():
+        while not quit_or_esc():
             scene_info = self._scene.get_scene_info()
 
             # Send the scene info to the ml processes and wait for commands
