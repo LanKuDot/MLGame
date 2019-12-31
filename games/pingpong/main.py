@@ -21,7 +21,7 @@ def ml_mode(config: GameConfig):
 def _get_ml_modules(input_modules):
     """
     Get the modules for 1P and 2P
-    
+
     If only 1 input module specified, 1P and 2P use the same module.
     """
     if len(input_modules) == 1:
