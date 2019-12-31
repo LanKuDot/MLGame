@@ -52,11 +52,10 @@ class SceneInfo:
 class Scene:
     area_rect = pygame.Rect(0, 0, 200, 500)
 
-    def __init__(self, level, to_create_surface = False):
+    def __init__(self, level):
         self._level = level
         self._frame_count = 0
         self._game_status = GameStatus.GAME_ALIVE
-        self._to_create_surface = to_create_surface
 
         self._create_scene()
 
@@ -68,10 +67,6 @@ class Scene:
         self._group_move = pygame.sprite.RenderPlain()
         self._ball = Ball((100, 100), Scene.area_rect, self._group_move)
         self._platform = Platform((75, 400), Scene.area_rect, self._group_move)
-
-        if self._to_create_surface:
-            self._ball.create_surface()
-            self._platform.create_surface()
 
     def _create_bricks(self, level: int):
         def get_coordinate(string):
@@ -92,9 +87,6 @@ class Scene:
                 brick = Brick((pos_x + offset_x, pos_y + offset_y), \
                     self._group_brick)
                 self._brick_container.append(brick)
-
-                if self._to_create_surface:
-                    brick.create_surface()
 
     def reset(self):
         self._frame_count = 0

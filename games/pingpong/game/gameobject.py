@@ -11,7 +11,8 @@ class PlatformAction(StringEnum):
     NONE = "NONE"
 
 class Platform(pygame.sprite.Sprite):
-    def __init__(self, init_pos, play_area_rect: pygame.Rect, *groups):
+    def __init__(self, init_pos, play_area_rect: pygame.Rect, \
+            side, color, *groups):
         super().__init__(*groups)
 
         self._play_area_rect = play_area_rect
@@ -20,29 +21,30 @@ class Platform(pygame.sprite.Sprite):
         self._init_pos = pygame.Rect(*init_pos, 40, 30)
 
         self.rect = self._init_pos.copy()
+        self.image = self._create_surface(side, color)
 
-    @property
-    def pos(self):
-        return self.rect.topleft
-
-    def create_surface(self, side, color):
-        self.image = pygame.Surface((self.rect.width, self.rect.height))
+    def _create_surface(self, side, color):
+        surface = pygame.Surface((self.rect.width, self.rect.height))
 
         # Draw the platform image
         platform_image = pygame.Surface((self.rect.width, 10))
         platform_image.fill(color)
         # The platform image of 1P is at the top of the rect
         if side == "1P":
-            self.image.blit(platform_image, (0, 0))
+            surface.blit(platform_image, (0, 0))
         # The platform image of 2P is at the bottom of the rect
         else:
-            self.image.blit(platform_image, (0, self.image.get_height() - 10))
+            surface.blit(platform_image, (0, surface.get_height() - 10))
 
         # Draw the outline of the platform rect
-        pygame.draw.rect(self.image, color, \
+        pygame.draw.rect(surface, color, \
             pygame.Rect(0, 0, self.rect.width, self.rect.height), 1)
 
-        self.image.convert()
+        return surface
+
+    @property
+    def pos(self):
+        return self.rect.topleft
 
     def reset(self):
         self.rect = self._init_pos.copy()
@@ -69,18 +71,19 @@ class Ball(pygame.sprite.Sprite):
         self._serve_from_1P = True
 
         self.rect = pygame.Rect(0, 0, *self._size)
+        self.image = self._create_surface()
 
         # Used in additional collision detection
         self._last_pos = Vector2(self.rect.x, self.rect.y)
 
+    def _create_surface(self):
+        surface = pygame.Surface((self.rect.width, self.rect.height))
+        surface.fill((66, 226, 126))    # Green
+        return surface
+
     @property
     def pos(self):
         return self.rect.topleft
-
-    def create_surface(self):
-        self.image = pygame.Surface((self.rect.width, self.rect.height))
-        self.image.fill((66, 226, 126))    # Green
-        self.image.convert()
 
     def reset(self):
         """

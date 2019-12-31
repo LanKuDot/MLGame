@@ -40,7 +40,7 @@ class PingPong:
             }, get_log_dir())
 
         self._init_display()
-        self._scene = Scene(True)
+        self._scene = Scene()
 
     def _init_display(self):
         """

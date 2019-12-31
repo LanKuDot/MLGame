@@ -11,7 +11,7 @@ class Arkanoid:
         self._init_pygame()
 
         self._fps = fps
-        self._scene = Scene(level, True)
+        self._scene = Scene(level)
         self._keyboard = KeyCommandMap({
                 pygame.K_LEFT:  PlatformAction.MOVE_LEFT,
                 pygame.K_RIGHT: PlatformAction.MOVE_RIGHT,

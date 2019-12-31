@@ -62,8 +62,7 @@ class SceneInfo:
 class Scene:
     area_rect = pygame.Rect(0, 0, 200, 500)
 
-    def __init__(self, to_create_surface: bool):
-        self._to_create_surface = to_create_surface
+    def __init__(self):
         self._frame_count = 0
         self._game_status = GameStatus.GAME_ALIVE
 
@@ -74,14 +73,9 @@ class Scene:
         self._draw_group = pygame.sprite.RenderPlain()
         self._ball = Ball(Scene.area_rect, self._draw_group)
         self._platform_1P = Platform((80, Scene.area_rect.height - 80), \
-            Scene.area_rect, self._draw_group)
+            Scene.area_rect, "1P", color_1P, self._draw_group)
         self._platform_2P = Platform((80, 50), \
-            Scene.area_rect, self._draw_group)
-
-        if self._to_create_surface:
-            self._ball.create_surface()
-            self._platform_1P.create_surface("1P", color_1P)
-            self._platform_2P.create_surface("2P", color_2P)
+            Scene.area_rect, "2P", color_2P, self._draw_group)
 
     def reset(self):
         self._frame_count = 0

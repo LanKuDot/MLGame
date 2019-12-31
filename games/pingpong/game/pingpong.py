@@ -14,7 +14,7 @@ class PingPong:
         self._fps = fps
         self._score = [0, 0]    # 1P, 2P
         self._game_over_score = game_over_score
-        self._scene = Scene(True)
+        self._scene = Scene()
         self._keyboard_action_1P = KeyCommandMap({
                 pygame.K_LEFT:  PlatformAction.MOVE_LEFT,
                 pygame.K_RIGHT: PlatformAction.MOVE_RIGHT,

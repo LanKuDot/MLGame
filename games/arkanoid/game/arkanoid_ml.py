@@ -29,7 +29,7 @@ class Arkanoid:
         self._one_shot_mode = one_shot_mode
 
         self._init_display()
-        self._scene = Scene(level, True)
+        self._scene = Scene(level)
 
     def _init_display(self):
         pygame.display.init()

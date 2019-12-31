@@ -10,20 +10,20 @@ class Brick(Sprite):
         super().__init__(*groups)
 
         self.rect = Rect(init_pos[0], init_pos[1], 25, 10)
+        self.image = self._create_surface()
 
-    @property
-    def pos(self):
-        return self.rect.topleft
-
-    def create_surface(self):
+    def _create_surface(self):
         surface = Surface((self.rect.width, self.rect.height))
         surface.fill((244, 158, 66)) # Orange
         pygame.draw.line(surface, (0, 0, 0), \
             (self.rect.width - 1, 0), (self.rect.width - 1, self.rect.height - 1))
         pygame.draw.line(surface, (0, 0, 0), \
             (0, self.rect.height - 1), (self.rect.width - 1, self.rect.height - 1))
+        return surface
 
-        self.image = surface.convert()
+    @property
+    def pos(self):
+        return self.rect.topleft
 
 class PlatformAction(StringEnum):
     MOVE_LEFT = "LEFT"
@@ -40,16 +40,16 @@ class Platform(Sprite):
         self._init_pos = init_pos
 
         self.rect = Rect(init_pos[0], init_pos[1], 40, 5)
+        self.image = self._create_surface()
+
+    def _create_surface(self):
+        surface = Surface((self.rect.width, self.rect.height))
+        surface.fill((66, 226, 126)) # Green
+        return surface
 
     @property
     def pos(self):
         return self.rect.topleft
-
-    def create_surface(self):
-        surface = Surface((self.rect.width, self.rect.height))
-        surface.fill((66, 226, 126)) # Green
-
-        self.image = surface.convert()
 
     def reset(self):
         self.rect.topleft = self._init_pos
@@ -75,16 +75,16 @@ class Ball(Sprite):
         self._init_pos = init_pos
 
         self.rect = Rect(init_pos[0], init_pos[1], 5, 5)
+        self.image = self._create_surface()
+
+    def _create_surface(self):
+        surface = pygame.Surface((self.rect.width, self.rect.height))
+        surface.fill((44, 185, 214)) # Blue
+        return surface
 
     @property
     def pos(self):
         return self.rect.topleft
-
-    def create_surface(self):
-        surface = pygame.Surface((self.rect.width, self.rect.height))
-        surface.fill((44, 185, 214)) # Blue
-
-        self.image = surface.convert()
 
     def reset(self):
         self.rect.topleft = self._init_pos
