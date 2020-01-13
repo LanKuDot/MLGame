@@ -65,7 +65,6 @@ class GameMode(Enum):
 
     MANUAL = auto()
     ML = auto()
-    ONLINE = auto()
 
 class GameConfig:
     """
