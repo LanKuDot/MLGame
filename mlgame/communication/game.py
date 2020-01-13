@@ -22,7 +22,7 @@ def recv_from_ml(ml_name, to_wait = False):
     Receive an object sent from the specified ml process
 
     @param ml_name The name of the target ml process
-    @param to_wait Whether to wait the object or not
+    @param to_wait Whether to wait until the object is received or not
     @return The received object.
             If `to_wait` is False and there is nothing to receive, return None.
     """
@@ -30,9 +30,9 @@ def recv_from_ml(ml_name, to_wait = False):
 
 def recv_from_all_ml(to_wait = False):
     """
-    Receive objects from all ml processes
+    Receive objects sent from all ml processes
 
-    @param to_wait Whether to wait objects or not
+    @param to_wait Whether to wait until all the objects are received or not
     @return A dictionary. The key is the game of the ml process,
             the value is the received object from that process.
             If `to_wait` is False and there is nothing to receive from that process,
@@ -43,14 +43,16 @@ def recv_from_all_ml(to_wait = False):
 
 def wait_ml_ready(ml_name):
     """
-    Wait until receiving the ready command from a ml process
+    Wait until receiving the ready command from specified the ml process
+
+    @param ml_name The name of the target ml process
     """
     while recv_from_ml(ml_name, to_wait = True) != "READY":
         pass
 
 def wait_all_ml_ready():
     """
-    Wait until receiving the ready command from all ml processes
+    Wait until receiving the ready commands from all ml processes
     """
     ready_dict = recv_from_all_ml(to_wait = False)
 
@@ -75,7 +77,7 @@ class CommandReceiver:
         """
         Constructor
 
-        @param instruct_class The desired class of the received command
+        @param cmd_class The desired class of the received command
         @param valid_members A dictionary indicating the desired values of the members
                of the received command. The key is the name of the member,
                the value is a list of desired values of that member.
