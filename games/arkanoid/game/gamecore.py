@@ -10,7 +10,8 @@ class GameStatus(StringEnum):
     GAME_PASS = "GAME_PASS"
 
 class SceneInfo:
-    """The data structure for the information of the scene
+    """
+    The data structure for the information of the scene
 
     Containing the frame no, the status, and the position of the gameobjects.
     Note that the position is the coordinate at the top-left corner of the gameobject.
@@ -119,7 +120,8 @@ class Scene:
         self._group_move.draw(surface)
 
     def get_scene_info(self) -> SceneInfo:
-        """Get the scene information
+        """
+        Get the scene information
         """
         scene_info = SceneInfo()
         scene_info.frame = self._frame_count

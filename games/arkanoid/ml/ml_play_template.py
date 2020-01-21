@@ -1,4 +1,5 @@
-"""The template of the main script of the machine learning process
+"""
+The template of the main script of the machine learning process
 """
 
 import games.arkanoid.communication as comm
@@ -7,7 +8,8 @@ from games.arkanoid.communication import ( \
 )
 
 def ml_loop():
-    """The main loop of the machine learning process
+    """
+    The main loop of the machine learning process
 
     This loop is run in a separate process, and communicates with the game process.
 

@@ -1,7 +1,8 @@
 from .game.gamecore import GameStatus, PlatformAction, SceneInfo
 
 class GameCommand:
-    """The data structure for controlling the game
+    """
+    The data structure for controlling the game
 
     To control the game, the ml process should generate a GameInstruction and
     pass to the game process.
@@ -33,12 +34,14 @@ from mlgame.communication import ml as comm
 
 # ====== Helper functions ====== #
 def get_scene_info() -> SceneInfo:
-    """Get the scene information from the game process
+    """
+    Get the scene information from the game process
     """
     return comm.recv_from_game()
 
 def send_instruction(frame: int, command: PlatformAction):
-    """Send a game instruction to the game process
+    """
+    Send a game instruction to the game process
 
     @param frame The frame number for the corresponding scene information
     @param command The game command. It could only be the command defined
@@ -47,6 +50,7 @@ def send_instruction(frame: int, command: PlatformAction):
     comm.send_to_game(GameCommand(frame, command))
 
 def ml_ready():
-    """Inform the game process that ml process is ready
+    """
+    Inform the game process that ml process is ready
     """
     comm.ml_ready()

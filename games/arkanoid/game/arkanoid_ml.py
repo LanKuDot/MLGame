@@ -10,7 +10,8 @@ from ..communication import GameCommand
 from ..main import get_log_dir
 
 class Arkanoid:
-    """The game for the machine learning mode
+    """
+    The game for the machine learning mode
     """
 
     def __init__(self, fps: int, level: int, \
@@ -37,7 +38,8 @@ class Arkanoid:
         self._screen = pygame.display.set_mode(Scene.area_rect.size)
 
     def game_loop(self):
-        """The main loop of the game in machine learning mode
+        """
+        The main loop of the game in machine learning mode
 
         The execution order in the loop:
         1. Send the SceneInfo to the machine learning process.
@@ -80,7 +82,8 @@ class Arkanoid:
                 comm.wait_ml_ready(self._ml_name)
 
     def _make_ml_execute(self, scene_info):
-        """Send the scene_info to the ml process and wait for the instruction
+        """
+        Send the scene_info to the ml process and wait for the instruction
         """
         comm.send_to_ml(scene_info, self._ml_name)
         time.sleep(self._ml_execute_time)
@@ -94,7 +97,8 @@ class Arkanoid:
         return game_cmd.command
 
     def _draw_scene(self):
-        """Draw the scene to the display
+        """
+        Draw the scene to the display
         """
         self._screen.fill((0, 0, 0))
         self._scene.draw_gameobjects(self._screen)
