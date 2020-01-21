@@ -124,20 +124,43 @@ class CommunicationSet:
 
 class CommunicationHandler:
     """
-    A data class for storing a sending and a receiving handler
+    A data class for storing a sending and a receiving communication objects
+    and providing interface for accessing them
     """
     def __init__(self):
-        self.recv_end = None
-        self.send_end = None
+        self._recv_end = None
+        self._send_end = None
+
+    def set_recv_end(self, comm_obj):
+        """
+        Set the communication object for receiving
+
+        @param comm_obj The communication object which has `recv` and `poll` function
+        """
+        if not hasattr(comm_obj, "recv") or not hasattr(comm_obj, "poll"):
+            raise ValueError("'comm_obj' doesn't have 'recv' or 'poll' function")
+
+        self._recv_end = comm_obj
+
+    def set_send_end(self, comm_obj):
+        """
+        Set the communication object for sending
+
+        @param comm_obj The communication object which has `send` function
+        """
+        if not hasattr(comm_obj, "send"):
+            raise ValueError("'comm_obj' doesn't have 'send' function")
+
+        self._send_end = comm_obj
 
     def poll(self):
-        return self.recv_end.poll()
+        return self._recv_end.poll()
 
     def recv(self):
-        return self.recv_end.recv()
+        return self._recv_end.recv()
 
     def send(self, obj):
-        self.send_end.send(obj)
+        self._send_end.send(obj)
 
 from ..utils.delegate import FunctionDelegate
 

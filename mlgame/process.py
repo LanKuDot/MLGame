@@ -78,11 +78,11 @@ class ProcessManager:
             # Create pipe for Game process -> ML process
             recv_pipe, send_pipe = Pipe(False)
             self._game_proc_helper.add_send_end(ml_proc_helper.name, send_pipe)
-            ml_proc_helper._comm_game.recv_end = recv_pipe
+            ml_proc_helper.set_recv_end(recv_pipe)
 
             # Create pipe for ML process -> Game process
             recv_pipe, send_pipe = Pipe(False)
-            ml_proc_helper._comm_game.send_end = send_pipe
+            ml_proc_helper.set_send_end(send_pipe)
             self._game_proc_helper.add_recv_end(ml_proc_helper.name, recv_pipe)
 
     def _start_ml_processes(self):
@@ -215,26 +215,38 @@ class MLProcessHelper:
         self.name = name
         self.args = args
         self.kwargs = kwargs
-        self._comm_game = CommunicationHandler()
+        self._comm_handler = CommunicationHandler()
+
+    def set_recv_end(self, comm_obj):
+        """
+        Set the communication object for receiving message from game process
+        """
+        self._comm_handler.set_recv_end(comm_obj)
+
+    def set_send_end(self, comm_obj):
+        """
+        Set the communication object for sending message from game process
+        """
+        self._comm_handler.set_send_end(comm_obj)
 
     def recv_from_game(self):
         """Receive an object from the game process
 
         @return The received object
         """
-        return self._comm_game.recv()
+        return self._comm_handler.recv()
 
     def send_to_game(self, obj):
         """Send an object to the game process
 
         @param obj An object to be sent
         """
-        self._comm_game.send(obj)
+        self._comm_handler.send(obj)
 
     def send_exception(self, exception: MLProcessError):
         """Send an exception to the game process
         """
-        self._comm_game.send(exception)
+        self._comm_handler.send(exception)
 
 
 def _game_process_entry_point(helper: GameProcessHelper):
