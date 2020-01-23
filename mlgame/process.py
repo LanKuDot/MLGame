@@ -77,18 +77,17 @@ class ProcessManager:
 
     def _create_pipes(self):
         """
-        Create communication pipes between game process and ml processes
+        Create communication pipes for processes
         """
+        # Create pipes for Game process <-> ml process
         for ml_proc_helper in self._ml_proc_helpers:
-            # Create pipe for Game process -> ML process
-            recv_pipe, send_pipe = Pipe(False)
-            self._game_proc_helper.add_send_end(ml_proc_helper.name, send_pipe)
-            ml_proc_helper.set_recv_end(recv_pipe)
+            recv_pipe_for_game, send_pipe_for_ml = Pipe(False)
+            recv_pipe_for_ml, send_pipe_for_game = Pipe(False)
 
-            # Create pipe for ML process -> Game process
-            recv_pipe, send_pipe = Pipe(False)
-            ml_proc_helper.set_send_end(send_pipe)
-            self._game_proc_helper.add_recv_end(ml_proc_helper.name, recv_pipe)
+            self._game_proc_helper.add_comm_to_ml(ml_proc_helper.name, \
+                recv_pipe_for_game, send_pipe_for_game)
+            ml_proc_helper.set_comm_to_game( \
+                recv_pipe_for_ml, send_pipe_for_ml)
 
     def _start_ml_processes(self):
         """
@@ -139,25 +138,18 @@ class GameProcessHelper:
         self.target_function = target_function
         self.args = args
         self.kwargs = kwargs
-        self._comm_ml_set = CommunicationSet()
+        self._comm_to_ml_set = CommunicationSet()
 
-    def add_send_end(self, to_ml: str, send_end):
+    def add_comm_to_ml(self, to_ml: str, recv_end, send_end):
         """
-        Add a sending end for sending objects to the specified ml process
+        Add communication objects for communicating with specified ml process
 
         @param to_ml The name of the target ml process
-        @param send_end The sending end
+        @param recv_end The communication object for receiving objects from that ml process
+        @param send_end The communication object for sending objects to that ml process
         """
-        self._comm_ml_set.add_send_end(to_ml, send_end)
-
-    def add_recv_end(self, from_ml: str, recv_end):
-        """
-        Add a receiving end for receiving objects from the specified ml process
-
-        @param from_ml The name of the target ml process
-        @param recv_end The receiving end
-        """
-        self._comm_ml_set.add_recv_end(from_ml, recv_end)
+        self._comm_to_ml_set.add_recv_end(to_ml, recv_end)
+        self._comm_to_ml_set.add_send_end(to_ml, send_end)
 
     def send_to_ml(self, obj, to_ml: str):
         """
@@ -166,7 +158,7 @@ class GameProcessHelper:
         @param obj The object to be sent
         @param to_ml The name of the ml process
         """
-        self._comm_ml_set.send(obj, to_ml)
+        self._comm_to_ml_set.send(obj, to_ml)
 
     def send_to_all_ml(self, obj):
         """
@@ -174,7 +166,7 @@ class GameProcessHelper:
 
         @param obj The object to be sent
         """
-        self._comm_ml_set.send_all(obj)
+        self._comm_to_ml_set.send_all(obj)
 
     def recv_from_ml(self, from_ml: str, to_wait: bool = False):
         """
@@ -189,7 +181,7 @@ class GameProcessHelper:
         @param to_wait Whether to wait the object send from the ml process
         @return The received object
         """
-        obj = self._comm_ml_set.recv(from_ml, to_wait)
+        obj = self._comm_to_ml_set.recv(from_ml, to_wait)
         if isinstance(obj, MLProcessError):
             raise obj
 
@@ -207,7 +199,7 @@ class GameProcessHelper:
         # Receive the object one by one for the error raising
         # when receiving MLProcessError in `recv_from_ml`
         # instead of using `recv_all` in `CommunicationSet`
-        for target_ml in self._comm_ml_set.get_recv_end_names():
+        for target_ml in self._comm_to_ml_set.get_recv_end_names():
             objs[target_ml] = self.recv_from_ml(target_ml, to_wait)
 
         return objs
@@ -233,19 +225,17 @@ class MLProcessHelper:
         self.name = name
         self.args = args
         self.kwargs = kwargs
-        self._comm_handler = CommunicationHandler()
+        self._comm_to_game = CommunicationHandler()
 
-    def set_recv_end(self, comm_obj):
+    def set_comm_to_game(self, recv_end, send_end):
         """
-        Set the communication object for receiving message from game process
-        """
-        self._comm_handler.set_recv_end(comm_obj)
+        Set communication objects for communicating with game process
 
-    def set_send_end(self, comm_obj):
+        @param recv_end The communication object for receiving objects from game process
+        @param send_end The communication object for sending objects to game process
         """
-        Set the communication object for sending message from game process
-        """
-        self._comm_handler.set_send_end(comm_obj)
+        self._comm_to_game.set_recv_end(recv_end)
+        self._comm_to_game.set_send_end(send_end)
 
     def recv_from_game(self):
         """
@@ -253,7 +243,7 @@ class MLProcessHelper:
 
         @return The received object
         """
-        return self._comm_handler.recv()
+        return self._comm_to_game.recv()
 
     def send_to_game(self, obj):
         """
@@ -261,13 +251,13 @@ class MLProcessHelper:
 
         @param obj An object to be sent
         """
-        self._comm_handler.send(obj)
+        self._comm_to_game.send(obj)
 
     def send_exception(self, exception: MLProcessError):
         """
         Send an exception to the game process
         """
-        self._comm_handler.send(exception)
+        self._comm_to_game.send(exception)
 
 
 def _game_process_entry_point(helper: GameProcessHelper):
