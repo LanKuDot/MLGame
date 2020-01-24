@@ -66,7 +66,7 @@ class Scene:
 
     def _create_moves(self):
         self._group_move = pygame.sprite.RenderPlain()
-        self._ball = Ball((100, 100), Scene.area_rect, self._group_move)
+        self._ball = Ball(350, Scene.area_rect, self._group_move)
         self._platform = Platform((75, 400), Scene.area_rect, self._group_move)
 
     def _create_bricks(self, level: int):

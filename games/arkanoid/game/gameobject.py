@@ -1,6 +1,7 @@
 import pygame
 from pygame import Rect, Surface
 from pygame.sprite import Sprite
+import random
 
 from mlgame.gamedev import physics
 from mlgame.utils.enum import StringEnum
@@ -67,14 +68,14 @@ class Platform(Sprite):
         self.rect.move_ip(*self._speed)
 
 class Ball(Sprite):
-    def __init__(self, init_pos, play_area_rect: Rect, *groups):
+    def __init__(self, init_pos_y, play_area_rect: Rect, *groups):
         super().__init__(*groups)
 
         self._play_area_rect = play_area_rect
-        self._speed = [7, 7]    # (x, y)
-        self._init_pos = init_pos
+        self._speed = self._get_random_init_speed()
+        self._init_pos_y = init_pos_y
 
-        self.rect = Rect(init_pos[0], init_pos[1], 5, 5)
+        self.rect = Rect(*self._get_random_init_pos(), 5, 5)
         self.image = self._create_surface()
 
     def _create_surface(self):
@@ -82,13 +83,19 @@ class Ball(Sprite):
         surface.fill((44, 185, 214)) # Blue
         return surface
 
+    def _get_random_init_pos(self):
+        return (random.randrange(20, self._play_area_rect.width - 20, 20), self._init_pos_y)
+
+    def _get_random_init_speed(self):
+        return [random.choice((7, -7)), -7]
+
     @property
     def pos(self):
         return self.rect.topleft
 
     def reset(self):
-        self.rect.topleft = self._init_pos
-        self._speed = [7, 7]
+        self.rect.topleft = self._get_random_init_pos()
+        self._speed = self._get_random_init_speed()
 
     def move(self):
         self.rect.move_ip(self._speed)
