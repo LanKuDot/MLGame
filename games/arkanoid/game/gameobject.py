@@ -102,8 +102,33 @@ class Ball(Sprite):
 
     def check_bouncing(self, platform: Platform):
         if physics.collide_or_tangent(self, platform):
-            physics.bounce_off_ip(self.rect, self._speed, platform.rect, platform._speed)
+            speed_after_bounce = self._speed.copy()
+            physics.bounce_off_ip(self.rect, speed_after_bounce, platform.rect, platform._speed)
+            # Check slicing ball when the ball goes up after bouncing (not game over)
+            if speed_after_bounce[1] < 0:
+                speed_after_bounce[0] = self._slice_ball(self._speed[0], platform._speed[0])
+
+            self._speed = speed_after_bounce
+
         physics.bounce_in_box(self.rect, self._speed, self._play_area_rect)
+
+    def _slice_ball(self, ball_speed_x, platform_speed_x):
+        """
+        Check if the platform slices the ball, and modify the ball speed.
+
+        @return The new x speed of the ball after slicing
+        """
+        # If the platform doesn't move, bounce normally.
+        if platform_speed_x == 0:
+            return 7 if ball_speed_x > 0 else -7
+        # If the platform moves at the same direction as the ball moving,
+        # speed up the ball.
+        elif ball_speed_x * platform_speed_x > 0:
+            return 10 if ball_speed_x > 0 else -10
+        # If the platform moves at the opposite direction against the ball moving,
+        # hit the ball back.
+        else:
+            return -7 if ball_speed_x > 0 else 7
 
     def check_hit_brick(self, group_brick: pygame.sprite.RenderPlain) -> int:
         hit_bricks = pygame.sprite.spritecollide(self, group_brick, 1, \
