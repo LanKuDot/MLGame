@@ -93,9 +93,10 @@ def rect_collideline(rect: Rect, line) -> bool:
 def bounce_off_ip(bounce_obj_rect: Rect, bounce_obj_speed, \
     hit_obj_rect: Rect, hit_obj_speed):
     """
-    Update the speed and position of the `bounce_obj` after it bounces off the `hit_obj`.
+    Calculate the speed and position of the `bounce_obj` after it bounces off the `hit_obj`.
+    The position of `bounce_obj_rect` and the value of `bounce_obj_speed` will be updated.
 
-    This function is called only when two objects are colliding.
+    This function should be called only when two objects are colliding.
 
     @param bounce_obj_rect The Rect of the bouncing object
     @param bounce_obj_speed The 2D speed vector of the bouncing object.
@@ -128,6 +129,22 @@ def bounce_off_ip(bounce_obj_rect: Rect, bounce_obj_speed, \
     elif rect_diff_L_R < 0 and rect_diff_R_L < 0:
         bounce_obj_rect.right = hit_obj_rect.left
         bounce_obj_speed[0] *= -1
+
+def bounce_off(bounce_obj_rect: Rect, bounce_obj_speed, \
+    hit_obj_rect: Rect, hit_obj_speed):
+    """
+    The alternative version of `bounce_off_ip`. The function returns the result
+    instead of updating the value of `bounce_obj_rect` and `bounce_obj_speed`.
+
+    @return A tuple (`new_bounce_obj_rect`, `new_bounce_obj_speed`)
+    """
+    new_bounce_obj_rect = bounce_obj_rect.copy()
+    new_bounce_obj_speed = bounce_obj_speed.copy()
+
+    bounce_off_ip(new_bounce_obj_rect, new_bounce_obj_speed, \
+        hit_obj_rect, hit_obj_speed)
+
+    return new_bounce_obj_rect, new_bounce_obj_speed
 
 def bounce_in_box(bounce_obj_rect: Rect, bounce_object_speed, \
     box_rect: Rect) -> bool:

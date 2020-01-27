@@ -102,12 +102,13 @@ class Ball(Sprite):
 
     def check_bouncing(self, platform: Platform):
         if physics.collide_or_tangent(self, platform):
-            speed_after_bounce = self._speed.copy()
-            physics.bounce_off_ip(self.rect, speed_after_bounce, platform.rect, platform._speed)
+            rect_after_bounce, speed_after_bounce = physics.bounce_off( \
+                self.rect, self._speed, platform.rect, platform._speed)
             # Check slicing ball when the ball goes up after bouncing (not game over)
             if speed_after_bounce[1] < 0:
                 speed_after_bounce[0] = self._slice_ball(self._speed[0], platform._speed[0])
 
+            self.rect = rect_after_bounce
             self._speed = speed_after_bounce
 
         physics.bounce_in_box(self.rect, self._speed, self._play_area_rect)
