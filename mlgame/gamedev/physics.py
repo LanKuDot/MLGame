@@ -90,6 +90,19 @@ def rect_collideline(rect: Rect, line) -> bool:
     
     return False
 
+def rect_break_or_tangent_box(rect: Rect, box: Rect):
+    """
+    Determine if the `rect` doesn't contain in the `box` or it tangents in the `box`
+
+    @param rect The Rect of the target rectangle
+    @param box The target box
+    """
+    return \
+        rect.left <= box.left or \
+        rect.right >= box.right or \
+        rect.top <= box.top or \
+        rect.bottom >= rect.bottom
+
 def bounce_off_ip(bounce_obj_rect: Rect, bounce_obj_speed, \
     hit_obj_rect: Rect, hit_obj_speed):
     """
@@ -146,34 +159,40 @@ def bounce_off(bounce_obj_rect: Rect, bounce_obj_speed, \
 
     return new_bounce_obj_rect, new_bounce_obj_speed
 
-def bounce_in_box(bounce_obj_rect: Rect, bounce_object_speed, \
-    box_rect: Rect) -> bool:
+def bounce_in_box_ip(bounce_obj_rect: Rect, bounce_obj_speed, \
+    box_rect: Rect):
     """
     Bounce the object if it hits the border of the box.
     The speed and the position of the `bounce_obj` will be updated.
 
     @param bounce_obj_rect The Rect of the bouncing object
     @param bounce_obj_speed The 2D speed vector of the bouncing object.
-    @return Whether the `bounce_obj` hits the box or not.
     """
-    hit = False
-
     if bounce_obj_rect.left <= box_rect.left:
         bounce_obj_rect.left = box_rect.left
-        bounce_object_speed[0] *= -1
-        hit = True
+        bounce_obj_speed[0] *= -1
     elif bounce_obj_rect.right >= box_rect.right:
         bounce_obj_rect.right = box_rect.right
-        bounce_object_speed[0] *= -1
-        hit = True
+        bounce_obj_speed[0] *= -1
 
     if bounce_obj_rect.top <= box_rect.top:
         bounce_obj_rect.top = box_rect.top
-        bounce_object_speed[1] *= -1
-        hit = True
+        bounce_obj_speed[1] *= -1
     elif bounce_obj_rect.bottom >= box_rect.bottom:
         bounce_obj_rect.bottom = box_rect.bottom
-        bounce_object_speed[1] *= -1
-        hit = True
+        bounce_obj_speed[1] *= -1
 
-    return hit
+def bounce_in_box(bounce_obj_rect: Rect, bounce_obj_speed, \
+    box_rect: Rect):
+    """
+    The alternative version of `bounce_in_box_ip`. The function returns the result
+    instead of updating the value of `bounce_obj_rect` and `bounce_obj_speed`.
+
+    @return A tuple (new_bounce_obj_rect, new_bounce_obj_speed)
+    """
+    new_bounce_obj_rect = bounce_obj_rect.copy()
+    new_bounce_obj_speed = bounce_obj_speed.copy()
+
+    bounce_in_box_ip(new_bounce_obj_rect, new_bounce_obj_speed, box_rect)
+
+    return (new_bounce_obj_rect, new_bounce_obj_speed)

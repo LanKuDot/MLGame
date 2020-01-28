@@ -111,7 +111,8 @@ class Ball(Sprite):
             self.rect = rect_after_bounce
             self._speed = speed_after_bounce
 
-        physics.bounce_in_box(self.rect, self._speed, self._play_area_rect)
+        if physics.rect_break_or_tangent_box(self.rect, self._play_area_rect):
+            physics.bounce_in_box_ip(self.rect, self._speed, self._play_area_rect)
 
     def _slice_ball(self, ball_speed_x, platform_speed_x):
         """
