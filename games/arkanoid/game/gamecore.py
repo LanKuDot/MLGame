@@ -2,7 +2,7 @@ import pygame
 
 from mlgame.utils.enum import StringEnum
 
-from .gameobject import Ball, Platform, Brick, PlatformAction
+from .gameobject import Ball, Platform, Brick, HardBrick, PlatformAction
 
 class GameStatus(StringEnum):
     GAME_ALIVE = "GAME_ALIVE"
@@ -70,9 +70,9 @@ class Scene:
         self._platform = Platform((75, 400), Scene.area_rect, self._group_move)
 
     def _create_bricks(self, level: int):
-        def get_coordinate(string):
+        def get_coordinate_and_type(string):
             string = string.rstrip("\n").split(' ')
-            return int(string[0]), int(string[1])
+            return int(string[0]), int(string[1]), int(string[2])
 
         self._group_brick = pygame.sprite.RenderPlain()
         self._brick_container = []
@@ -82,10 +82,15 @@ class Scene:
         level_file_path = os.path.join(dir_path, "level_data/{0}.dat".format(level))
 
         with open(level_file_path, 'r') as input_file:
-            offset_x, offset_y = get_coordinate(input_file.readline())
+            offset_x, offset_y, _ = get_coordinate_and_type(input_file.readline())
             for input_pos in input_file:
-                pos_x, pos_y = get_coordinate(input_pos.rstrip("\n"))
-                brick = Brick((pos_x + offset_x, pos_y + offset_y), \
+                pos_x, pos_y, type = get_coordinate_and_type(input_pos.rstrip("\n"))
+                if type == 0:
+                    BrickType = Brick
+                else:
+                    BrickType = HardBrick
+
+                brick = BrickType((pos_x + offset_x, pos_y + offset_y), \
                     self._group_brick)
                 self._brick_container.append(brick)
 
@@ -96,6 +101,11 @@ class Scene:
         self._platform.reset()
         self._group_brick.empty()
         self._group_brick.add(*self._brick_container)
+
+        # Reset the HP of hard bricks
+        for brick in self._brick_container:
+            if isinstance(brick, HardBrick):
+                brick.reset()
 
     def update(self, move_action: PlatformAction) -> GameStatus:
         self._frame_count += 1

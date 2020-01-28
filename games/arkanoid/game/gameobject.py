@@ -11,11 +11,11 @@ class Brick(Sprite):
         super().__init__(*groups)
 
         self.rect = Rect(init_pos[0], init_pos[1], 25, 10)
-        self.image = self._create_surface()
+        self.image = self._create_surface((244, 158, 66))   # Orange
 
-    def _create_surface(self):
+    def _create_surface(self, color):
         surface = Surface((self.rect.width, self.rect.height))
-        surface.fill((244, 158, 66)) # Orange
+        surface.fill(color)
         pygame.draw.line(surface, (0, 0, 0), \
             (self.rect.width - 1, 0), (self.rect.width - 1, self.rect.height - 1))
         pygame.draw.line(surface, (0, 0, 0), \
@@ -25,6 +25,28 @@ class Brick(Sprite):
     @property
     def pos(self):
         return self.rect.topleft
+
+class HardBrick(Brick):
+    def __init__(self, init_pos, *groups):
+        super().__init__(init_pos, *groups)
+
+        self.reset()
+
+    def reset(self):
+        self.hp = 2
+        # Override the origin color
+        self.image = self._create_surface((209, 31, 31))    # Red
+
+    def hit(self):
+        """
+        Decrease 1 HP and change the color of image and return the remaining HP
+
+        @return The remaining HP
+        """
+        self.hp -= 1
+        self.image = self._create_surface((244, 158, 66))   # Orange
+
+        return self.hp
 
 class PlatformAction(StringEnum):
     MOVE_LEFT = "LEFT"
@@ -133,16 +155,31 @@ class Ball(Sprite):
             return -7 if ball_speed_x > 0 else 7
 
     def check_hit_brick(self, group_brick: pygame.sprite.RenderPlain) -> int:
+        """
+        Check if the ball hits bricks in the `group_brick`.
+        The hit bricks will be removed from `group_brick`, but the alive hard brick will not.
+        However, if the ball speed is high, the hard brick will be removed with only one hit.
+
+        @param group_brick The sprite group containing bricks
+        @return The number of destroyed bricks
+        """
         hit_bricks = pygame.sprite.spritecollide(self, group_brick, 1, \
             physics.collide_or_tangent)
+        num_of_destroyed_brick = len(hit_bricks)
 
-        if len(hit_bricks) > 0:
+        if num_of_destroyed_brick > 0:
             # XXX: Bad multiple collision bouncing handling
-            if len(hit_bricks) == 2 and \
+            if num_of_destroyed_brick == 2 and \
                 hit_bricks[0].rect.y == hit_bricks[1].rect.y:
                 combined_rect = hit_bricks[0].rect.union(hit_bricks[1].rect)
                 physics.bounce_off_ip(self.rect, self._speed, combined_rect, (0, 0))
             else:
                 physics.bounce_off_ip(self.rect, self._speed, hit_bricks[0].rect, (0, 0))
 
-        return len(hit_bricks)
+            if abs(self._speed[0]) == 7:
+                for brick in hit_bricks:
+                    if isinstance(brick, HardBrick) and brick.hit():
+                        group_brick.add((brick,))
+                        num_of_destroyed_brick -= 1
+
+        return num_of_destroyed_brick
