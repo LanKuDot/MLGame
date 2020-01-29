@@ -22,16 +22,18 @@ class SceneInfo:
     @var platform A (x, y) tuple which is the position of the platform.
     @var bricks A list storing (x, y) tuples which are
          the position of the remaining bricks.
+    @var hard_bricks Similar to `bricks` but for hard bricks
     @var command The command decided according to this scene information
     """
 
     def __init__(self):
-        # These members will be filled in the game process.
+        # These members will be filled in the `Scene.get_scene_info()`.
         self.frame = -1
         self.status = None
         self.ball = None
         self.platform = None
-        self.bricks = None
+        self.bricks = []
+        self.hard_bricks = []
 
         # The member is filled after received the command
         self.command = None
@@ -42,11 +44,9 @@ class SceneInfo:
             "# Status {}\n".format(self.status) + \
             "# Ball {}\n".format(self.ball) + \
             "# Platform {}\n".format(self.platform) + \
-            "# Brick"
-        for brick in self.bricks:
-            output_str += " {}".format(brick)
-
-        output_str += "\n# Command {}".format(self.command)
+            "# Brick {}\n".format(" ".join(str(brick) for brick in self.bricks)) + \
+            "# HardBrick {}\n".format(" ".join(str(brick) for brick in self.hard_bricks)) + \
+            "# Command {}".format(self.command)
 
         return output_str
 
@@ -138,8 +138,10 @@ class Scene:
         scene_info.status = self._game_status.value
         scene_info.ball = self._ball.pos
         scene_info.platform = self._platform.pos
-        scene_info.bricks = []
         for brick in self._group_brick:
-            scene_info.bricks.append(brick.pos)
+            if isinstance(brick, HardBrick) and brick.hp == 2:
+                scene_info.hard_bricks.append(brick.pos)
+            else:
+                scene_info.bricks.append(brick.pos)
 
         return scene_info
