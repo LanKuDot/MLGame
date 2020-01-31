@@ -14,7 +14,7 @@ class Arkanoid:
     The game for the machine learning mode
     """
 
-    def __init__(self, fps: int, level: int, \
+    def __init__(self, fps: int, difficulty, level: int, \
         record_progress: bool, one_shot_mode: bool):
         self._ml_name = "ml"
         self._ml_execute_time = 1.0 / fps
@@ -30,7 +30,7 @@ class Arkanoid:
         self._one_shot_mode = one_shot_mode
 
         self._init_display()
-        self._scene = Scene(level)
+        self._scene = Scene(difficulty, level)
 
     def _init_display(self):
         pygame.display.init()

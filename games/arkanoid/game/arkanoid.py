@@ -7,11 +7,11 @@ from .gamecore import GameStatus, PlatformAction, Scene
 from ..main import get_log_dir
 
 class Arkanoid:
-    def __init__(self, fps: int, level: int, record_progress, one_shot_mode):
+    def __init__(self, fps: int, difficulty, level: int, record_progress, one_shot_mode):
         self._init_pygame()
 
         self._fps = fps
-        self._scene = Scene(level)
+        self._scene = Scene(difficulty, level)
         self._keyboard = KeyCommandMap({
                 pygame.K_LEFT:  PlatformAction.MOVE_LEFT,
                 pygame.K_RIGHT: PlatformAction.MOVE_RIGHT,

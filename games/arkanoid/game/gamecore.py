@@ -4,6 +4,10 @@ from mlgame.utils.enum import StringEnum
 
 from .gameobject import Ball, Platform, Brick, HardBrick, PlatformAction
 
+class Difficulty(StringEnum):
+    EASY = "EASY"
+    NORMAL = "NORMAL"
+
 class GameStatus(StringEnum):
     GAME_ALIVE = "GAME_ALIVE"
     GAME_OVER = "GAME_OVER"
@@ -53,8 +57,9 @@ class SceneInfo:
 class Scene:
     area_rect = pygame.Rect(0, 0, 200, 500)
 
-    def __init__(self, level):
+    def __init__(self, difficulty, level):
         self._level = level
+        self._difficulty = difficulty
         self._frame_count = 0
         self._game_status = GameStatus.GAME_ALIVE
 
@@ -66,7 +71,8 @@ class Scene:
 
     def _create_moves(self):
         self._group_move = pygame.sprite.RenderPlain()
-        self._ball = Ball(350, Scene.area_rect, self._group_move)
+        enable_slide_ball = False if self._difficulty == Difficulty.EASY else True
+        self._ball = Ball(350, Scene.area_rect, enable_slide_ball, self._group_move)
         self._platform = Platform((75, 400), Scene.area_rect, self._group_move)
 
     def _create_bricks(self, level: int):

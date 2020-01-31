@@ -90,12 +90,13 @@ class Platform(Sprite):
         self.rect.move_ip(*self._speed)
 
 class Ball(Sprite):
-    def __init__(self, init_pos_y, play_area_rect: Rect, *groups):
+    def __init__(self, init_pos_y, play_area_rect: Rect, enable_slide_ball: bool, *groups):
         super().__init__(*groups)
 
         self._play_area_rect = play_area_rect
         self._speed = self._get_random_init_speed()
         self._init_pos_y = init_pos_y
+        self._do_slide_ball = enable_slide_ball
 
         self.rect = Rect(*self._get_random_init_pos(), 5, 5)
         self.image = self._create_surface()
@@ -127,7 +128,7 @@ class Ball(Sprite):
             rect_after_bounce, speed_after_bounce = physics.bounce_off( \
                 self.rect, self._speed, platform.rect, platform._speed)
             # Check slicing ball when the ball goes up after bouncing (not game over)
-            if speed_after_bounce[1] < 0:
+            if self._do_slide_ball and speed_after_bounce[1] < 0:
                 speed_after_bounce[0] = self._slice_ball(self._speed[0], platform._speed[0])
 
             self.rect = rect_after_bounce
