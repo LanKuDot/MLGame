@@ -3,6 +3,7 @@ from enum import Enum, auto
 import os.path
 
 from ._version import version
+from mlgame.exception import GameConfigError
 
 def get_command_parser():
     """
@@ -55,7 +56,12 @@ def get_game_config():
     Parse the command line and generate the GameConfig from the parsed result
     """
     parser = get_command_parser()
-    return GameConfig(parser.parse_args())
+    try:
+        game_config = GameConfig(parser.parse_args())
+    except Exception as e:
+        raise GameConfigError(str(e))
+    else:
+        return game_config
 
 class GameMode(Enum):
     """

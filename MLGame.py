@@ -1,4 +1,5 @@
 from mlgame import gameconfig
+from mlgame.exception import GameConfigError
 import importlib
 
 if __name__ == "__main__":
@@ -10,6 +11,8 @@ if __name__ == "__main__":
             game_execution = game.manual_mode
         elif config.game_mode == gameconfig.GameMode.ML:
             game_execution = game.ml_mode
+    except GameConfigError as e:
+        print("Error: " + str(e))
     except ModuleNotFoundError:
         print("Error: Game \"{}\" is not found.".format(config.game_name))
     except AttributeError as e:
