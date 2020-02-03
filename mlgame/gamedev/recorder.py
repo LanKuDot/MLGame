@@ -21,7 +21,7 @@ class Recorder:
         if not os.path.exists(self.__saving_directory):
             os.mkdir(self.__saving_directory)
 
-    def flush_to_file(self, filename = None):
+    def flush_to_file(self, filename = ""):
         """
         Flush the stored objects to the file
 
@@ -30,7 +30,10 @@ class Recorder:
         @param filename Specify the name of the file to be generated.
                If it is not specified, "YYYY-MM-DD_hh-mm-ss.pickle" is used.
         """
-        if not filename:
+        if not isinstance(filename, str):
+            raise TypeError("'filename' should be the type of 'str'")
+
+        if filename == "":
             filename = time.strftime("%Y-%m-%d_%H-%M-%S") + ".pickle"
 
         filepath = self.__saving_directory + "/" + filename
