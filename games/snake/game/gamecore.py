@@ -7,13 +7,13 @@ import random
 from pygame import Rect
 from pygame.sprite import Group
 
-from mlgame.utils.enum import StringEnum
+from mlgame.utils.enum import StringEnum, auto
 
 from .gameobject import Snake, Food
 
 class GameStatus(StringEnum):
-    GAME_OVER = "GAME_OVER"
-    GAME_ALIVE = "GAME_ALIVE"
+    GAME_OVER = auto()
+    GAME_ALIVE = auto()
 
 class SceneInfo:
     """

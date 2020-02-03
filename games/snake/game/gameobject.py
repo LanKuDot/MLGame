@@ -6,7 +6,7 @@ from pygame import Rect, Surface, draw
 from pygame.sprite import Sprite
 from collections import deque
 
-from mlgame.utils.enum import StringEnum
+from mlgame.utils.enum import StringEnum, auto
 
 class Food(Sprite):
     def __init__(self):
@@ -53,11 +53,11 @@ class SnakeBody(Sprite):
         self.rect.topleft = value
 
 class SnakeAction(StringEnum):
-    UP = "UP"
-    DOWN = "DOWN"
-    LEFT = "LEFT"
-    RIGHT = "RIGHT"
-    NONE = "NONE"
+    UP = auto()
+    DOWN = auto()
+    LEFT = auto()
+    RIGHT = auto()
+    NONE = auto()
 
 class Snake:
     def __init__(self):

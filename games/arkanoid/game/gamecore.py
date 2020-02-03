@@ -1,17 +1,17 @@
 import pygame
 
-from mlgame.utils.enum import StringEnum
+from mlgame.utils.enum import StringEnum, auto
 
 from .gameobject import Ball, Platform, Brick, HardBrick, PlatformAction
 
 class Difficulty(StringEnum):
-    EASY = "EASY"
-    NORMAL = "NORMAL"
+    EASY = auto()
+    NORMAL = auto()
 
 class GameStatus(StringEnum):
-    GAME_ALIVE = "GAME_ALIVE"
-    GAME_OVER = "GAME_OVER"
-    GAME_PASS = "GAME_PASS"
+    GAME_ALIVE = auto()
+    GAME_OVER = auto()
+    GAME_PASS = auto()
 
 class SceneInfo:
     """

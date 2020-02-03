@@ -4,7 +4,7 @@ from pygame.sprite import Sprite
 import random
 
 from mlgame.gamedev import physics
-from mlgame.utils.enum import StringEnum
+from mlgame.utils.enum import StringEnum, auto
 
 class Brick(Sprite):
     def __init__(self, init_pos, *groups):
@@ -49,11 +49,11 @@ class HardBrick(Brick):
         return self.hp
 
 class PlatformAction(StringEnum):
-    SERVE_TO_LEFT = "SERVE_TO_LEFT"
-    SERVE_TO_RIGHT = "SERVE_TO_RIGHT"
-    MOVE_LEFT = "LEFT"
-    MOVE_RIGHT = "RIGHT"
-    NONE = "NONE"
+    SERVE_TO_LEFT = auto()
+    SERVE_TO_RIGHT = auto()
+    MOVE_LEFT = auto()
+    MOVE_RIGHT = auto()
+    NONE = auto()
 
 class Platform(Sprite):
     def __init__(self, init_pos, play_area_rect: Rect, *groups):

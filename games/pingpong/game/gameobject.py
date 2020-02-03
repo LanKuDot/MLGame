@@ -1,14 +1,14 @@
 from mlgame.gamedev import physics
-from mlgame.utils.enum import StringEnum
+from mlgame.utils.enum import StringEnum, auto
 
 from pygame.math import Vector2
 import pygame
 import random
 
 class PlatformAction(StringEnum):
-    MOVE_LEFT = "LEFT"
-    MOVE_RIGHT = "RIGHT"
-    NONE = "NONE"
+    MOVE_LEFT = auto()
+    MOVE_RIGHT = auto()
+    NONE = auto()
 
 class Platform(pygame.sprite.Sprite):
     def __init__(self, init_pos, play_area_rect: pygame.Rect, \

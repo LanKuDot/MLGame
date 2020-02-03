@@ -1,5 +1,5 @@
 import pygame
-from mlgame.utils.enum import StringEnum
+from mlgame.utils.enum import StringEnum, auto
 
 from .gameobject import (
     Ball, Platform, PlatformAction
@@ -9,9 +9,9 @@ color_1P = (219, 70, 92)    # Red
 color_2P = (84, 149, 255)    # Blue
 
 class GameStatus(StringEnum):
-    GAME_1P_WIN = "GAME_1P_WIN"
-    GAME_2P_WIN = "GAME_2P_WIN"
-    GAME_ALIVE = "GAME_ALIVE"
+    GAME_1P_WIN = auto()
+    GAME_2P_WIN = auto()
+    GAME_ALIVE = auto()
 
 class SceneInfo:
     """
