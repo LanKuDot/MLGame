@@ -62,6 +62,7 @@ class Scene:
         self._difficulty = difficulty
         self._frame_count = 0
         self._game_status = GameStatus.GAME_ALIVE
+        self._ball_served = False
 
         self._create_scene()
 
@@ -72,7 +73,7 @@ class Scene:
     def _create_moves(self):
         self._group_move = pygame.sprite.RenderPlain()
         enable_slide_ball = False if self._difficulty == Difficulty.EASY else True
-        self._ball = Ball(350, Scene.area_rect, enable_slide_ball, self._group_move)
+        self._ball = Ball((93, 395), Scene.area_rect, enable_slide_ball, self._group_move)
         self._platform = Platform((75, 400), Scene.area_rect, self._group_move)
 
     def _create_bricks(self, level: int):
@@ -103,6 +104,7 @@ class Scene:
     def reset(self):
         self._frame_count = 0
         self._game_status = GameStatus.GAME_ALIVE
+        self._ball_served = False
         self._ball.reset()
         self._platform.reset()
         self._group_brick.empty()
@@ -113,14 +115,14 @@ class Scene:
             if isinstance(brick, HardBrick):
                 brick.reset()
 
-    def update(self, move_action: PlatformAction) -> GameStatus:
+    def update(self, platform_action: PlatformAction) -> GameStatus:
         self._frame_count += 1
+        self._platform.move(platform_action)
 
-        self._ball.move()
-        self._platform.move(move_action)
-
-        self._ball.check_hit_brick(self._group_brick)
-        self._ball.check_bouncing(self._platform)
+        if not self._ball_served:
+            self._wait_for_serving_ball(platform_action)
+        else:
+            self._ball_moving()
 
         if len(self._group_brick) == 0:
             self._game_status = GameStatus.GAME_PASS
@@ -130,6 +132,19 @@ class Scene:
             self._game_status = GameStatus.GAME_ALIVE
 
         return self._game_status
+
+    def _wait_for_serving_ball(self, platform_action: PlatformAction):
+        self._ball.stick_on_platform(self._platform.rect.centerx)
+
+        if platform_action in [PlatformAction.SERVE_TO_LEFT, PlatformAction.SERVE_TO_RIGHT]:
+            self._ball.serve(platform_action)
+            self._ball_served = True
+
+    def _ball_moving(self):
+        self._ball.move()
+
+        self._ball.check_hit_brick(self._group_brick)
+        self._ball.check_bouncing(self._platform)
 
     def draw_gameobjects(self, surface):
         self._group_brick.draw(surface)

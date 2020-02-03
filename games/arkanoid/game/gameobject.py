@@ -49,6 +49,8 @@ class HardBrick(Brick):
         return self.hp
 
 class PlatformAction(StringEnum):
+    SERVE_TO_LEFT = "SERVE_TO_LEFT"
+    SERVE_TO_RIGHT = "SERVE_TO_RIGHT"
     MOVE_LEFT = "LEFT"
     MOVE_RIGHT = "RIGHT"
     NONE = "NONE"
@@ -90,15 +92,15 @@ class Platform(Sprite):
         self.rect.move_ip(*self._speed)
 
 class Ball(Sprite):
-    def __init__(self, init_pos_y, play_area_rect: Rect, enable_slide_ball: bool, *groups):
+    def __init__(self, init_pos, play_area_rect: Rect, enable_slide_ball: bool, *groups):
         super().__init__(*groups)
 
         self._play_area_rect = play_area_rect
-        self._speed = self._get_random_init_speed()
-        self._init_pos_y = init_pos_y
         self._do_slide_ball = enable_slide_ball
+        self._init_pos = init_pos
+        self._speed = [0, 0]
 
-        self.rect = Rect(*self._get_random_init_pos(), 5, 5)
+        self.rect = Rect(*self._init_pos, 5, 5)
         self.image = self._create_surface()
 
     def _create_surface(self):
@@ -106,19 +108,22 @@ class Ball(Sprite):
         surface.fill((44, 185, 214)) # Blue
         return surface
 
-    def _get_random_init_pos(self):
-        return (random.randrange(20, self._play_area_rect.width - 20, 20), self._init_pos_y)
-
-    def _get_random_init_speed(self):
-        return [random.choice((7, -7)), -7]
-
     @property
     def pos(self):
         return self.rect.topleft
 
     def reset(self):
-        self.rect.topleft = self._get_random_init_pos()
-        self._speed = self._get_random_init_speed()
+        self.rect.topleft = self._init_pos
+        self._speed = [0, 0]
+
+    def stick_on_platform(self, platform_centerx):
+        self.rect.centerx = platform_centerx
+
+    def serve(self, platform_action: PlatformAction):
+        if platform_action == PlatformAction.SERVE_TO_LEFT:
+            self._speed = [-7, -7]
+        elif platform_action == PlatformAction.SERVE_TO_RIGHT:
+            self._speed = [7, -7]
 
     def move(self):
         self.rect.move_ip(self._speed)
