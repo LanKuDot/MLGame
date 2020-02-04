@@ -21,20 +21,20 @@ class Recorder:
         if not os.path.exists(self.__saving_directory):
             os.mkdir(self.__saving_directory)
 
-    def flush_to_file(self, filename = ""):
+    def flush_to_file(self, filename_prefix = ""):
         """
         Flush the stored objects to the file
 
-        The store objects will be cleared.
-
-        @param filename Specify the name of the file to be generated.
-               If it is not specified, "YYYY-MM-DD_hh-mm-ss.pickle" is used.
+        @param filename_prefix Specify the prefix of the filename to be generated.
+               The filename will be "<prefix>_YYYY-MM-DD_hh-mm-ss.pickle".
         """
-        if not isinstance(filename, str):
-            raise TypeError("'filename' should be the type of 'str'")
+        if not isinstance(filename_prefix, str):
+            raise TypeError("'filename_prefix' should be the type of 'str'")
 
-        if filename == "":
-            filename = time.strftime("%Y-%m-%d_%H-%M-%S") + ".pickle"
+        filename = time.strftime("%Y-%m-%d_%H-%M-%S") + ".pickle"
+
+        if filename_prefix != "":
+            filename = filename_prefix + "_" + filename
 
         filepath = self.__saving_directory + "/" + filename
         with open(filepath, "wb") as f:
