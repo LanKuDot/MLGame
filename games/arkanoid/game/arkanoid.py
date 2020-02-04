@@ -1,10 +1,9 @@
 import pygame
 
 from mlgame.gamedev.generic import quit_or_esc, KeyCommandMap
-from mlgame.gamedev.recorder import get_record_handler
 
 from .gamecore import GameStatus, PlatformAction, Scene
-from ..main import get_log_dir
+from .record import get_record_handler
 
 class Arkanoid:
     def __init__(self, fps: int, difficulty, level: int, record_progress, one_shot_mode):
@@ -19,9 +18,8 @@ class Arkanoid:
                 pygame.K_RIGHT: PlatformAction.MOVE_RIGHT,
             }, PlatformAction.NONE)
 
-        self._record_handler = get_record_handler(record_progress, {
-                "status": (GameStatus.GAME_OVER, GameStatus.GAME_PASS)
-            }, get_log_dir())
+        self._record_handler = get_record_handler(record_progress, \
+            "manual_" + str(difficulty) + "_" + str(level))
         self._one_shot_mode = one_shot_mode
 
     def _init_pygame(self):
@@ -55,5 +53,5 @@ class Arkanoid:
     def _record_scene_info(self, command):
         scene_info = self._scene.get_scene_info()
         if command:
-            scene_info.command = command.value
+            scene_info.command = command
         self._record_handler(scene_info)

@@ -1,11 +1,10 @@
 import pygame
 
 from mlgame.gamedev.generic import quit_or_esc, KeyCommandMap
-from mlgame.gamedev.recorder import get_record_handler
 
 from . import gamecore
 from .gamecore import GameStatus, PlatformAction, Scene
-from ..main import get_log_dir
+from .record import get_record_handler
 
 class PingPong:
     def __init__(self, fps: int, game_over_score: int, record_progress: bool):
@@ -24,9 +23,7 @@ class PingPong:
                 pygame.K_d: PlatformAction.MOVE_RIGHT,
             }, PlatformAction.NONE)
 
-        self._record_handler = get_record_handler(record_progress, {
-                "status": (GameStatus.GAME_1P_WIN, GameStatus.GAME_2P_WIN)
-            }, get_log_dir())
+        self._record_handler = get_record_handler(record_progress, "manual")
 
     def _init_pygame(self):
         pygame.display.init()
@@ -47,8 +44,8 @@ class PingPong:
             command_2P = self._keyboard_action_2P.get_command()
 
             scene_info = self._scene.get_scene_info()
-            scene_info.command_1P = command_1P.value
-            scene_info.command_2P = command_2P.value
+            scene_info.command_1P = command_1P
+            scene_info.command_2P = command_2P
             self._record_handler(scene_info)
 
             game_status = self._scene.update(command_1P, command_2P)

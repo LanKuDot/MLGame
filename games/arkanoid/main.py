@@ -81,10 +81,6 @@ def _get_difficulty_and_level(game_params):
 
     return difficulty, level
 
-def get_log_dir():
-    import os.path
-    return os.path.join(os.path.dirname(__file__), "log")
-
 def usage():
     return \
         "Usage: python MLGame.py arkanoid <difficulty> <level>\n" + \

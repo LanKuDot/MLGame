@@ -3,14 +3,13 @@ import time
 import os.path
 
 from mlgame.gamedev.generic import quit_or_esc
-from mlgame.gamedev.recorder import get_record_handler
 from mlgame.communication import game as comm
 from mlgame.communication.game import CommandReceiver
 
 from . import gamecore
 from .gamecore import GameStatus, PlatformAction, Scene
+from .record import get_record_handler
 from ..communication import GameCommand
-from ..main import get_log_dir
 
 class PingPong:
     """
@@ -35,9 +34,7 @@ class PingPong:
                 "command": PlatformAction
             }, GameCommand(-1, PlatformAction.NONE))
 
-        self._record_handler = get_record_handler(record_progress, {
-                "status": (GameStatus.GAME_1P_WIN, GameStatus.GAME_2P_WIN)
-            }, get_log_dir())
+        self._record_handler = get_record_handler(record_progress, "ml")
 
         self._init_display()
         self._scene = Scene()
@@ -69,8 +66,8 @@ class PingPong:
             # Send the scene info to the ml processes and wait for commands
             command_1P, command_2P = self._make_ml_execute(scene_info)
 
-            scene_info.command_1P = command_1P.value
-            scene_info.command_2P = command_2P.value
+            scene_info.command_1P = command_1P
+            scene_info.command_2P = command_2P
             self._record_handler(scene_info)
 
             # Update the scene

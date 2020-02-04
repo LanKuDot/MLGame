@@ -5,11 +5,10 @@ The game execution for the manual mode
 import pygame
 
 from mlgame.gamedev.generic import quit_or_esc, KeyCommandMap
-from mlgame.gamedev.recorder import get_record_handler
 
 from .gamecore import Scene, GameStatus
 from .gameobject import SnakeAction
-from ..main import get_log_dir
+from .record import get_record_handler
 
 class Snake:
     """
@@ -30,9 +29,7 @@ class Snake:
         }, SnakeAction.NONE)
 
         self._one_shot_mode = one_shot_mode
-        self._record_handler = get_record_handler(record_progress, {
-            "status": (GameStatus.GAME_OVER, )
-        }, get_log_dir())
+        self._record_handler = get_record_handler(record_progress, "manual")
 
     def _init_pygame(self):
         """

@@ -6,14 +6,13 @@ import pygame
 import time
 
 from mlgame.gamedev.generic import quit_or_esc
-from mlgame.gamedev.recorder import get_record_handler
 from mlgame.communication import game as comm
 from mlgame.communication.game import CommandReceiver
 
 from .gamecore import Scene, GameStatus
 from .gameobject import SnakeAction
+from .record import get_record_handler
 from ..communication import GameCommand
-from ..main import get_log_dir
 
 class Snake:
     """
@@ -34,9 +33,7 @@ class Snake:
             }, GameCommand(-1, SnakeAction.NONE))
 
         self._one_shot_mode = one_shot_mode
-        self._record_handler = get_record_handler(record_progress, {
-            "status": (GameStatus.GAME_OVER, )
-        }, get_log_dir())
+        self._record_handler = get_record_handler(record_progress, "ml")
 
     def _init_pygame(self):
         """

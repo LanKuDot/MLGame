@@ -71,7 +71,3 @@ def _get_game_over_score(game_params, one_shot_mode):
         game_over_score = 3
 
     return game_over_score
-
-def get_log_dir():
-    import os.path
-    return os.path.join(os.path.dirname(__file__), "log")

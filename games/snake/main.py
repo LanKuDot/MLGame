@@ -22,6 +22,3 @@ def manual_mode(config):
 
     game = Snake(config.fps, config.one_shot_mode, config.record_progress)
     game.game_loop()
-
-def get_log_dir():
-    return os.path.join(os.path.dirname(__file__), "log")
