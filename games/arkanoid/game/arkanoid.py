@@ -5,11 +5,37 @@ from mlgame.gamedev.generic import quit_or_esc, KeyCommandMap
 from .gamecore import GameStatus, PlatformAction, Scene
 from .record import get_record_handler
 
+class Screen:
+    """
+    The class for drawing the scene to the screen
+    """
+
+    def __init__(self, size, func_draw_gameobjects):
+        """
+        Constructor
+
+        @param size The (width, height) tuple to define the size of the screen
+        @param func_draw_gameobject The function for drawing gameobjects to the screen.
+               The function should have 1 argument for passing the `Surface` object.
+        """
+        pygame.display.init()
+        pygame.display.set_caption("Arkanoid")
+        self._surface = pygame.display.set_mode(size)
+        self._func_draw_gameobject = func_draw_gameobjects
+
+    def update(self):
+        """
+        Draw the scene to the screen
+        """
+        self._surface.fill((0, 0, 0))
+        self._func_draw_gameobject(self._surface)
+        pygame.display.flip()
+
 class Arkanoid:
     def __init__(self, fps: int, difficulty, level: int, record_progress, one_shot_mode):
-        self._init_pygame()
-
         self._fps = fps
+        self._clock = pygame.time.Clock()
+
         self._scene = Scene(difficulty, level)
         self._keyboard = KeyCommandMap({
                 pygame.K_a:     PlatformAction.SERVE_TO_LEFT,
@@ -22,11 +48,7 @@ class Arkanoid:
             "manual_" + str(difficulty) + "_" + str(level))
         self._one_shot_mode = one_shot_mode
 
-    def _init_pygame(self):
-        pygame.display.init()
-        pygame.display.set_caption("Arkanoid")
-        self._screen = pygame.display.set_mode(Scene.area_rect.size)
-        self._clock = pygame.time.Clock()
+        self._screen = Screen(Scene.area_rect.size, self._scene.draw_gameobjects)
 
     def game_loop(self):
         while not quit_or_esc():
@@ -44,10 +66,7 @@ class Arkanoid:
 
                 self._scene.reset()
 
-            self._screen.fill((0, 0, 0))
-            self._scene.draw_gameobjects(self._screen)
-            pygame.display.flip()
-
+            self._screen.update()
             self._clock.tick(self._fps)
 
     def _record_scene_info(self, command):

@@ -4,6 +4,7 @@ from mlgame.gamedev.generic import quit_or_esc
 from mlgame.communication import game as comm
 from mlgame.communication.game import CommandReceiver
 
+from .arkanoid import Screen
 from .gamecore import GameStatus, PlatformAction, Scene
 from .record import get_record_handler
 from ..communication import GameCommand
@@ -27,13 +28,8 @@ class Arkanoid:
             "ml_" + str(difficulty) + "_" + str(level))
         self._one_shot_mode = one_shot_mode
 
-        self._init_display()
         self._scene = Scene(difficulty, level)
-
-    def _init_display(self):
-        pygame.display.init()
-        pygame.display.set_caption("Arkanoid")
-        self._screen = pygame.display.set_mode(Scene.area_rect.size)
+        self._screen = Screen(Scene.area_rect.size, self._scene.draw_gameobjects)
 
     def game_loop(self):
         """
@@ -61,7 +57,7 @@ class Arkanoid:
 
             game_status = self._scene.update(command)
 
-            self._draw_scene()
+            self._screen.update()
 
             if game_status == GameStatus.GAME_OVER or \
                game_status == GameStatus.GAME_PASS:
@@ -93,11 +89,3 @@ class Arkanoid:
             print("Delayed {} frame(s)".format(self._frame_delayed))
 
         return game_cmd.command
-
-    def _draw_scene(self):
-        """
-        Draw the scene to the display
-        """
-        self._screen.fill((0, 0, 0))
-        self._scene.draw_gameobjects(self._screen)
-        pygame.display.flip()
