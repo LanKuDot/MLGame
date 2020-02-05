@@ -1,8 +1,11 @@
 import pygame
+import random
 
 from mlgame.utils.enum import StringEnum, auto
 
-from .gameobject import Ball, Platform, Brick, HardBrick, PlatformAction
+from .gameobject import ( \
+    Ball, Platform, Brick, HardBrick, PlatformAction, SERVE_BALL_ACTIONS \
+)
 
 class Difficulty(StringEnum):
     EASY = auto()
@@ -120,6 +123,11 @@ class Scene:
         self._platform.move(platform_action)
 
         if not self._ball_served:
+            # Force to serve the ball after 150 frames
+            if self._frame_count >= 150 and \
+               platform_action not in SERVE_BALL_ACTIONS:
+                platform_action = random.choice(SERVE_BALL_ACTIONS)
+
             self._wait_for_serving_ball(platform_action)
         else:
             self._ball_moving()
@@ -136,7 +144,7 @@ class Scene:
     def _wait_for_serving_ball(self, platform_action: PlatformAction):
         self._ball.stick_on_platform(self._platform.rect.centerx)
 
-        if platform_action in [PlatformAction.SERVE_TO_LEFT, PlatformAction.SERVE_TO_RIGHT]:
+        if platform_action in SERVE_BALL_ACTIONS:
             self._ball.serve(platform_action)
             self._ball_served = True
 

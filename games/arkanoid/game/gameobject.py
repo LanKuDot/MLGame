@@ -55,6 +55,8 @@ class PlatformAction(StringEnum):
     MOVE_RIGHT = auto()
     NONE = auto()
 
+SERVE_BALL_ACTIONS = (PlatformAction.SERVE_TO_LEFT, PlatformAction.SERVE_TO_RIGHT)
+
 class Platform(Sprite):
     def __init__(self, init_pos, play_area_rect: Rect, *groups):
         super().__init__(*groups)
