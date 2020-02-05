@@ -23,12 +23,24 @@ class Screen:
         self._surface = pygame.display.set_mode(size)
         self._func_draw_gameobject = func_draw_gameobjects
 
-    def update(self):
+        pygame.font.init()
+        self._font = pygame.font.Font(None, 22)
+        self._font_pos = (1, self._surface.get_height() - 21)
+
+    def update(self, catch_ball_times):
         """
         Draw the scene to the screen
+
+        @param catch_ball_times The number of times of catching ball
         """
         self._surface.fill((0, 0, 0))
         self._func_draw_gameobject(self._surface)
+
+        font_surface = self._font.render( \
+            "Catching ball: {}".format(catch_ball_times), \
+            True, (255, 255, 255))
+        self._surface.blit(font_surface, self._font_pos)
+
         pygame.display.flip()
 
 class Arkanoid:
@@ -66,7 +78,7 @@ class Arkanoid:
 
                 self._scene.reset()
 
-            self._screen.update()
+            self._screen.update(self._scene.catch_ball_times)
             self._clock.tick(self._fps)
 
     def _record_scene_info(self, command):

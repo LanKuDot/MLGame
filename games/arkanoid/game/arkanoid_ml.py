@@ -57,7 +57,7 @@ class Arkanoid:
 
             game_status = self._scene.update(command)
 
-            self._screen.update()
+            self._screen.update(self._scene.catch_ball_times)
 
             if game_status == GameStatus.GAME_OVER or \
                game_status == GameStatus.GAME_PASS:

@@ -102,6 +102,8 @@ class Ball(Sprite):
         self._init_pos = init_pos
         self._speed = [0, 0]
 
+        self.hit_platform_times = 0
+
         self.rect = Rect(*self._init_pos, 5, 5)
         self.image = self._create_surface()
 
@@ -115,6 +117,7 @@ class Ball(Sprite):
         return self.rect.topleft
 
     def reset(self):
+        self.hit_platform_times = 0
         self.rect.topleft = self._init_pos
         self._speed = [0, 0]
 
@@ -132,6 +135,8 @@ class Ball(Sprite):
 
     def check_bouncing(self, platform: Platform):
         if physics.collide_or_tangent(self, platform):
+            self.hit_platform_times += 1
+
             rect_after_bounce, speed_after_bounce = physics.bounce_off( \
                 self.rect, self._speed, platform.rect, platform._speed)
             # Check slicing ball when the ball goes up after bouncing (not game over)

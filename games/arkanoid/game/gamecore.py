@@ -174,3 +174,7 @@ class Scene:
                 scene_info.bricks.append(brick.pos)
 
         return scene_info
+
+    @property
+    def catch_ball_times(self) -> int:
+        return self._ball.hit_platform_times
