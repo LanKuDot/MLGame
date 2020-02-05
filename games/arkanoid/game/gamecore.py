@@ -95,10 +95,10 @@ class Scene:
             offset_x, offset_y, _ = get_coordinate_and_type(input_file.readline())
             for input_pos in input_file:
                 pos_x, pos_y, type = get_coordinate_and_type(input_pos.rstrip("\n"))
-                if type == 0:
-                    BrickType = Brick
-                else:
-                    BrickType = HardBrick
+                BrickType = {
+                    0: Brick,
+                    1: HardBrick,
+                }.get(type, Brick)
 
                 brick = BrickType((pos_x + offset_x, pos_y + offset_y), \
                     self._group_brick)
