@@ -11,16 +11,16 @@ class PlatformAction(StringEnum):
     NONE = auto()
 
 class Platform(pygame.sprite.Sprite):
-    def __init__(self, init_pos, play_area_rect: pygame.Rect, \
+    def __init__(self, init_pos: tuple, play_area_rect: pygame.Rect, \
             side, color, *groups):
         super().__init__(*groups)
 
         self._play_area_rect = play_area_rect
         self._shift_speed = 5
         self._speed = [0, 0]
-        self._init_pos = pygame.Rect(*init_pos, 40, 30)
+        self._init_pos = init_pos
 
-        self.rect = self._init_pos.copy()
+        self.rect = pygame.Rect(*init_pos, 40, 30)
         self.image = self._create_surface(side, color)
 
     def _create_surface(self, side, color):
@@ -47,7 +47,7 @@ class Platform(pygame.sprite.Sprite):
         return self.rect.topleft
 
     def reset(self):
-        self.rect = self._init_pos.copy()
+        self.rect.x, self.rect.y = self._init_pos
 
     def move(self, move_action: PlatformAction):
         if move_action == PlatformAction.MOVE_LEFT and \
