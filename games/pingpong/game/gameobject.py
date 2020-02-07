@@ -85,6 +85,10 @@ class Ball(pygame.sprite.Sprite):
     def pos(self):
         return self.rect.topleft
 
+    @property
+    def speed(self):
+        return abs(self._speed[0])
+
     def reset(self):
         """
         Reset the ball status and serve the ball

@@ -6,11 +6,42 @@ from . import gamecore
 from .gamecore import GameStatus, PlatformAction, Scene
 from .record import get_record_handler
 
+class Screen:
+    def __init__(self, size, func_draw_gameobjects):
+        pygame.display.init()
+        pygame.display.set_caption("PingPong")
+        self._surface = pygame.display.set_mode(size)
+
+        self._func_draw_gameobjects = func_draw_gameobjects
+
+        pygame.font.init()
+        self._font = pygame.font.Font(None, 22)
+        self._font_pos_1P = (1, self._surface.get_height() - 21)
+        self._font_pos_2P = (1, 4)
+        self._font_pos_speed = (self._surface.get_width() - 75, \
+            self._surface.get_height() - 21)
+
+    def update(self, score, ball_speed):
+        self._surface.fill((0, 0, 0))
+        self._func_draw_gameobjects(self._surface)
+
+        font_surface_1P = self._font.render( \
+            "1P score: {}".format(score[0]), True, gamecore.color_1P)
+        font_surface_2P = self._font.render( \
+            "2P score: {}".format(score[1]), True, gamecore.color_2P)
+        font_surface_speed = self._font.render( \
+            "Speed: {}".format(ball_speed), True, (255, 255, 255))
+        self._surface.blit(font_surface_1P, self._font_pos_1P)
+        self._surface.blit(font_surface_2P, self._font_pos_2P)
+        self._surface.blit(font_surface_speed, self._font_pos_speed)
+
+        pygame.display.flip()
+
 class PingPong:
     def __init__(self, fps: int, game_over_score: int, record_progress: bool):
-        self._init_pygame()
-
         self._fps = fps
+        self._clock = pygame.time.Clock()
+
         self._score = [0, 0]    # 1P, 2P
         self._game_over_score = game_over_score
         self._scene = Scene()
@@ -24,19 +55,7 @@ class PingPong:
             }, PlatformAction.NONE)
 
         self._record_handler = get_record_handler(record_progress, "manual")
-
-    def _init_pygame(self):
-        pygame.display.init()
-        pygame.display.set_caption("PingPong")
-        self._screen = pygame.display.set_mode(Scene.area_rect.size)
-        self._clock = pygame.time.Clock()
-
-        pygame.font.init()
-        self._font = pygame.font.Font(None, 22)
-        self._font_pos_1P = (1, self._screen.get_height() - 21)
-        self._font_pos_2P = (1, 4)
-        self._font_pos_speed = (self._screen.get_width() - 75, \
-            self._screen.get_height() - 21)
+        self._screen = Screen(Scene.area_rect.size, self._scene.draw_gameobjects)
 
     def game_loop(self):
         while not quit_or_esc():
@@ -59,27 +78,10 @@ class PingPong:
 
                 self._scene.reset()
 
-            self._draw_scene()
+            self._screen.update(self._score, self._scene._ball.speed)
             self._clock.tick(self._fps)
 
         self._print_result()
-
-    def _draw_scene(self):
-        self._screen.fill((0, 0, 0))
-        self._scene.draw_gameobjects(self._screen)
-
-        # Game status
-        font_1P_surface = self._font.render( \
-            "1P score: {}".format(self._score[0]), True, gamecore.color_1P)
-        font_2P_surface = self._font.render( \
-            "2P score: {}".format(self._score[1]), True, gamecore.color_2P)
-        font_speed_surface = self._font.render( \
-            "Speed: {}".format(abs(self._scene._ball._speed[0])), True, (255, 255, 255))
-        self._screen.blit(font_1P_surface, self._font_pos_1P)
-        self._screen.blit(font_2P_surface, self._font_pos_2P)
-        self._screen.blit(font_speed_surface, self._font_pos_speed)
-
-        pygame.display.flip()
 
     def _game_over(self, status):
         if status == GameStatus.GAME_1P_WIN:
