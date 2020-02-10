@@ -66,12 +66,13 @@ class Platform(pygame.sprite.Sprite):
         self.rect.move_ip(*self._speed)
 
 class Ball(pygame.sprite.Sprite):
-    def __init__(self, play_area_rect: pygame.Rect, *groups):
+    def __init__(self, play_area_rect: pygame.Rect, enable_slide_ball: bool, *groups):
         super().__init__(*groups)
 
         self._play_area_rect = play_area_rect
         self._speed = [0, 0]
         self._size = [5, 5]
+        self._do_slide_ball = enable_slide_ball
 
         self.serve_from_1P = True
 
@@ -166,8 +167,37 @@ class Ball(pygame.sprite.Sprite):
                 target_platform = platform_2p
 
         if target_platform:
-            physics.bounce_off_ip(self.rect, self._speed, \
+            rect_after_bounce, speed_after_bounce = physics.bounce_off( \
+                self.rect, self._speed, \
                 target_platform.rect, target_platform._speed)
+
+            # Check slicing ball when the ball is caught by the platform
+            if self._do_slide_ball and \
+               ((target_platform is platform_1p and speed_after_bounce[1] < 0) or \
+                (target_platform is platform_2p and speed_after_bounce[1] > 0)):
+                speed_after_bounce[0] = self._slice_ball(self._speed, target_platform._speed[0])
+
+            self.rect = rect_after_bounce
+            self._speed = speed_after_bounce
+
+    def _slice_ball(self, ball_speed, platform_speed_x):
+        """
+        Check if the platform slices the ball, and modify the ball speed
+        """
+        # The y speed won't be changed after ball slicing.
+        # It's good for determining the x speed.
+        origin_ball_speed = abs(ball_speed[1])
+
+        # If the platform moves at the same direction as the ball moving,
+        # speed up the ball.
+        if platform_speed_x * ball_speed[0] > 0:
+            origin_ball_speed += 3
+        # If they move to the different direction,
+        # reverse the ball direction.
+        elif platform_speed_x * ball_speed[0] < 0:
+            origin_ball_speed *= -1
+
+        return origin_ball_speed if ball_speed[0] > 0 else -origin_ball_speed
 
     def _ball_routine_hit_platform(self, target_platform: Platform, \
         routine_for_left, routine_for_right) -> bool:

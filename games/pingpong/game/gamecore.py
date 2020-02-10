@@ -72,7 +72,7 @@ class Scene:
 
     def _create_scene(self):
         self._draw_group = pygame.sprite.RenderPlain()
-        self._ball = Ball(Scene.area_rect, self._draw_group)
+        self._ball = Ball(Scene.area_rect, True, self._draw_group)
         self._platform_1P = Platform((80, Scene.area_rect.height - 80), \
             Scene.area_rect, "1P", color_1P, self._draw_group)
         self._platform_2P = Platform((80, 50), \
