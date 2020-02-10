@@ -1,8 +1,9 @@
 import pygame
+import random
 from mlgame.utils.enum import StringEnum, auto
 
 from .gameobject import (
-    Ball, Platform, PlatformAction
+    Ball, Platform, PlatformAction, SERVE_BALL_ACTIONS
 )
 
 color_1P = (219, 70, 92)    # Red
@@ -65,9 +66,9 @@ class Scene:
     def __init__(self):
         self._frame_count = 0
         self._game_status = GameStatus.GAME_ALIVE
+        self._ball_served = False
 
         self._create_scene()
-        self.reset()
 
     def _create_scene(self):
         self._draw_group = pygame.sprite.RenderPlain()
@@ -80,6 +81,7 @@ class Scene:
     def reset(self):
         self._frame_count = 0
         self._game_status = GameStatus.GAME_ALIVE
+        self._ball_served = False
         self._ball.reset()
         self._platform_1P.reset()
         self._platform_2P.reset()
@@ -87,16 +89,13 @@ class Scene:
     def update(self, \
         move_action_1P: PlatformAction, move_action_2P: PlatformAction):
         self._frame_count += 1
-
-        # Speed up the ball every 200 frames
-        if self._frame_count % 200 == 0:
-            self._ball.speed_up()
-
-        self._ball.move()
         self._platform_1P.move(move_action_1P)
         self._platform_2P.move(move_action_2P)
 
-        self._ball.check_bouncing(self._platform_1P, self._platform_2P)
+        if not self._ball_served:
+            self._wait_for_serving_ball(move_action_1P, move_action_2P)
+        else:
+            self._ball_moving()
 
         if self._ball.rect.top > self._platform_1P.rect.bottom:
             self._game_status = GameStatus.GAME_2P_WIN
@@ -106,6 +105,28 @@ class Scene:
             self._game_status = GameStatus.GAME_ALIVE
 
         return self._game_status
+
+    def _wait_for_serving_ball(self, action_1P: PlatformAction, action_2P: PlatformAction):
+        self._ball.stick_on_platform(self._platform_1P.rect, self._platform_2P.rect)
+
+        target_action = action_1P if self._ball.serve_from_1P else action_2P
+
+        # Force to serve the ball after 150 frames
+        if self._frame_count >= 150 and \
+           target_action not in SERVE_BALL_ACTIONS:
+            target_action = random.choice(SERVE_BALL_ACTIONS)
+
+        if target_action in SERVE_BALL_ACTIONS:
+            self._ball.serve(target_action)
+            self._ball_served = True
+
+    def _ball_moving(self):
+        # Speed up the ball every 200 frames
+        if self._frame_count % 200 == 0:
+            self._ball.speed_up()
+
+        self._ball.move()
+        self._ball.check_bouncing(self._platform_1P, self._platform_2P)
 
     def draw_gameobjects(self, surface):
         self._draw_group.draw(surface)

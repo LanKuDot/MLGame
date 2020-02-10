@@ -6,9 +6,13 @@ import pygame
 import random
 
 class PlatformAction(StringEnum):
+    SERVE_TO_LEFT = auto()
+    SERVE_TO_RIGHT = auto()
     MOVE_LEFT = auto()
     MOVE_RIGHT = auto()
     NONE = auto()
+
+SERVE_BALL_ACTIONS = (PlatformAction.SERVE_TO_LEFT, PlatformAction.SERVE_TO_RIGHT)
 
 class Platform(pygame.sprite.Sprite):
     def __init__(self, init_pos: tuple, play_area_rect: pygame.Rect, \
@@ -68,7 +72,8 @@ class Ball(pygame.sprite.Sprite):
         self._play_area_rect = play_area_rect
         self._speed = [7, 7]
         self._size = [5, 5]
-        self._serve_from_1P = True
+
+        self.serve_from_1P = True
 
         self.rect = pygame.Rect(0, 0, *self._size)
         self.image = self._create_surface()
@@ -93,19 +98,30 @@ class Ball(pygame.sprite.Sprite):
         """
         Reset the ball status and serve the ball
         """
-        # Serving the ball
-        if self._serve_from_1P:
-            reset_pos_x = 120
-            reset_pos_y = int(self._play_area_rect.height * 0.8 - self.rect.height)
-            self._speed = [-7, -7]
-        else:
-            reset_pos_x = 75
-            reset_pos_y = int(self._play_area_rect.height * 0.2)
-            self._speed = [7, 7]
-
-        self.rect = pygame.Rect(reset_pos_x, reset_pos_y, *self._size)
         # Change side next time
-        self._serve_from_1P = not self._serve_from_1P
+        self.serve_from_1P = not self.serve_from_1P
+
+    def stick_on_platform(self, platform_1P_rect, platform_2P_rect):
+        """
+        Stick on the either platform according to the status of `_serve_from_1P`
+        """
+        if self.serve_from_1P:
+            self.rect.centerx = platform_1P_rect.centerx
+            self.rect.y = platform_1P_rect.top - 5
+        else:
+            self.rect.centerx = platform_2P_rect.centerx
+            self.rect.y = platform_2P_rect.bottom
+
+    def serve(self, serve_ball_action: PlatformAction):
+        """
+        Set the ball speed according to the action of ball serving
+        """
+        self._speed[0] = {
+            PlatformAction.SERVE_TO_LEFT: -7,
+            PlatformAction.SERVE_TO_RIGHT: 7,
+        }.get(serve_ball_action)
+
+        self._speed[1] = -7 if self.serve_from_1P else 7
 
     def move(self):
         self._last_pos = Vector2(self.rect.x, self.rect.y)

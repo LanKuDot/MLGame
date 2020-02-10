@@ -46,10 +46,14 @@ class PingPong:
         self._game_over_score = game_over_score
         self._scene = Scene()
         self._keyboard_action_1P = KeyCommandMap({
-                pygame.K_LEFT:  PlatformAction.MOVE_LEFT,
-                pygame.K_RIGHT: PlatformAction.MOVE_RIGHT,
+                pygame.K_PERIOD: PlatformAction.SERVE_TO_LEFT,
+                pygame.K_SLASH:  PlatformAction.SERVE_TO_RIGHT,
+                pygame.K_LEFT:   PlatformAction.MOVE_LEFT,
+                pygame.K_RIGHT:  PlatformAction.MOVE_RIGHT,
             }, PlatformAction.NONE)
         self._keyboard_action_2P = KeyCommandMap({
+                pygame.K_q: PlatformAction.SERVE_TO_LEFT,
+                pygame.K_e: PlatformAction.SERVE_TO_RIGHT,
                 pygame.K_a: PlatformAction.MOVE_LEFT,
                 pygame.K_d: PlatformAction.MOVE_RIGHT,
             }, PlatformAction.NONE)
