@@ -70,7 +70,7 @@ class Ball(pygame.sprite.Sprite):
         super().__init__(*groups)
 
         self._play_area_rect = play_area_rect
-        self._speed = [7, 7]
+        self._speed = [0, 0]
         self._size = [5, 5]
 
         self.serve_from_1P = True
@@ -96,8 +96,9 @@ class Ball(pygame.sprite.Sprite):
 
     def reset(self):
         """
-        Reset the ball status and serve the ball
+        Reset the ball status
         """
+        self._speed = [0, 0]
         # Change side next time
         self.serve_from_1P = not self.serve_from_1P
 
