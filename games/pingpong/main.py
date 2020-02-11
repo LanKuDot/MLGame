@@ -1,17 +1,26 @@
 from mlgame.gameconfig import GameConfig
+from mlgame.exception import GameParameterError
+
+from .game.gamecore import Difficulty
 
 def ml_mode(config: GameConfig):
     """
     Start the game in the machine learning mode
     """
-    game_over_score = _get_game_over_score(config.game_params, config.one_shot_mode)
+    try:
+        difficulty, game_over_score = \
+            _get_difficulty_and_score(config.game_params, config.one_shot_mode)
+    except GameParameterError as e:
+        print("Error: " + str(e), usage(), sep = "\n")
+        return
+
     module_1P, module_2P = _get_ml_modules(config.input_modules)
 
     from mlgame.process import ProcessManager
 
     process_manager = ProcessManager()
     process_manager.set_game_process(_start_game_process, \
-        args = (config.fps, game_over_score, \
+        args = (config.fps, difficulty, game_over_score, \
         config.record_progress))
     process_manager.add_ml_process(module_1P, "ml_1P", args = ("1P", ))
     process_manager.add_ml_process(module_2P, "ml_2P", args = ("2P", ))
@@ -29,7 +38,7 @@ def _get_ml_modules(input_modules):
 
     return input_modules[0], input_modules[1]
 
-def _start_game_process(fps, game_over_score, record_progress):
+def _start_game_process(fps, difficulty, game_over_score, record_progress):
     """
     Start the process to run the game core
 
@@ -37,7 +46,7 @@ def _start_game_process(fps, game_over_score, record_progress):
     """
     from .game.pingpong_ml import PingPong
 
-    game = PingPong(fps, game_over_score, record_progress)
+    game = PingPong(fps, difficulty, game_over_score, record_progress)
     game.game_loop()
 
 def manual_mode(config: GameConfig):
@@ -46,21 +55,34 @@ def manual_mode(config: GameConfig):
     """
     from .game.pingpong import PingPong
 
-    game_over_score = _get_game_over_score(config.game_params, config.one_shot_mode)
+    try:
+        difficulty, game_over_score = \
+            _get_difficulty_and_score(config.game_params, config.one_shot_mode)
+    except GameParameterError as e:
+        print("Error: " + str(e), usage(), sep = "\n")
+        return
 
-    game = PingPong(config.fps, game_over_score, config.record_progress)
+    game = PingPong(config.fps, difficulty, game_over_score, config.record_progress)
     game.game_loop()
 
-def _get_game_over_score(game_params, one_shot_mode):
+def _get_difficulty_and_score(game_params, one_shot_mode):
     """
     Get game over score from the parameter
     """
+    try:
+        difficulty_str = str(game_params[0]).upper()
+        difficulty = Difficulty(difficulty_str)
+    except IndexError:
+        raise GameParameterError("'difficulty' is not specified.")
+    except ValueError:
+        raise GameParameterError("The value of 'difficulty' is invalid.")
+
     if one_shot_mode:
-        print("One shot mode is on. Set game-over score to 1.")
-        return 1
+        print("One shot mode is on. Set game_over_score to 1.")
+        return difficulty_str, 1
 
     try:
-        game_over_score = int(game_params[0])
+        game_over_score = int(game_params[1])
         if game_over_score < 1:
             raise ValueError
     except IndexError:
@@ -70,4 +92,12 @@ def _get_game_over_score(game_params, one_shot_mode):
         print("Invalid game-over score. Set to 3.")
         game_over_score = 3
 
-    return game_over_score
+    return difficulty, game_over_score
+
+def usage():
+    return \
+        "Usage: python MLGame.py pingpong <difficulty> [game_over_score]\n" + \
+        "Game parameters:\n" + \
+        "- difficulty: The game style. Should be 'EASY', 'NORMAL' or 'HARD'\n" + \
+        "- game_over_score: [Optional] The score that the game will exit when either side " + \
+        "reaches"

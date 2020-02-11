@@ -38,13 +38,13 @@ class Screen:
         pygame.display.flip()
 
 class PingPong:
-    def __init__(self, fps: int, game_over_score: int, record_progress: bool):
+    def __init__(self, fps: int, difficulty, game_over_score: int, record_progress: bool):
         self._fps = fps
         self._clock = pygame.time.Clock()
 
         self._score = [0, 0]    # 1P, 2P
         self._game_over_score = game_over_score
-        self._scene = Scene()
+        self._scene = Scene(difficulty)
         self._keyboard_action_1P = KeyCommandMap({
                 pygame.K_PERIOD: PlatformAction.SERVE_TO_LEFT,
                 pygame.K_SLASH:  PlatformAction.SERVE_TO_RIGHT,

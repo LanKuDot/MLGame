@@ -16,11 +16,12 @@ class PingPong:
     """
     The game core for the machine learning mode
     """
-    def __init__(self, fps: int, game_over_score: int, record_progress):
+    def __init__(self, fps: int, difficulty, game_over_score: int, record_progress):
         """
         Constructor
 
         @param fps The fps of the game
+        @param difficulty The difficulty of the game
         @param game_over_score The game will stop when either side reaches this score
         @param record_progress Whether to record the game process or not
         """
@@ -37,7 +38,7 @@ class PingPong:
 
         self._record_handler = get_record_handler(record_progress, "ml")
 
-        self._scene = Scene()
+        self._scene = Scene(difficulty)
         self._screen = Screen(Scene.area_rect.size, self._scene.draw_gameobjects)
 
     def game_loop(self):

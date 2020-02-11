@@ -9,6 +9,11 @@ from .gameobject import (
 color_1P = (219, 70, 92)    # Red
 color_2P = (84, 149, 255)    # Blue
 
+class Difficulty(StringEnum):
+    EASY = auto()
+    NORMAL = auto()
+    HARD = auto()
+
 class GameStatus(StringEnum):
     GAME_1P_WIN = auto()
     GAME_2P_WIN = auto()
@@ -63,7 +68,8 @@ class SceneInfo:
 class Scene:
     area_rect = pygame.Rect(0, 0, 200, 500)
 
-    def __init__(self):
+    def __init__(self, difficulty: Difficulty):
+        self._difficulty = difficulty
         self._frame_count = 0
         self._game_status = GameStatus.GAME_ALIVE
         self._ball_served = False
@@ -72,7 +78,9 @@ class Scene:
 
     def _create_scene(self):
         self._draw_group = pygame.sprite.RenderPlain()
-        self._ball = Ball(Scene.area_rect, True, self._draw_group)
+
+        enable_slice_ball = False if self._difficulty == Difficulty.EASY else True
+        self._ball = Ball(Scene.area_rect, enable_slice_ball, self._draw_group)
         self._platform_1P = Platform((80, Scene.area_rect.height - 80), \
             Scene.area_rect, "1P", color_1P, self._draw_group)
         self._platform_2P = Platform((80, 50), \
