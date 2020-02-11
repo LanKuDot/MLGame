@@ -1,6 +1,8 @@
 from mlgame.gameconfig import GameConfig
 from mlgame.exception import GameParameterError
 
+from .game.gamecore import Difficulty
+
 def ml_mode(config: GameConfig):
     """
     Start the game in the machine learning mode
@@ -58,16 +60,14 @@ def _get_difficulty_and_level(game_params):
     """
     Get the difficulty and level from the parameter
     """
-    from .game.gamecore import Difficulty
     # Get difficulty
     try:
-        difficulty = str(game_params[0]).upper()
-        if difficulty not in list(Difficulty):
-            raise ValueError
+        difficulty_str = str(game_params[0]).upper()
+        difficulty = Difficulty(difficulty_str)
     except IndexError:
         raise GameParameterError("'difficulty' is not specified.")
-    except ValueErrore:
-        raise GameParameterError("'difficulty' is invalid.")
+    except ValueError:
+        raise GameParameterError("The value of 'difficulty' is invalid.")
 
     # Get level
     try:
