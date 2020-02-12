@@ -74,21 +74,19 @@ def rect_collideline(rect: Rect, line) -> bool:
     @param line A tuple (Vector2, Vector2) representing both end points
            of line segment
     """
+    # Either of line ends is in the target rect.
+    if rect.collidepoint(line[0]) or rect.collidepoint(line[1]):
+        return True
+
     line_top = (Vector2(rect.left, rect.top), Vector2(rect.right, rect.top))
     line_bottom = (Vector2(rect.left, rect.bottom), Vector2(rect.right, rect.bottom))
     line_left = (Vector2(rect.left, rect.top), Vector2(rect.left, rect.bottom))
     line_right = (Vector2(rect.right, rect.top), Vector2(rect.right, rect.bottom))
 
-    intersect_num = 0
-    if line_intersect(line_top, line):    intersect_num += 1
-    if line_intersect(line_bottom, line): intersect_num += 1
-    if line_intersect(line_left, line):   intersect_num += 1
-    if line_intersect(line_right, line):  intersect_num += 1
-
-    if intersect_num >= 2:
-        return True
-    
-    return False
+    return line_intersect(line_top, line) or \
+        line_intersect(line_bottom, line) or \
+        line_intersect(line_left, line) or \
+        line_intersect(line_right, line)
 
 def rect_break_or_tangent_box(rect: Rect, box: Rect):
     """
