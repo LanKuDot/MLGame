@@ -86,6 +86,9 @@ class Scene:
         self._platform_2P = Platform((80, 50), \
             Scene.area_rect, "2P", color_2P, self._draw_group)
 
+        # Initialize the position of the ball
+        self._ball.stick_on_platform(self._platform_1P.rect, self._platform_2P.rect)
+
     def reset(self):
         self._frame_count = 0
         self._game_status = GameStatus.GAME_ALIVE
@@ -93,6 +96,9 @@ class Scene:
         self._ball.reset()
         self._platform_1P.reset()
         self._platform_2P.reset()
+
+        # Initialize the position of the ball
+        self._ball.stick_on_platform(self._platform_1P.rect, self._platform_2P.rect)
 
     def update(self, \
         move_action_1P: PlatformAction, move_action_2P: PlatformAction):
