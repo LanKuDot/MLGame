@@ -157,14 +157,8 @@ class Ball(pygame.sprite.Sprite):
     def _check_ball_hit_platform(self, platform_1p: Platform, platform_2p: Platform):
         cur_pos = Vector2(self.rect.x, self.rect.y)
 
-        if physics.collide_or_tangent(self, platform_1p):
-            return platform_1p
-        if physics.collide_or_tangent(self, platform_2p):
-            return platform_2p
-
-        # Additional checking for the ball passing through the corner of the platform
-        # Determine if the routine of the ball intersects with the platform
-        if self.rect.bottom > platform_1p.rect.top:
+        # Check if the ball hits the `platform_1p` if the ball is low enough.
+        if self.rect.bottom > 410:
             routine_bottom_left_corner = ( \
                 cur_pos + Vector2(0, self.rect.height), \
                 self._last_pos + Vector2(0, self.rect.height))
@@ -173,36 +167,35 @@ class Ball(pygame.sprite.Sprite):
                 self._last_pos + Vector2(self.rect.width, self.rect.height))
 
             if self._ball_routine_hit_platform(platform_1p, \
-               routine_bottom_right_corner, routine_bottom_left_corner):
+               routine_bottom_left_corner, routine_bottom_right_corner):
                 return platform_1p
 
-        elif self.rect.top < platform_2p.rect.bottom:
+        # Check if the ball hits the `platform_2p` if the ball is high enough.
+        elif self.rect.top < 90:
             routine_top_left_corner = (cur_pos, self._last_pos)
             routine_top_right_corner = ( \
                 cur_pos + Vector2(self.rect.width, 0), \
                 self._last_pos + Vector2(self.rect.width, 0))
 
             if self._ball_routine_hit_platform(platform_2p, \
-               routine_top_right_corner, routine_top_left_corner):
+               routine_top_left_corner, routine_top_right_corner):
                 return platform_2p
 
         return None
 
     def _ball_routine_hit_platform(self, target_platform: Platform, \
-        routine_for_left, routine_for_right) -> bool:
+        left_ball_routine, right_ball_routine) -> bool:
         """
-        Check if the ball routine hits the platform
+        Check if one of the ball routines hits the platform
 
         @param target_platform Specify the target platform
-        @param routine_for_left A tuple (Vector2, Vector2) presenting the checking routine
-               for the condition that the ball is at the left side of the platform
-        @param routine_for_right Similar to `routine_for_left` but
-               for the condition that the ball is at the right side of the platform
+        @param left_ball_routine A (Vector2, Vector2) tuple represents the routine
+               of the left side of the ball
+        @param right_ball_routine Similar to `left_ball_routine` but for
+               the right side of the ball
         """
-        return (self.rect.right < target_platform.rect.left and \
-                physics.rect_collideline(target_platform.rect, routine_for_left)) or \
-               (self.rect.left > target_platform.rect.right and \
-                physics.rect_collideline(target_platform.rect, routine_for_right))
+        return physics.rect_collideline(target_platform.rect, left_ball_routine) or \
+               physics.rect_collideline(target_platform.rect, right_ball_routine)
 
     def _slice_ball(self, ball_speed, platform_speed_x):
         """
