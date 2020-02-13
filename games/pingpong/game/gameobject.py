@@ -80,7 +80,7 @@ class Ball(pygame.sprite.Sprite):
         self.image = self._create_surface()
 
         # Used in additional collision detection
-        self._last_pos = Vector2(self.rect.x, self.rect.y)
+        self._last_pos = pygame.Rect(self.rect)
 
     def _create_surface(self):
         surface = pygame.Surface((self.rect.width, self.rect.height))
@@ -126,7 +126,7 @@ class Ball(pygame.sprite.Sprite):
         self._speed[1] = -7 if self.serve_from_1P else 7
 
     def move(self):
-        self._last_pos = Vector2(self.rect.x, self.rect.y)
+        self._last_pos.topleft = self.rect.topleft
         self.rect.move_ip(self._speed)
 
     def speed_up(self):
@@ -138,7 +138,8 @@ class Ball(pygame.sprite.Sprite):
             physics.bounce_in_box_ip(self.rect, self._speed, self._play_area_rect)
 
         # Check if the ball hits the platform or not
-        target_platform = self._check_ball_hit_platform(platform_1p, platform_2p)
+        target_platform = self._check_ball_hit_sprites( \
+            (platform_1p, platform_2p))
 
         if target_platform:
             rect_after_bounce, speed_after_bounce = physics.bounce_off( \
@@ -154,48 +155,38 @@ class Ball(pygame.sprite.Sprite):
             self.rect = rect_after_bounce
             self._speed = speed_after_bounce
 
-    def _check_ball_hit_platform(self, platform_1p: Platform, platform_2p: Platform):
-        cur_pos = Vector2(self.rect.x, self.rect.y)
+    def _check_ball_hit_sprites(self, sprites):
+        """
+        Get the first sprite in the `sprites` that the ball hits
 
-        # Check if the ball hits the `platform_1p` if the ball is low enough.
-        if self.rect.bottom > 410:
-            routine_bottom_left_corner = ( \
-                cur_pos + Vector2(0, self.rect.height), \
-                self._last_pos + Vector2(0, self.rect.height))
-            routine_bottom_right_corner = ( \
-                cur_pos + Vector2(self.rect.width, self.rect.height), \
-                self._last_pos + Vector2(self.rect.width, self.rect.height))
+        @param sprites An iterable object that storing the target sprites
+        @return The first sprite in the `sprites` that the ball hits.
+                Return None, if none of them is hit by the ball.
+        """
+        # Generate routines of 4 corners of the ball
+        routines = ( \
+            (Vector2(self._last_pos.topleft), Vector2(self.rect.topleft)), \
+            (Vector2(self._last_pos.topright), Vector2(self.rect.topright)), \
+            (Vector2(self._last_pos.bottomleft), Vector2(self.rect.bottomleft)), \
+            (Vector2(self._last_pos.bottomright), Vector2(self.rect.bottomright))
+        )
 
-            if self._ball_routine_hit_platform(platform_1p, \
-               routine_bottom_left_corner, routine_bottom_right_corner):
-                return platform_1p
-
-        # Check if the ball hits the `platform_2p` if the ball is high enough.
-        elif self.rect.top < 90:
-            routine_top_left_corner = (cur_pos, self._last_pos)
-            routine_top_right_corner = ( \
-                cur_pos + Vector2(self.rect.width, 0), \
-                self._last_pos + Vector2(self.rect.width, 0))
-
-            if self._ball_routine_hit_platform(platform_2p, \
-               routine_top_left_corner, routine_top_right_corner):
-                return platform_2p
+        for sprite in sprites:
+            if self._ball_routine_hit_rect(sprite.rect, routines):
+                return sprite
 
         return None
 
-    def _ball_routine_hit_platform(self, target_platform: Platform, \
-        left_ball_routine, right_ball_routine) -> bool:
+    def _ball_routine_hit_rect(self, rect: pygame.Rect, routines) -> bool:
         """
-        Check if one of the ball routines hits the platform
+        Check if the ball hits the `rect`
+        by checking if any of ball routine collide with the `rect`.
+        """
+        for routine in routines:
+            if physics.rect_collideline(rect, routine):
+                return True
 
-        @param target_platform Specify the target platform
-        @param left_ball_routine A (Vector2, Vector2) tuple represents the routine
-               of the left side of the ball
-        @param right_ball_routine Similar to `left_ball_routine` but for
-               the right side of the ball
-        """
-        return physics.rect_collideline(target_platform.rect, left_ball_routine) or \
-               physics.rect_collideline(target_platform.rect, right_ball_routine)
+        return False
 
     def _slice_ball(self, ball_speed, platform_speed_x):
         """
