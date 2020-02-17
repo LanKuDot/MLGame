@@ -31,7 +31,7 @@ class SceneInfo:
     @var status The status of the game. It will be the "value" (not "name")
          of one of the member of the GameStatus.
     @var ball An (x, y) tuple. The position of the ball.
-    @var ball_speed A positive integer. The speed of the ball.
+    @var ball_speed An (x, y) tuple. The speed of the ball.
     @var platform_1P An (x, y) tuple. The position of the platform of 1P
     @var platform_2P An (x, y) tuple. The position of the platform of 2P
     @var blocker An (x, y) tuple. The position of the blocker.

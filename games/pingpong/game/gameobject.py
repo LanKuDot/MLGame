@@ -127,7 +127,7 @@ class Ball(pygame.sprite.Sprite):
 
     @property
     def speed(self):
-        return abs(self._speed[0])
+        return tuple(self._speed)
 
     def reset(self):
         """

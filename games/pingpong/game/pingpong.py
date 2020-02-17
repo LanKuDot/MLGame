@@ -18,7 +18,7 @@ class Screen:
         self._font = pygame.font.Font(None, 22)
         self._font_pos_1P = (1, self._surface.get_height() - 21)
         self._font_pos_2P = (1, 4)
-        self._font_pos_speed = (self._surface.get_width() - 75, \
+        self._font_pos_speed = (self._surface.get_width() - 120, \
             self._surface.get_height() - 21)
 
     def update(self, score, ball_speed):
@@ -26,9 +26,9 @@ class Screen:
         self._func_draw_gameobjects(self._surface)
 
         font_surface_1P = self._font.render( \
-            "1P score: {}".format(score[0]), True, gamecore.color_1P)
+            "1P: {}".format(score[0]), True, gamecore.color_1P)
         font_surface_2P = self._font.render( \
-            "2P score: {}".format(score[1]), True, gamecore.color_2P)
+            "2P: {}".format(score[1]), True, gamecore.color_2P)
         font_surface_speed = self._font.render( \
             "Speed: {}".format(ball_speed), True, (255, 255, 255))
         self._surface.blit(font_surface_1P, self._font_pos_1P)
