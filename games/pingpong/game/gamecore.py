@@ -3,7 +3,7 @@ import random
 from mlgame.utils.enum import StringEnum, auto
 
 from .gameobject import (
-    Ball, Platform, PlatformAction, SERVE_BALL_ACTIONS
+    Ball, Blocker, Platform, PlatformAction, SERVE_BALL_ACTIONS
 )
 
 color_1P = (219, 70, 92)    # Red
@@ -34,6 +34,8 @@ class SceneInfo:
     @var ball_speed A positive integer. The speed of the ball.
     @var platform_1P An (x, y) tuple. The position of the platform of 1P
     @var platform_2P An (x, y) tuple. The position of the platform of 2P
+    @var blocker An (x, y) tuple. The position of the blocker.
+         If the game difficulty is EASY, this field will be `None`.
     @var command_1P The command for platform_1P in this frame. It will be the "value"
          (not "name") of one of the member of the PlatformAction.
     @var command_2P The command for platform_2P in this frame. Similar to `command_1P`.
@@ -46,6 +48,7 @@ class SceneInfo:
         self.ball_speed = None
         self.platform_1P = None
         self.platform_2P = None
+        self.blocker = None
 
         # These fields will be filled after receiving the command
         # from the ml process
@@ -60,6 +63,7 @@ class SceneInfo:
             "# Ball_speed {}\n".format(self.ball_speed) + \
             "# Platform_1P {}\n".format(self.platform_1P) + \
             "# Platform_2P {}\n".format(self.platform_2P) + \
+            "# Blocker {}\n".format(self.blocker) + \
             "# Command_1P {}\n".format(self.command_1P) + \
             "# Command_2P {}".format(self.command_2P)
 
@@ -85,6 +89,11 @@ class Scene:
             Scene.area_rect, "1P", color_1P, self._draw_group)
         self._platform_2P = Platform((80, 50), \
             Scene.area_rect, "2P", color_2P, self._draw_group)
+        if self._difficulty == Difficulty.EASY:
+            # Put the blocker at the end of the world
+            self._blocker = Blocker((85, 1000), Scene.area_rect, self._draw_group)
+        else:
+            self._blocker = Blocker((85, 240), Scene.area_rect, self._draw_group)
 
         # Initialize the position of the ball
         self._ball.stick_on_platform(self._platform_1P.rect, self._platform_2P.rect)
@@ -96,6 +105,7 @@ class Scene:
         self._ball.reset()
         self._platform_1P.reset()
         self._platform_2P.reset()
+        self._blocker.reset()
 
         # Initialize the position of the ball
         self._ball.stick_on_platform(self._platform_1P.rect, self._platform_2P.rect)
@@ -105,6 +115,7 @@ class Scene:
         self._frame_count += 1
         self._platform_1P.move(move_action_1P)
         self._platform_2P.move(move_action_2P)
+        self._blocker.move()
 
         if not self._ball_served:
             self._wait_for_serving_ball(move_action_1P, move_action_2P)
@@ -140,7 +151,7 @@ class Scene:
             self._ball.speed_up()
 
         self._ball.move()
-        self._ball.check_bouncing(self._platform_1P, self._platform_2P)
+        self._ball.check_bouncing(self._platform_1P, self._platform_2P, self._blocker)
 
     def draw_gameobjects(self, surface):
         self._draw_group.draw(surface)
@@ -156,5 +167,8 @@ class Scene:
         scene_info.ball_speed = abs(self._ball._speed[0])
         scene_info.platform_1P = self._platform_1P.pos
         scene_info.platform_2P = self._platform_2P.pos
+
+        if self._difficulty != Difficulty.EASY:
+            scene_info.blocker = self._blocker.pos
 
         return scene_info
