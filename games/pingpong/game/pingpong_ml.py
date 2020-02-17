@@ -36,7 +36,7 @@ class PingPong:
                 "command": PlatformAction
             }, GameCommand(-1, PlatformAction.NONE))
 
-        self._record_handler = get_record_handler(record_progress, "ml")
+        self._record_handler = get_record_handler(record_progress, "ml_" + str(difficulty))
 
         self._scene = Scene(difficulty)
         self._screen = Screen(Scene.area_rect.size, self._scene.draw_gameobjects)

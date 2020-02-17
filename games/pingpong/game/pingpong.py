@@ -58,7 +58,7 @@ class PingPong:
                 pygame.K_d: PlatformAction.MOVE_RIGHT,
             }, PlatformAction.NONE)
 
-        self._record_handler = get_record_handler(record_progress, "manual")
+        self._record_handler = get_record_handler(record_progress, "manual_" + str(difficulty))
         self._screen = Screen(Scene.area_rect.size, self._scene.draw_gameobjects)
 
     def game_loop(self):
