@@ -6,7 +6,7 @@ class StringEnum(Enum):
 
     def __eq__(self, other):
         if isinstance(other, StringEnum):
-            return super().__eq__(other)
+            return self.value == other.value
         elif isinstance(other, str):
             return self.value == other
 
