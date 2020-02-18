@@ -15,7 +15,7 @@ def get_record_handler(record_progress: bool, filename_prefix: str):
         return lambda x: None
 
     recorder = RecorderHelper(get_log_dir(), \
-        { "status": (GameStatus.GAME_1P_WIN, GameStatus.GAME_2P_WIN) }, \
+        { "status": (GameStatus.GAME_1P_WIN, GameStatus.GAME_2P_WIN, GameStatus.GAME_DRAW) }, \
         filename_prefix)
     return recorder.record_handler
 

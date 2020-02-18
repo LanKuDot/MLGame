@@ -64,8 +64,7 @@ class PingPong:
 
             # If either of two sides wins, reset the scene and wait for ml processes
             # getting ready for the next round
-            if game_status == GameStatus.GAME_1P_WIN or \
-               game_status == GameStatus.GAME_2P_WIN:
+            if game_status != GameStatus.GAME_ALIVE:
                 scene_info = self._scene.get_scene_info()
                 self._record_handler(scene_info)
                 comm.send_to_all_ml(scene_info)
@@ -111,7 +110,10 @@ class PingPong:
     def _game_over(self, status):
         if status == GameStatus.GAME_1P_WIN:
             self._score[0] += 1
-        else:
+        elif status == GameStatus.GAME_2P_WIN:
+            self._score[1] += 1
+        else:   # Draw game
+            self._score[0] += 1
             self._score[1] += 1
 
         return self._score[0] == self._game_over_score or \

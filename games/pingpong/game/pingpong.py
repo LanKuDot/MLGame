@@ -73,8 +73,7 @@ class PingPong:
 
             game_status = self._scene.update(command_1P, command_2P)
 
-            if game_status == GameStatus.GAME_1P_WIN or \
-               game_status == GameStatus.GAME_2P_WIN:
+            if game_status != GameStatus.GAME_ALIVE:
                 print(game_status.value)
                 self._record_handler(self._scene.get_scene_info())
                 if self._game_over(game_status):
@@ -90,7 +89,10 @@ class PingPong:
     def _game_over(self, status):
         if status == GameStatus.GAME_1P_WIN:
             self._score[0] += 1
-        else:
+        elif status == GameStatus.GAME_2P_WIN:
+            self._score[1] += 1
+        else:   # Draw game
+            self._score[0] += 1
             self._score[1] += 1
 
         is_game_over = self._score[0] == self._game_over_score or \

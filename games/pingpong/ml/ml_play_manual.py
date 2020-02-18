@@ -32,8 +32,7 @@ def ml_loop(side: str):
     while True:
         scene_info = comm.get_scene_info()
 
-        if scene_info.status == GameStatus.GAME_1P_WIN or \
-           scene_info.status == GameStatus.GAME_2P_WIN:
+        if scene_info.status != GameStatus.GAME_ALIVE:
             comm.ml_ready()
             continue
 

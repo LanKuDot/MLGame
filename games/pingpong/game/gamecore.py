@@ -17,6 +17,7 @@ class Difficulty(StringEnum):
 class GameStatus(StringEnum):
     GAME_1P_WIN = auto()
     GAME_2P_WIN = auto()
+    GAME_DRAW = auto()
     GAME_ALIVE = auto()
 
 class SceneInfo:
@@ -126,6 +127,8 @@ class Scene:
             self._game_status = GameStatus.GAME_2P_WIN
         elif self._ball.rect.bottom < self._platform_2P.rect.top:
             self._game_status = GameStatus.GAME_1P_WIN
+        elif abs(min(self._ball.speed, key = abs)) > 40:
+            self._game_status = GameStatus.GAME_DRAW
         else:
             self._game_status = GameStatus.GAME_ALIVE
 

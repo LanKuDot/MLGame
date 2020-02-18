@@ -38,8 +38,7 @@ def ml_loop(side: str):
         # 3.2. If either of two sides wins the game, do the updating or
         #      resetting stuff and inform the game process when the ml process
         #      is ready.
-        if scene_info.status == GameStatus.GAME_1P_WIN or \
-           scene_info.status == GameStatus.GAME_2P_WIN:
+        if scene_info.status != GameStatus.GAME_ALIVE:
             # Do some updating or resetting stuff
 
             # 3.2.1 Inform the game process that
