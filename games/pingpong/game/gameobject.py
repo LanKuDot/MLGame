@@ -143,7 +143,7 @@ class Ball(pygame.sprite.Sprite):
         """
         if self.serve_from_1P:
             self.rect.centerx = platform_1P_rect.centerx
-            self.rect.y = platform_1P_rect.top - 5
+            self.rect.y = platform_1P_rect.top - self.rect.height
         else:
             self.rect.centerx = platform_2P_rect.centerx
             self.rect.y = platform_2P_rect.bottom
