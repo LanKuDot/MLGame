@@ -167,7 +167,7 @@ class Scene:
         scene_info.frame = self._frame_count
         scene_info.status = self._game_status.value
         scene_info.ball = self._ball.pos
-        scene_info.ball_speed = self._ball._speed
+        scene_info.ball_speed = self._ball.speed
         scene_info.platform_1P = self._platform_1P.pos
         scene_info.platform_2P = self._platform_2P.pos
 
