@@ -99,7 +99,7 @@ def rect_break_or_tangent_box(rect: Rect, box: Rect):
         rect.left <= box.left or \
         rect.right >= box.right or \
         rect.top <= box.top or \
-        rect.bottom >= rect.bottom
+        rect.bottom >= box.bottom
 
 def bounce_off_ip(bounce_obj_rect: Rect, bounce_obj_speed, \
     hit_obj_rect: Rect, hit_obj_speed):
