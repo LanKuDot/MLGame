@@ -120,26 +120,47 @@ def bounce_off_ip(bounce_obj_rect: Rect, bounce_obj_speed, \
 
     # The relative position between top and bottom, and left and right
     # of two objects at the last frame
-    rect_diff_T_B = bounce_obj_rect.top - hit_obj_rect.bottom - speed_diff_y
-    rect_diff_B_T = bounce_obj_rect.bottom - hit_obj_rect.top - speed_diff_y
-    rect_diff_L_R = bounce_obj_rect.left - hit_obj_rect.right - speed_diff_x
-    rect_diff_R_L = bounce_obj_rect.right - hit_obj_rect.left - speed_diff_x
+    rect_diff_bT_hB = hit_obj_rect.bottom - bounce_obj_rect.top + speed_diff_y
+    rect_diff_bB_hT = hit_obj_rect.top - bounce_obj_rect.bottom + speed_diff_y
+    rect_diff_bL_hR = hit_obj_rect.right - bounce_obj_rect.left + speed_diff_x
+    rect_diff_bR_hL = hit_obj_rect.left - bounce_obj_rect.right + speed_diff_x
 
-    # Set the position and speed of the bouncing object
-    # according to the relative position of two objects
-    if rect_diff_T_B > 0 and rect_diff_B_T > 0:
-        bounce_obj_rect.top = hit_obj_rect.bottom
-        bounce_obj_speed[1] *= -1
-    elif rect_diff_T_B < 0 and rect_diff_B_T < 0:
-        bounce_obj_rect.bottom = hit_obj_rect.top
-        bounce_obj_speed[1] *= -1
+    # Get the surface distance from the bouncing object to the hit object
+    # and the new position for the bouncing object if it really hit the object
+    # according to their relative position
+    ## The bouncing object is at the bottom
+    if rect_diff_bT_hB < 0 and rect_diff_bB_hT < 0:
+        surface_diff_y = rect_diff_bT_hB
+        extract_pos_y = hit_obj_rect.bottom
+    ## The bouncing object is at the top
+    elif rect_diff_bT_hB > 0 and rect_diff_bB_hT > 0:
+        surface_diff_y = rect_diff_bB_hT
+        extract_pos_y = hit_obj_rect.top - bounce_obj_rect.height
+    else:
+        surface_diff_y = -1 if speed_diff_y > 0 else 1
 
-    if rect_diff_L_R > 0 and rect_diff_R_L > 0:
-        bounce_obj_rect.left = hit_obj_rect.right
+    ## The bouncing object is at the right
+    if rect_diff_bL_hR < 0 and rect_diff_bR_hL < 0:
+        surface_diff_x = rect_diff_bL_hR
+        extract_pos_x = hit_obj_rect.right
+    ## The bouncing object is at the left
+    elif rect_diff_bL_hR > 0 and rect_diff_bR_hL > 0:
+        surface_diff_x = rect_diff_bR_hL
+        extract_pos_x = hit_obj_rect.left - bounce_obj_rect.width
+    else:
+        surface_diff_x = -1 if speed_diff_x > 0 else 1
+
+    # Calculate the duration to hit the surface for x and y coordination.
+    time_hit_y = surface_diff_y / speed_diff_y
+    time_hit_x = surface_diff_x / speed_diff_x
+
+    if time_hit_y >= 0 and time_hit_y >= time_hit_x:
+        bounce_obj_speed[1] *= -1
+        bounce_obj_rect.y = extract_pos_y
+
+    if time_hit_x >= 0 and time_hit_y <= time_hit_x:
         bounce_obj_speed[0] *= -1
-    elif rect_diff_L_R < 0 and rect_diff_R_L < 0:
-        bounce_obj_rect.right = hit_obj_rect.left
-        bounce_obj_speed[0] *= -1
+        bounce_obj_rect.x = extract_pos_x
 
 def bounce_off(bounce_obj_rect: Rect, bounce_obj_speed, \
     hit_obj_rect: Rect, hit_obj_speed):
