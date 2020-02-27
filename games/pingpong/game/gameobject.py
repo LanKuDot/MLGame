@@ -169,15 +169,18 @@ class Ball(pygame.sprite.Sprite):
 
     def check_bouncing(self, platform_1p: Platform, platform_2p: Platform, \
         blocker: Blocker):
-        if physics.rect_break_or_tangent_box(self.rect, self._play_area_rect):
-            physics.bounce_in_box_ip(self.rect, self._speed, self._play_area_rect)
+        # If the ball hits the play_area, adjust the position first
+        # and preserve the speed after bouncing.
+        hit_box = physics.rect_break_or_tangent_box(self.rect, self._play_area_rect)
+        if hit_box:
+            self.rect, speed_after_hit_box = \
+                physics.bounce_in_box(self.rect, self._speed, self._play_area_rect)
 
-        # Check if the ball hits the specified sprites or not
-        hit_sprite = self._check_ball_hit_sprites( \
-            (platform_1p, platform_2p, blocker))
-
+        # If the ball hits the specified sprites, adjust the position again
+        # and preserve the speed after bouncing.
+        hit_sprite = self._check_ball_hit_sprites((platform_1p, platform_2p, blocker))
         if hit_sprite:
-            rect_after_bounce, speed_after_bounce = physics.bounce_off( \
+            self.rect, speed_after_bounce = physics.bounce_off( \
                 self.rect, self._speed, \
                 hit_sprite.rect, hit_sprite._speed)
 
@@ -187,8 +190,13 @@ class Ball(pygame.sprite.Sprite):
                 (hit_sprite is platform_2p and speed_after_bounce[1] > 0)):
                 speed_after_bounce[0] = self._slice_ball(self._speed, hit_sprite._speed[0])
 
-            self.rect = rect_after_bounce
-            self._speed = speed_after_bounce
+        # Decide the final speed
+        if hit_box:
+            self._speed[0] = speed_after_hit_box[0]
+        if hit_sprite:
+            self._speed[1] = speed_after_bounce[1]
+            if not hit_box:
+                self._speed[0] = speed_after_bounce[0]
 
     def _check_ball_hit_sprites(self, sprites):
         """
@@ -217,8 +225,11 @@ class Ball(pygame.sprite.Sprite):
         Check if the ball hits the `rect`
         by checking if any of ball routine collide with the `rect`.
         """
+        rect_expand = rect.inflate(1, 1)
         for routine in routines:
-            if physics.rect_collideline(rect, routine):
+            # Exclude the case of the ball goes from the surface
+            if not rect_expand.collidepoint(routine[0]) and \
+               physics.rect_collideline(rect, routine):
                 return True
 
         return False
