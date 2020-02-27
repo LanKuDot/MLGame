@@ -75,7 +75,8 @@ def rect_collideline(rect: Rect, line) -> bool:
            of line segment
     """
     # Either of line ends is in the target rect.
-    if rect.collidepoint(line[0]) or rect.collidepoint(line[1]):
+    rect_expanded = rect.inflate(1, 1)  # Take the bottom and right line into account
+    if rect_expanded.collidepoint(line[0]) or rect_expanded.collidepoint(line[1]):
         return True
 
     line_top = (Vector2(rect.left, rect.top), Vector2(rect.right, rect.top))
