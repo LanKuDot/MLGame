@@ -90,7 +90,7 @@ class Scene:
             Scene.area_rect, "1P", color_1P, self._draw_group)
         self._platform_2P = Platform((80, 50), \
             Scene.area_rect, "2P", color_2P, self._draw_group)
-        if self._difficulty == Difficulty.EASY:
+        if self._difficulty != Difficulty.HARD:
             # Put the blocker at the end of the world
             self._blocker = Blocker((85, 1000), Scene.area_rect, self._draw_group)
         else:
@@ -171,7 +171,7 @@ class Scene:
         scene_info.platform_1P = self._platform_1P.pos
         scene_info.platform_2P = self._platform_2P.pos
 
-        if self._difficulty != Difficulty.EASY:
+        if self._difficulty == Difficulty.HARD:
             scene_info.blocker = self._blocker.pos
 
         return scene_info
