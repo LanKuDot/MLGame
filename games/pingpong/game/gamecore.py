@@ -78,6 +78,7 @@ class Scene:
         self._frame_count = 0
         self._game_status = GameStatus.GAME_ALIVE
         self._ball_served = False
+        self._ball_served_frame = 0
 
         self._create_scene()
 
@@ -103,6 +104,7 @@ class Scene:
         self._frame_count = 0
         self._game_status = GameStatus.GAME_ALIVE
         self._ball_served = False
+        self._ball_served_frame = 0
         self._ball.reset()
         self._platform_1P.reset()
         self._platform_2P.reset()
@@ -147,10 +149,11 @@ class Scene:
         if target_action in SERVE_BALL_ACTIONS:
             self._ball.serve(target_action)
             self._ball_served = True
+            self._ball_served_frame = self._frame_count
 
     def _ball_moving(self):
         # Speed up the ball every 200 frames
-        if self._frame_count % 200 == 0:
+        if (self._frame_count - self._ball_served_frame) % 200 == 0:
             self._ball.speed_up()
 
         self._ball.move()
