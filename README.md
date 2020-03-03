@@ -4,11 +4,11 @@ A platform for applying machine learning algorithm to play pixel games
 
 MLGame separates the machine learning part from the game core, which makes users easily apply codes to play the game.
 
-**MLGame Beta 4.0+ is not compatible with the previous version.**
+**MLGame Beta 5.0+ is not compatible with the previous version.**
 
 ## Requirements
 
-* Python 3.5+
+* Python 3.6+
 * pygame==1.9.6
 * Other machine learning libraries you needed
 
@@ -19,7 +19,7 @@ $ python MLGame.py [options] <game> [game_params]
 ```
 
 * `game`: The name of the game to be started. Available games are "arkanoid" and "pingpong"
-* `game_params`: The additional parameters for the game.
+* `game_params`: The additional parameters for the game. See the README of the game for more information.
 * `options`:
   * `-f FPS`: Specify the updating frequency of the game
   * `-m`: Play the game in the manual mode (as a normal game)
@@ -27,19 +27,19 @@ $ python MLGame.py [options] <game> [game_params]
   * `-r`: Pickle the game progress (a list of `SceneInfo`) to log files.
   * `-i SCRIPT [SCRIPT ...]`: Specify the script(s) used in the machine learning mode. The script must have function `ml_loop()` and be put in the `games/<game>/ml/` directory.
 
-Use `python MLGame.py -h` for more information. Note that `-i` flag and the following "SCRIPTs" should be placed at the end of the command.
+Use `python MLGame.py -h` for more information. Note that `-i` flag and its following "SCRIPTs" should be placed at the end of the command.
 
 For example:
 
-* Play the game arkanoid level 3 in manual mode with 45 fps
+* Play the game arkanoid level 3 in manual mode on easy difficulty with 45 fps
   ```
-  $ python MLGame.py -m -f 45 arkanoid 3
+  $ python MLGame.py -m -f 45 arkanoid EASY 3
   ```
 
-* Play the game arkanoid level 2, record the game progress, and specify the script ml_play_template.py
+* Play the game arkanoid level 2 on normal difficulty, record the game progress, and specify the script ml_play_template.py
 
   ```
-  $ python MLGame.py -r arkanoid 2 -i ml_play_template.py
+  $ python MLGame.py arkanoid NORMAL 2 -r -i ml_play_template.py
   ```
 
 ## Machine Learning Mode
@@ -60,11 +60,11 @@ The example script for the ml process is in the file `games/<game>/ml/ml_play_te
 
 ## Log Game Progress
 
-if `-r` flag is specified, the game progress will be logged into a file. When a game round is ended, a list of `SceneInfo` is dumped to a file `<timestamp>.pickle` by using `pickle.dump()`. The file is saved in `games/<game>/log/` directory. These log files can be used to train the model.
+if `-r` flag is specified, the game progress will be logged into a file. When a game round is ended, a list of `SceneInfo` is dumped to a file `<prefix>_<timestamp>.pickle` by using `pickle.dump()`. The prefix of the filename contains the game mode and game parameters, such as `ml_EASY_2_<timestamp>.pickle`. The file is saved in `games/<game>/log/` directory. These log files can be used to train the model.
 
 ### Read Game Progress
 
-You can use `pickle.load()` to read the game progress from the file, but make sure that the top-level script is at the root directory of `MLGame`. Because the `pickle` module will try to import the related modules by absolute imports.
+You can use `pickle.load()` to read the game progress from the file, but make sure that the top-level script is at the root directory of `MLGame`. Because the `pickle` module will try to import the related modules by absolute importing.
 
 Here is the example for read the game progress:
 
@@ -100,8 +100,8 @@ You can manage reading scripts for different games, and execute the script by mo
 
 View [CHANGELOG.md](./CHANGELOG.md)
 
-## External Links
+## README of the Game
 
-Documentation for the gamecore (written in Traditional Chinese)
-* [arkanoid](https://hackmd.io/s/HkaT0SZH4)
-* [pingpong](https://hackmd.io/s/SJnGAPdjN)
+* [arkanoid](games/arkanoid/README.md)
+* [pingpong](games/pingpong/README.md)
+* [snake](games/snake/README.md)
