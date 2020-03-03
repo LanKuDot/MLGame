@@ -2,6 +2,25 @@
 
 The format is modified from [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+### [Beta 5.0] - 2020.03.03
+
+**Added**
+
+* Arkanoid and Pingpong:
+  * The serving position and direction of the ball can be decided
+  * Add difficulties for different mechanisms
+  * Add ball slicing mechanism
+* Arkanoid: Add hard bricks
+* Pingpong: Add blocker
+
+**Changed**
+
+* Update the python from 3.5 to 3.6: For the `auto()` of the custom `Enum`
+* Optimize the output of the error message
+* Refactor the game classes: Extract the drawing and recording functions
+* Add prefix to the filename of the record files
+* Physics: Optimize the ball bouncing algorithm
+
 ### [Beta 4.1] - 2019.11.06
 
 **Added**
