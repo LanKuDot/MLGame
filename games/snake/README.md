@@ -33,6 +33,16 @@
 
 View the example of the ml script in [`ml/ml_play_template.py`](ml/ml_play_template.py).
 
+### Methods
+
+The following methods are defined in [`games/snake/communication`](communication.py).
+
+* `ml_ready()`: Inform the game process that ml process is ready.
+* `get_scene_info()`: Receive the `SceneInfo` sent from the game process.
+* `send_command(frame, command)`: Send the command to the game process.
+    * `frame`: The number of frame that this command is for. This value should be the same as the `frame` of the received `SceneInfo`.
+    * `command`: The command for controlling the snake. It's one of `SnakeAction`.
+
 ### Data Structures
 
 #### `SceneInfo`
@@ -59,13 +69,3 @@ There are two `GameStatus`: `GAME_ALIVE` and `GAME_OVER`.
 Control the moving direction of the snake. Defined in [`game/gameobject.py`](game/gameobject.py).
 
 There are five `SnakeAction`: `UP`, `DOWN`, `LEFT`, `RIGHT`, and `NONE`. The action `NONE` will not change the moving direction.
-
-### Methods
-
-The following methods are defined in [`communication.py`](communication.py).
-
-* `ml_ready()`: Inform the game process that ml process is ready.
-* `get_scene_info()`: Receive the `SceneInfo` sent from the game process.
-* `send_command(frame, command)`: Send the command to the game process.
-    * `frame`: The number of frame that this command is for. This value should be the same as the `frame` of the received `SceneInfo`.
-    * `command`: The command for controlling the snake. It's one of `SnakeAction`.
