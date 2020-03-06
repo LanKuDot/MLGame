@@ -2,6 +2,13 @@
 
 The format is modified from [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+### [Beta 5.0.1] - 2020.03.06
+
+**Fixed**
+
+* Fix typo in the README of the arkanoid
+* Arkanoid: Add additional checking condition for the ball bouncing
+
 ### [Beta 5.0] - 2020.03.03
 
 **Added**
