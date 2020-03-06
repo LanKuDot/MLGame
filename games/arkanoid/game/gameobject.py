@@ -1,5 +1,6 @@
 import pygame
 from pygame import Rect, Surface
+from pygame.math import Vector2
 from pygame.sprite import Sprite
 import random
 
@@ -107,6 +108,9 @@ class Ball(Sprite):
         self.rect = Rect(*self._init_pos, 5, 5)
         self.image = self._create_surface()
 
+        # For additional collision checking
+        self._last_pos = self.rect.copy()
+
     def _create_surface(self):
         surface = pygame.Surface((self.rect.width, self.rect.height))
         surface.fill((44, 185, 214)) # Blue
@@ -131,10 +135,12 @@ class Ball(Sprite):
             self._speed = [7, -7]
 
     def move(self):
+        self._last_pos.topleft = self.rect.topleft
         self.rect.move_ip(self._speed)
 
     def check_bouncing(self, platform: Platform):
-        if physics.collide_or_tangent(self, platform):
+        if physics.collide_or_tangent(self, platform) or \
+           self._platform_addtional_check(platform):
             self.hit_platform_times += 1
 
             rect_after_bounce, speed_after_bounce = physics.bounce_off( \
@@ -148,6 +154,19 @@ class Ball(Sprite):
 
         if physics.rect_break_or_tangent_box(self.rect, self._play_area_rect):
             physics.bounce_in_box_ip(self.rect, self._speed, self._play_area_rect)
+
+    def _platform_addtional_check(self, platform: Platform):
+        """
+        The additional checking for the condition that the ball passes the corner of the platform
+        """
+        if self.rect.bottom > platform.rect.top:
+            routine_a = (Vector2(self._last_pos.bottomleft), Vector2(self.rect.bottomleft))
+            routine_b = (Vector2(self._last_pos.bottomright), Vector2(self.rect.bottomright))
+
+            return physics.rect_collideline(platform.rect, routine_a) or \
+                   physics.rect_collideline(platform.rect, routine_b)
+
+        return False
 
     def _slice_ball(self, ball_speed_x, platform_speed_x):
         """
@@ -183,7 +202,8 @@ class Ball(Sprite):
         if num_of_destroyed_brick > 0:
             # XXX: Bad multiple collision bouncing handling
             if num_of_destroyed_brick == 2 and \
-                hit_bricks[0].rect.y == hit_bricks[1].rect.y:
+               (hit_bricks[0].rect.y == hit_bricks[1].rect.y or \
+                hit_bricks[0].rect.x == hit_bricks[1].rect.x):
                 combined_rect = hit_bricks[0].rect.union(hit_bricks[1].rect)
                 physics.bounce_off_ip(self.rect, self._speed, combined_rect, (0, 0))
             else:
