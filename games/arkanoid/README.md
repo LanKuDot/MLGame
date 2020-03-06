@@ -17,7 +17,7 @@ There are two difficulties. The `EASY` one is a simple arkanoid game, and the ba
 
 ### Game Parameters
 
-* `Difficulty`: The game style.
+* `difficulty`: The game style.
     * `EASY`: The simple arkanoid game.
     * `NORMAL`: The ball slicing mechanism is added.
 * `level_id`: Specify the level map. The available values can be checked in `game/level_data/` directory.
@@ -108,7 +108,7 @@ There are 3 `GameStatus`:
 
 Control the movement of the platform. Defined in [`game/gameobject.py`](game/gameobject.py).
 
-There are 3 `PlatformAction`:
+There are 5 `PlatformAction`:
 
 * `SERVE_TO_LEFT`: Serve the ball to the left
 * `SERVE_TO_RIGHT`: Serve the ball to the right
