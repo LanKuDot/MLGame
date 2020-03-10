@@ -24,6 +24,10 @@ There are two difficulties. The `EASY` one is a simple arkanoid game, and the ba
 
 ## Detailed Game Information
 
+### Game Coordinate
+
+Use the coordinate system of pygame. The origin is at the top left corner of the game area, the positive direction of the x-axis is towards the right, and the positive direction of y-axis is downwards. The given coordinate of game objects is at the top left corner of the object, not at the middle of it.
+
 ### Game Area
 
 200 \* 500 pixels

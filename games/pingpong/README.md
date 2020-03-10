@@ -25,6 +25,10 @@ There are two mechanisms. One is ball slicing: The x speed of the ball will be c
 
 ## Detailed Game Information
 
+### Game Coordinate
+
+Same as the game "Arkanoid"
+
 ### Game Area
 
 500 \* 200 pixels

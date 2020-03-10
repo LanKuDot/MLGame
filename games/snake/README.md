@@ -1,6 +1,10 @@
 # Snake
 
+## Overview
+
 ![Imgur](https://i.imgur.com/aVDPwWP.gif)
+
+Control the snake, eat as much food as possible.
 
 ## Execution
 
@@ -9,7 +13,11 @@
     * Perhaps 30 fps is too fast to play.
 * ML mode: `python MLGame.py snake -i ml_play_template.py`
 
-## Overview
+## Detailed Game Information
+
+### Game Coordinate
+
+The same as the game "Arkanoid"
 
 ### Game area
 
@@ -23,10 +31,11 @@
 * The head is a green square, the bodies are white squares.
 * The head is initially at (40, 40), and the bodies are at (40, 30), (40, 20), (40, 10).
 * The snake initially goes downward. It moves 10 pixels long per frame.
+* The snake body will increase one when it eats the food.
 
 #### Food
 
-* The food is a red circle, and its size is also 10 \* 10 pixels.
+* The food is 10-by-10-pixel square, but its appearance is a red circle.
 * The position of the food is randomly decided, which is (0 <= 10 \* m < 300, 0 <= 10 \* n < 300), where m and n are non-negative integers.
 
 ## Communicate with Game
