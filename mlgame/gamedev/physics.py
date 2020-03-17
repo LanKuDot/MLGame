@@ -79,10 +79,10 @@ def rect_collideline(rect: Rect, line) -> bool:
     if rect_expanded.collidepoint(line[0]) or rect_expanded.collidepoint(line[1]):
         return True
 
-    line_top = (Vector2(rect.left, rect.top), Vector2(rect.right, rect.top))
-    line_bottom = (Vector2(rect.left, rect.bottom), Vector2(rect.right, rect.bottom))
-    line_left = (Vector2(rect.left, rect.top), Vector2(rect.left, rect.bottom))
-    line_right = (Vector2(rect.right, rect.top), Vector2(rect.right, rect.bottom))
+    line_top = (Vector2(rect.topleft), Vector2(rect.topright))
+    line_bottom = (Vector2(rect.bottomleft), Vector2(rect.bottomright))
+    line_left = (Vector2(rect.topleft), Vector2(rect.bottomleft))
+    line_right = (Vector2(rect.topright), Vector2(rect.bottomright))
 
     return line_intersect(line_top, line) or \
         line_intersect(line_bottom, line) or \
