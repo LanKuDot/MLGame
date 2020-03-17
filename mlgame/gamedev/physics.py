@@ -6,9 +6,9 @@ from pygame import Rect
 from pygame.sprite import Sprite
 from pygame.math import Vector2
 
-def collide_or_tangent(sprite_a: Sprite, sprite_b: Sprite) -> bool:
+def collide_or_contact(sprite_a: Sprite, sprite_b: Sprite) -> bool:
     """
-    Check if two sprites are colliding or tangent
+    Check if two sprites are colliding or contacting
     """
     rect_a = sprite_a.rect
     rect_b = sprite_b.rect
@@ -119,9 +119,9 @@ def rect_collideline(rect: Rect, line) -> bool:
         line_intersect(line_left, line) or \
         line_intersect(line_right, line)
 
-def rect_break_or_tangent_box(rect: Rect, box: Rect):
+def rect_break_or_contact_box(rect: Rect, box: Rect):
     """
-    Determine if the `rect` doesn't contain in the `box` or it tangents in the `box`
+    Determine if the `rect` breaks the `box` or it contacts the border of `box`
 
     @param rect The Rect of the target rectangle
     @param box The target box

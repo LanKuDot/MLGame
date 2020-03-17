@@ -139,7 +139,7 @@ class Ball(Sprite):
         self.rect.move_ip(self._speed)
 
     def check_bouncing(self, platform: Platform):
-        if physics.collide_or_tangent(self, platform) or \
+        if physics.collide_or_contact(self, platform) or \
            self._platform_addtional_check(platform):
             self.hit_platform_times += 1
 
@@ -152,7 +152,7 @@ class Ball(Sprite):
             self.rect = rect_after_bounce
             self._speed = speed_after_bounce
 
-        if physics.rect_break_or_tangent_box(self.rect, self._play_area_rect):
+        if physics.rect_break_or_contact_box(self.rect, self._play_area_rect):
             physics.bounce_in_box_ip(self.rect, self._speed, self._play_area_rect)
 
     def _platform_addtional_check(self, platform: Platform):
@@ -196,7 +196,7 @@ class Ball(Sprite):
         @return The number of destroyed bricks
         """
         hit_bricks = pygame.sprite.spritecollide(self, group_brick, 1, \
-            physics.collide_or_tangent)
+            physics.collide_or_contact)
         num_of_destroyed_brick = len(hit_bricks)
 
         if num_of_destroyed_brick > 0:

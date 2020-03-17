@@ -171,7 +171,7 @@ class Ball(pygame.sprite.Sprite):
         blocker: Blocker):
         # If the ball hits the play_area, adjust the position first
         # and preserve the speed after bouncing.
-        hit_box = physics.rect_break_or_tangent_box(self.rect, self._play_area_rect)
+        hit_box = physics.rect_break_or_contact_box(self.rect, self._play_area_rect)
         if hit_box:
             self.rect, speed_after_hit_box = \
                 physics.bounce_in_box(self.rect, self._speed, self._play_area_rect)
