@@ -114,7 +114,7 @@ class Ball(pygame.sprite.Sprite):
         self.image = self._create_surface()
 
         # Used in additional collision detection
-        self._last_pos = pygame.Rect(self.rect)
+        self.last_pos = pygame.Rect(self.rect)
 
     def _create_surface(self):
         surface = pygame.Surface((self.rect.width, self.rect.height))
@@ -160,7 +160,7 @@ class Ball(pygame.sprite.Sprite):
         self._speed[1] = -7 if self.serve_from_1P else 7
 
     def move(self):
-        self._last_pos.topleft = self.rect.topleft
+        self.last_pos.topleft = self.rect.topleft
         self.rect.move_ip(self._speed)
 
     def speed_up(self):
@@ -206,33 +206,11 @@ class Ball(pygame.sprite.Sprite):
         @return The first sprite in the `sprites` that the ball hits.
                 Return None, if none of them is hit by the ball.
         """
-        # Generate routines of 4 corners of the ball
-        routines = ( \
-            (Vector2(self._last_pos.topleft), Vector2(self.rect.topleft)), \
-            (Vector2(self._last_pos.topright), Vector2(self.rect.topright)), \
-            (Vector2(self._last_pos.bottomleft), Vector2(self.rect.bottomleft)), \
-            (Vector2(self._last_pos.bottomright), Vector2(self.rect.bottomright))
-        )
-
         for sprite in sprites:
-            if self._ball_routine_hit_rect(sprite.rect, routines):
+            if physics.moving_collide_or_contact(self, sprite):
                 return sprite
 
         return None
-
-    def _ball_routine_hit_rect(self, rect: pygame.Rect, routines) -> bool:
-        """
-        Check if the ball hits the `rect`
-        by checking if any of ball routine collide with the `rect`.
-        """
-        rect_expand = rect.inflate(1, 1)
-        for routine in routines:
-            # Exclude the case of the ball goes from the surface
-            if not rect_expand.collidepoint(routine[0]) and \
-               physics.rect_collideline(rect, routine):
-                return True
-
-        return False
 
     def _slice_ball(self, ball_speed, platform_speed_x):
         """

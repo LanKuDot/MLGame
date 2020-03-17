@@ -20,6 +20,36 @@ def collide_or_tangent(sprite_a: Sprite, sprite_b: Sprite) -> bool:
         return True
     return False
 
+def moving_collide_or_contact(moving_sprite: Sprite, sprite: Sprite) -> bool:
+    """
+    Check if the moving sprite collides or contacts another sprite.
+
+    @param moving_sprite The sprite that moves in the scene.
+           It must contain `rect` and `last_pos` attributes, which both are `pygame.Rect`.
+    @param sprite The sprite that will be collided or contacted by `moving_sprite`.
+           It must contain `rect` attribute, which is also `pygame.Rect`.
+    """
+    # Generate the routine of 4 corners of the moving sprite
+    move_rect = moving_sprite.rect
+    move_last_pos = moving_sprite.last_pos
+    routines = ( \
+        (Vector2(move_last_pos.topleft), Vector2(move_rect.topleft)), \
+        (Vector2(move_last_pos.topright), Vector2(move_rect.topright)), \
+        (Vector2(move_last_pos.bottomleft), Vector2(move_rect.bottomleft)), \
+        (Vector2(move_last_pos.bottomright), Vector2(move_rect.bottomright))
+    )
+
+    # Check any of routines collides the rect
+    ## Take the bottom and right into account when using the API of pygame
+    rect_expanded = sprite.rect.inflate(1, 1)
+    for routine in routines:
+        # Exclude the case that the `moving_sprite` goes from the surface of `sprite`
+        if not rect_expanded.collidepoint(routine[0]) and \
+            rect_collideline(sprite.rect, routine):
+            return True
+
+    return False
+
 def line_intersect(line_a, line_b) -> bool:
     """
     Check if two line segments intersect
