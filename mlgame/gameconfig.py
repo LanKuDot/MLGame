@@ -93,7 +93,7 @@ class GameConfig:
         self.game_name = parsed_args.game[0]
         self.game_params = parsed_args.game_params
 
-        self.game_mode = self.get_game_mode(parsed_args)
+        self.game_mode = GameMode.MANUAL if parsed_args.manual_mode else GameMode.ML
         self.one_shot_mode = parsed_args.one_shot_mode
         self.record_progress = parsed_args.record_progress
 
@@ -105,15 +105,6 @@ class GameConfig:
         if self.game_mode == GameMode.ML and len(self.input_modules) == 0:
             raise FileNotFoundError("No script or module is specified. " \
                 "Cannot start the game in the machine learning mode.")
-
-    def get_game_mode(self, parsed_args):
-        """
-        Judge the game mode according to the parsed arguments
-        """
-        if parsed_args.manual_mode:
-            return GameMode.MANUAL
-
-        return GameMode.ML
 
     def _parse_ml_scripts(self, input_scripts):
         """
