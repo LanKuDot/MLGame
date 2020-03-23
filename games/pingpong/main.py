@@ -8,8 +8,8 @@ def ml_mode(config: GameConfig):
     Start the game in the machine learning mode
     """
     try:
-        difficulty, game_over_score = \
-            _get_difficulty_and_score(config.game_params, config.one_shot_mode)
+        difficulty, game_over_score = (
+            _get_difficulty_and_score(config.game_params, config.one_shot_mode))
     except GameParameterError as e:
         print("Error: " + str(e), usage(), sep = "\n")
         return
@@ -19,8 +19,8 @@ def ml_mode(config: GameConfig):
     from mlgame.process import ProcessManager
 
     process_manager = ProcessManager()
-    process_manager.set_game_process(_start_game_process, \
-        args = (config.fps, difficulty, game_over_score, \
+    process_manager.set_game_process(_start_game_process,
+        args = (config.fps, difficulty, game_over_score,
         config.record_progress))
     process_manager.add_ml_process(module_1P, "ml_1P", args = ("1P", ))
     process_manager.add_ml_process(module_2P, "ml_2P", args = ("2P", ))
@@ -56,8 +56,8 @@ def manual_mode(config: GameConfig):
     from .game.pingpong import PingPong
 
     try:
-        difficulty, game_over_score = \
-            _get_difficulty_and_score(config.game_params, config.one_shot_mode)
+        difficulty, game_over_score = (
+            _get_difficulty_and_score(config.game_params, config.one_shot_mode))
     except GameParameterError as e:
         print("Error: " + str(e), usage(), sep = "\n")
         return
@@ -95,9 +95,9 @@ def _get_difficulty_and_score(game_params, one_shot_mode):
     return difficulty, game_over_score
 
 def usage():
-    return \
-        "Usage: python MLGame.py pingpong <difficulty> [game_over_score]\n" + \
-        "Game parameters:\n" + \
-        "- difficulty: The game style. Should be 'EASY', 'NORMAL' or 'HARD'\n" + \
-        "- game_over_score: [Optional] The score that the game will exit when either side " + \
-        "reaches"
+    return (
+        "Usage: python MLGame.py pingpong <difficulty> [game_over_score]\n" +
+        "Game parameters:\n" +
+        "- difficulty: The game style. Should be 'EASY', 'NORMAL' or 'HARD'\n" +
+        "- game_over_score: [Optional] The score that the game will exit when either side " +
+        "reaches")

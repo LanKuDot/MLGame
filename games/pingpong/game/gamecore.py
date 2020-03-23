@@ -57,16 +57,16 @@ class SceneInfo:
         self.command_2P = PlatformAction.NONE.value
 
     def __str__(self):
-        output_str = \
-            "# Frame {}\n".format(self.frame) + \
-            "# Status {}\n".format(self.status) + \
-            "# Ball {}\n".format(self.ball) + \
-            "# Ball_speed {}\n".format(self.ball_speed) + \
-            "# Platform_1P {}\n".format(self.platform_1P) + \
-            "# Platform_2P {}\n".format(self.platform_2P) + \
-            "# Blocker {}\n".format(self.blocker) + \
-            "# Command_1P {}\n".format(self.command_1P) + \
-            "# Command_2P {}".format(self.command_2P)
+        output_str = (
+            "# Frame {}\n".format(self.frame) +
+            "# Status {}\n".format(self.status) +
+            "# Ball {}\n".format(self.ball) +
+            "# Ball_speed {}\n".format(self.ball_speed) +
+            "# Platform_1P {}\n".format(self.platform_1P) +
+            "# Platform_2P {}\n".format(self.platform_2P) +
+            "# Blocker {}\n".format(self.blocker) +
+            "# Command_1P {}\n".format(self.command_1P) +
+            "# Command_2P {}".format(self.command_2P))
 
         return output_str
 
@@ -87,9 +87,9 @@ class Scene:
 
         enable_slice_ball = False if self._difficulty == Difficulty.EASY else True
         self._ball = Ball(Scene.area_rect, enable_slice_ball, self._draw_group)
-        self._platform_1P = Platform((80, Scene.area_rect.height - 80), \
+        self._platform_1P = Platform((80, Scene.area_rect.height - 80),
             Scene.area_rect, "1P", color_1P, self._draw_group)
-        self._platform_2P = Platform((80, 50), \
+        self._platform_2P = Platform((80, 50),
             Scene.area_rect, "2P", color_2P, self._draw_group)
         if self._difficulty != Difficulty.HARD:
             # Put the blocker at the end of the world
@@ -113,7 +113,7 @@ class Scene:
         # Initialize the position of the ball
         self._ball.stick_on_platform(self._platform_1P.rect, self._platform_2P.rect)
 
-    def update(self, \
+    def update(self,
         move_action_1P: PlatformAction, move_action_2P: PlatformAction):
         self._frame_count += 1
         self._platform_1P.move(move_action_1P)
@@ -142,8 +142,8 @@ class Scene:
         target_action = action_1P if self._ball.serve_from_1P else action_2P
 
         # Force to serve the ball after 150 frames
-        if self._frame_count >= 150 and \
-           target_action not in SERVE_BALL_ACTIONS:
+        if (self._frame_count >= 150 and
+            target_action not in SERVE_BALL_ACTIONS):
             target_action = random.choice(SERVE_BALL_ACTIONS)
 
         if target_action in SERVE_BALL_ACTIONS:

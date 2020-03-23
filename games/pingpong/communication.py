@@ -14,12 +14,12 @@ class GameCommand:
         """
         # Check the type of the arguments
         if not isinstance(frame, int):
-            raise TypeError("Invalid type of 'frame' for 'GameCommand'." \
-                " Type 'int' is needed, but '{}' is given." \
+            raise TypeError("Invalid type of 'frame' for 'GameCommand'."
+                " Type 'int' is needed, but '{}' is given."
                 .format(type(frame).__name__))
         if not isinstance(command, PlatformAction):
-            raise TypeError("Invalid type of 'command' for 'GameCommand'." \
-                " Type 'PlatformAction' is needed, but '{}' is given." \
+            raise TypeError("Invalid type of 'command' for 'GameCommand'."
+                " Type 'PlatformAction' is needed, but '{}' is given."
                 .format(type(command).__name__))
 
         self.frame = frame

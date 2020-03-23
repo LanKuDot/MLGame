@@ -18,18 +18,18 @@ class Screen:
         self._font = pygame.font.Font(None, 22)
         self._font_pos_1P = (1, self._surface.get_height() - 21)
         self._font_pos_2P = (1, 4)
-        self._font_pos_speed = (self._surface.get_width() - 120, \
+        self._font_pos_speed = (self._surface.get_width() - 120,
             self._surface.get_height() - 21)
 
     def update(self, score, ball_speed):
         self._surface.fill((0, 0, 0))
         self._func_draw_gameobjects(self._surface)
 
-        font_surface_1P = self._font.render( \
+        font_surface_1P = self._font.render(
             "1P: {}".format(score[0]), True, gamecore.color_1P)
-        font_surface_2P = self._font.render( \
+        font_surface_2P = self._font.render(
             "2P: {}".format(score[1]), True, gamecore.color_2P)
-        font_surface_speed = self._font.render( \
+        font_surface_speed = self._font.render(
             "Speed: {}".format(ball_speed), True, (255, 255, 255))
         self._surface.blit(font_surface_1P, self._font_pos_1P)
         self._surface.blit(font_surface_2P, self._font_pos_2P)
@@ -95,8 +95,8 @@ class PingPong:
             self._score[0] += 1
             self._score[1] += 1
 
-        is_game_over = self._score[0] == self._game_over_score or \
-            self._score[1] == self._game_over_score
+        is_game_over = (self._score[0] == self._game_over_score or
+            self._score[1] == self._game_over_score)
 
         return is_game_over
 

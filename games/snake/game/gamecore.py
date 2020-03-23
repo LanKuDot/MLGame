@@ -39,13 +39,13 @@ class SceneInfo:
         self.command = None
 
     def __str__(self):
-        output_str = \
-            "# Frame {}\n".format(self.frame) + \
-            "# Status {}\n".format(self.status.value) + \
-            "# Snake Head {}\n".format(self.snake_head) + \
-            "# Snake Body {}\n".format(' '.join(str(body) for body in self.snake_body)) + \
-            "# Food {} \n".format(self.food) + \
-            "# Command {}".format(self.command.value)
+        output_str = (
+            "# Frame {}\n".format(self.frame) +
+            "# Status {}\n".format(self.status.value) +
+            "# Snake Head {}\n".format(self.snake_head) +
+            "# Snake Body {}\n".format(' '.join(str(body) for body in self.snake_body)) +
+            "# Food {} \n".format(self.food) +
+            "# Command {}".format(self.command.value))
 
         return output_str
 
@@ -79,12 +79,12 @@ class Scene:
         Randomly set the position of the food
         """
         while True:
-            candidate_pos = \
-                (random.randrange(0, Scene.area_rect.width, 10), \
-                 random.randrange(0, Scene.area_rect.height, 10))
+            candidate_pos = (
+                (random.randrange(0, Scene.area_rect.width, 10),
+                 random.randrange(0, Scene.area_rect.height, 10)))
 
-            if candidate_pos != self._snake.head_pos and \
-               not self._snake.is_body_pos(candidate_pos):
+            if (candidate_pos != self._snake.head_pos and
+               not self._snake.is_body_pos(candidate_pos)):
                    break
 
         self._food.pos = candidate_pos
@@ -120,8 +120,8 @@ class Scene:
             new_body = self._snake.grow()
             self._draw_group.add(new_body)
 
-        if not Scene.area_rect.collidepoint(self._snake.head_pos) or \
-           self._snake.is_body_pos(self._snake.head_pos):
+        if (not Scene.area_rect.collidepoint(self._snake.head_pos) or
+           self._snake.is_body_pos(self._snake.head_pos)):
             self._status = GameStatus.GAME_OVER
 
         return self._status

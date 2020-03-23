@@ -4,8 +4,8 @@ def ml_mode(config):
     from mlgame.process import ProcessManager
 
     process_manager = ProcessManager()
-    process_manager.set_game_process(_start_game_process, \
-        args = (config.fps, config.one_shot_mode, \
+    process_manager.set_game_process(_start_game_process,
+        args = (config.fps, config.one_shot_mode,
         config.record_progress))
     process_manager.add_ml_process(config.input_modules[0], "ml")
 

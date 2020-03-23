@@ -27,7 +27,7 @@ class Snake:
         self._ml_name = "ml"
         self._ml_execution_time = 1 / fps
         self._frame_delayed = 0
-        self._cmd_receiver = CommandReceiver( \
+        self._cmd_receiver = CommandReceiver(
             GameCommand, {
                 "command": SnakeAction,
             }, GameCommand(-1, SnakeAction.NONE))
@@ -41,7 +41,7 @@ class Snake:
         """
         pygame.display.init()
         pygame.display.set_caption("Snake")
-        self._screen = pygame.display.set_mode( \
+        self._screen = pygame.display.set_mode(
             (Scene.area_rect.width, Scene.area_rect.height + 25))
 
         pygame.font.init()
@@ -105,8 +105,8 @@ class Snake:
         game_cmd = self._cmd_receiver.recv(self._ml_name)
 
         # Check and update the frame delayed
-        if game_cmd.frame != -1 and \
-           scene_info.frame - game_cmd.frame > self._frame_delayed:
+        if (game_cmd.frame != -1 and
+            scene_info.frame - game_cmd.frame > self._frame_delayed):
             self._frame_delayed = scene_info.frame - game_cmd.frame
 
         return game_cmd.command
@@ -120,8 +120,8 @@ class Snake:
         self._scene.draw_gameobjects(self._screen)
 
         # Draw score
-        font_surface = self._font.render( \
-            "Score: {}, Frame delayed: {}".format(self._scene.score, self._frame_delayed), \
+        font_surface = self._font.render(
+            "Score: {}, Frame delayed: {}".format(self._scene.score, self._frame_delayed),
             True, (255, 255, 255))
         self._screen.blit(font_surface, self._font_pos)
 

@@ -22,7 +22,7 @@ def init_pygame():
 def ml_loop(side: str):
     init_pygame()
 
-    print("Invisible joystick is used. " \
+    print("Invisible joystick is used. "
         "Press Enter to start the {} ml process.".format(side))
     while wait_enter_key():
         pass
