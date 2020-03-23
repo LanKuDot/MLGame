@@ -140,7 +140,7 @@ class Ball(Sprite):
 
     def check_bouncing(self, platform: Platform):
         if physics.collide_or_contact(self, platform) or \
-           self._platform_addtional_check(platform):
+           self._platform_additional_check(platform):
             self.hit_platform_times += 1
 
             rect_after_bounce, speed_after_bounce = physics.bounce_off( \
@@ -155,7 +155,7 @@ class Ball(Sprite):
         if physics.rect_break_or_contact_box(self.rect, self._play_area_rect):
             physics.bounce_in_box_ip(self.rect, self._speed, self._play_area_rect)
 
-    def _platform_addtional_check(self, platform: Platform):
+    def _platform_additional_check(self, platform: Platform):
         """
         The additional checking for the condition that the ball passes the corner of the platform
         """
