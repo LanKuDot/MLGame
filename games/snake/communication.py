@@ -17,12 +17,12 @@ class GameCommand:
     def __init__(self, frame, command):
         # Check if the type of the `frame` and `command` is valid or not
         if not isinstance(frame, int):
-            raise TypeError("Invalid type of 'frame' for 'GameCommand'. " \
-                "Type 'int' is needed, but '{}' is given." \
+            raise TypeError("Invalid type of 'frame' for 'GameCommand'. "
+                "Type 'int' is needed, but '{}' is given."
                 .format(type(frame).__name__))
         if not isinstance(command, SnakeAction):
-            raise TypeError("Invalid type of 'command' for 'GameCommand'. " \
-                "Type 'SnakeAction' is needed, but '{}' is given." \
+            raise TypeError("Invalid type of 'command' for 'GameCommand'. "
+                "Type 'SnakeAction' is needed, but '{}' is given."
                 .format(type(command).__name__))
 
         self.frame = frame

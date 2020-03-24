@@ -14,8 +14,8 @@ def get_record_handler(record_progress: bool, filename_prefix: str):
     if not record_progress:
         return lambda x: None
 
-    recorder = RecorderHelper(get_log_dir(), \
-        { "status": (GameStatus.GAME_PASS, GameStatus.GAME_OVER) }, \
+    recorder = RecorderHelper(get_log_dir(),
+        { "status": (GameStatus.GAME_PASS, GameStatus.GAME_OVER) },
         filename_prefix)
     return recorder.record_handler
 

@@ -37,7 +37,7 @@ class Snake:
         """
         pygame.display.init()
         pygame.display.set_caption("Snake")
-        self._screen = pygame.display.set_mode( \
+        self._screen = pygame.display.set_mode(
             (Scene.area_rect.width, Scene.area_rect.height + 25))
 
         self._clock = pygame.time.Clock()
@@ -88,7 +88,7 @@ class Snake:
         self._scene.draw_gameobjects(self._screen)
 
         # Draw score
-        font_surface = self._font.render( \
+        font_surface = self._font.render(
             "Score: {}".format(self._scene.score), True, (255, 255, 255))
         self._screen.blit(font_surface, self._font_pos)
 

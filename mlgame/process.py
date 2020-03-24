@@ -4,7 +4,7 @@ import traceback
 from multiprocessing import Process, Pipe
 from .communication.base import CommunicationSet, CommunicationHandler
 from .exception import (
-    GameProcessError, MLProcessError, \
+    GameProcessError, MLProcessError,
         trim_callstack
 )
 
@@ -84,9 +84,9 @@ class ProcessManager:
             recv_pipe_for_game, send_pipe_for_ml = Pipe(False)
             recv_pipe_for_ml, send_pipe_for_game = Pipe(False)
 
-            self._game_proc_helper.add_comm_to_ml(ml_proc_helper.name, \
+            self._game_proc_helper.add_comm_to_ml(ml_proc_helper.name,
                 recv_pipe_for_game, send_pipe_for_game)
-            ml_proc_helper.set_comm_to_game( \
+            ml_proc_helper.set_comm_to_game(
                 recv_pipe_for_ml, send_pipe_for_ml)
 
     def _start_ml_processes(self):
@@ -94,7 +94,7 @@ class ProcessManager:
         Spawn and start all ml processes
         """
         for ml_proc_helper in self._ml_proc_helpers:
-            process = Process(target = _ml_process_entry_point, \
+            process = Process(target = _ml_process_entry_point,
                 name = ml_proc_helper.name, args = (ml_proc_helper,))
             process.start()
 

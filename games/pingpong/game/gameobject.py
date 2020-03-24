@@ -15,7 +15,7 @@ class PlatformAction(StringEnum):
 SERVE_BALL_ACTIONS = (PlatformAction.SERVE_TO_LEFT, PlatformAction.SERVE_TO_RIGHT)
 
 class Platform(pygame.sprite.Sprite):
-    def __init__(self, init_pos: tuple, play_area_rect: pygame.Rect, \
+    def __init__(self, init_pos: tuple, play_area_rect: pygame.Rect,
             side, color, *groups):
         super().__init__(*groups)
 
@@ -41,7 +41,7 @@ class Platform(pygame.sprite.Sprite):
             surface.blit(platform_image, (0, surface.get_height() - 10))
 
         # Draw the outline of the platform rect
-        pygame.draw.rect(surface, color, \
+        pygame.draw.rect(surface, color,
             pygame.Rect(0, 0, self.rect.width, self.rect.height), 1)
 
         return surface
@@ -54,11 +54,11 @@ class Platform(pygame.sprite.Sprite):
         self.rect.x, self.rect.y = self._init_pos
 
     def move(self, move_action: PlatformAction):
-        if move_action == PlatformAction.MOVE_LEFT and \
-            self.rect.left > self._play_area_rect.left:
+        if (move_action == PlatformAction.MOVE_LEFT and
+            self.rect.left > self._play_area_rect.left):
             self._speed[0] = -self._shift_speed
-        elif move_action == PlatformAction.MOVE_RIGHT and \
-            self.rect.right < self._play_area_rect.right:
+        elif (move_action == PlatformAction.MOVE_RIGHT and
+            self.rect.right < self._play_area_rect.right):
             self._speed[0] = self._shift_speed
         else:
             self._speed[0] = 0
@@ -167,27 +167,27 @@ class Ball(pygame.sprite.Sprite):
         self._speed[0] += 1 if self._speed[0] > 0 else -1
         self._speed[1] += 1 if self._speed[1] > 0 else -1
 
-    def check_bouncing(self, platform_1p: Platform, platform_2p: Platform, \
+    def check_bouncing(self, platform_1p: Platform, platform_2p: Platform,
         blocker: Blocker):
         # If the ball hits the play_area, adjust the position first
         # and preserve the speed after bouncing.
         hit_box = physics.rect_break_or_contact_box(self.rect, self._play_area_rect)
         if hit_box:
-            self.rect, speed_after_hit_box = \
-                physics.bounce_in_box(self.rect, self._speed, self._play_area_rect)
+            self.rect, speed_after_hit_box = (
+                physics.bounce_in_box(self.rect, self._speed, self._play_area_rect))
 
         # If the ball hits the specified sprites, adjust the position again
         # and preserve the speed after bouncing.
         hit_sprite = self._check_ball_hit_sprites((platform_1p, platform_2p, blocker))
         if hit_sprite:
-            self.rect, speed_after_bounce = physics.bounce_off( \
-                self.rect, self._speed, \
+            self.rect, speed_after_bounce = physics.bounce_off(
+                self.rect, self._speed,
                 hit_sprite.rect, hit_sprite._speed)
 
             # Check slicing ball when the ball is caught by the platform
-            if self._do_slide_ball and \
-               ((hit_sprite is platform_1p and speed_after_bounce[1] < 0) or \
-                (hit_sprite is platform_2p and speed_after_bounce[1] > 0)):
+            if (self._do_slide_ball and
+               ((hit_sprite is platform_1p and speed_after_bounce[1] < 0) or
+                (hit_sprite is platform_2p and speed_after_bounce[1] > 0))):
                 speed_after_bounce[0] = self._slice_ball(self._speed, hit_sprite._speed[0])
 
         # Decide the final speed

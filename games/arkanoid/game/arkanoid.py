@@ -36,8 +36,8 @@ class Screen:
         self._surface.fill((0, 0, 0))
         self._func_draw_gameobject(self._surface)
 
-        font_surface = self._font.render( \
-            "Catching ball: {}".format(catch_ball_times), \
+        font_surface = self._font.render(
+            "Catching ball: {}".format(catch_ball_times),
             True, (255, 255, 255))
         self._surface.blit(font_surface, self._font_pos)
 
@@ -56,7 +56,7 @@ class Arkanoid:
                 pygame.K_RIGHT: PlatformAction.MOVE_RIGHT,
             }, PlatformAction.NONE)
 
-        self._record_handler = get_record_handler(record_progress, \
+        self._record_handler = get_record_handler(record_progress,
             "manual_" + str(difficulty) + "_" + str(level))
         self._one_shot_mode = one_shot_mode
 
@@ -68,8 +68,8 @@ class Arkanoid:
             self._record_scene_info(command)
             game_status = self._scene.update(command)
 
-            if game_status == GameStatus.GAME_OVER or \
-               game_status == GameStatus.GAME_PASS:
+            if (game_status == GameStatus.GAME_OVER or
+                game_status == GameStatus.GAME_PASS):
                 print(game_status.value)
                 self._record_scene_info(None)
 
