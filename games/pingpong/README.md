@@ -142,7 +142,7 @@ There are 5 `PlatformAction`:
 The pingpong game is a 2P game, so it can accept two different ml scripts by specifying `-i <script_for_1P> <script_for_2P>`. If there is only one script specified, 1P and 2P will use the same script.
 
 You can specify `ml_play_manual.py` as the input script. It will create an invisible joystick for you to play with the ml process. For example: 
-1. Start the game by the command `python MLGame.py pingpong -i ml_play_template.py ml_play_manual.py`. There will be 2 windows, and one is the "Invisible joystick". The terminal will output a message "Invisible joystick is used. Press Enter to start the 2P ml process."
+1. Start the game by the command `python MLGame.py pingpong <difficulty> -i ml_play_template.py ml_play_manual.py`. There will be 2 windows, and one is the "Invisible joystick". The terminal will output a message "Invisible joystick is used. Press Enter to start the 2P ml process."
 
 <img src="https://i.imgur.com/iyrS87t.png" height="500px" />
 
