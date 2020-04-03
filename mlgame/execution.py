@@ -1,4 +1,5 @@
 """
+Parse the execution command, load the game config, and execute the game
 """
 import importlib
 import sys
@@ -26,6 +27,15 @@ def execute():
 def _get_game_config() -> GameConfig:
     """
     Parse the game config specified from the command line and generate `GameConfig`
+
+    This function will load `GAME_PARAMS` defined in the "config.py" in the game
+    directory to generate a parser for parsing the game parameters.
+    If it cannot find `GAME_PARAMS`, it will generate a default parser.
+    Refer `mlgame.utils.argparser_generator` for the format of the `GAME_PARAMS`.
+
+    A special case is that specifying "game_usage" to "()" in `GAME_PARAMS`.
+    The program will append the usage of `MLGame.py` to the "game_usage" and
+    assign it to the "usage".
 
     @return A `GameConfig` object
     """
@@ -90,6 +100,54 @@ def _preprocess_game_param_dict(param_dict):
 def _game_execution(game_config: GameConfig):
     """
     Execute the game
+
+    This function will load the `PROCESSES` which specifies how to start the game
+    from the "config.py" in the game directory. The `PROCESSES` is a dictionary which
+    has 2 keys - "manual_mode" and "ml_mode", and the program will use either key
+    according to the game mode.
+
+    The value of the key "manual_mode" or "ml_mode" is a "process_config" which is
+    a dictionary specifying how to start processes. The "process_config" for
+    "manual_mode" has only a key "game" to specify how to start a game process.
+    The value for the key "game" is also a dictionary which has 3 members:
+    - "target": The entry function to start a game process. The value must be a
+        callable. If it is a string, the program will try to find the function
+        of the same name defined in the "config.py" of the game. The "target" must
+        provide a parameter as the first parameter for the program to pass a
+        `GameConfig` object.
+    - "args": [Optional] The positional arguments to be passed to the "target".
+        Should be a tuple or a list. The `GameConfig` object will be added as the
+        first object in the "args" before invoking "target".
+    - "kwargs": [Optional] The keyword arguments to be passed to the "target".
+        Should be a dictionary.
+
+    The "process_config" for the "ml_mode" is similar to the "manual_mode",
+    but it has additional members for the ml processes. The key name is the name
+    of the ml process, its value is similar to the "game"s', but it dosen't
+    have the key "target", and the `GameConfig` object will not be added to
+    the "args".
+
+    An example of `PROCESSES`:
+    ```python
+    PROCESSES = {
+        "manual_mode": {
+            "game": {
+                "target": "run_game",
+                "args": ("foo", )
+            }
+        },
+        "ml_mode": {
+            "game": {
+                "target": "run_game",
+                "args": ("bar", )
+            },
+            "ml": {}
+        }
+    }
+
+    def run_game(game_config, bar):
+        print(bar)
+    ```
 
     @param config The parsed game config
     """
