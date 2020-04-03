@@ -16,14 +16,18 @@ def get_command_parser():
         "Use \"--input-script\" or \"--input-module\" flag at the end of the command " \
         "to specify script(s) or module(s) for playing the game."
 
-    parser = ArgumentParser(usage = usage_str, description = description_str)
+    parser = ArgumentParser(usage = usage_str, description = description_str,
+        add_help = False)
 
-    parser.add_argument("game", type = str, nargs = 1, \
+    parser.add_argument("game", type = str, nargs = "?", \
         help = "the name of the game to be started")
     parser.add_argument("game_params", nargs = '*', default = None, \
         help = "the additional settings for the game")
 
     parser.add_argument("--version", action = "version", version = version)
+    parser.add_argument("-h", "--help", action = "store_true",
+        help = "show this help message and exit. "
+        "If the <game> is specified, show the help message of the game instead.")
     parser.add_argument("-f", "--fps", type = int, default = 30, \
         help = "the updating frequency of the game process [default: %(default)s]")
     parser.add_argument("-m", "--manual-mode", action = "store_true", default = False, \
@@ -50,18 +54,6 @@ def get_command_parser():
         "`ml_loop()`. [default: %(default)s]")
 
     return parser
-
-def get_game_config():
-    """
-    Parse the command line and generate the GameConfig from the parsed result
-    """
-    parser = get_command_parser()
-    try:
-        game_config = GameConfig(parser.parse_args())
-    except Exception as e:
-        raise GameConfigError(str(e))
-    else:
-        return game_config
 
 class GameMode(Enum):
     """
@@ -90,7 +82,7 @@ class GameConfig:
         """
         Generate the game configuration from the parsed command line arguments
         """
-        self.game_name = parsed_args.game[0]
+        self.game_name = parsed_args.game
         self.game_params = parsed_args.game_params
 
         self.game_mode = GameMode.MANUAL if parsed_args.manual_mode else GameMode.ML

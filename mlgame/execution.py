@@ -3,7 +3,7 @@
 import importlib
 import sys
 
-from .gameconfig import get_game_config, GameMode, GameConfig
+from .gameconfig import get_command_parser, GameMode, GameConfig
 from .exception import GameConfigError
 from .utils.argparser_generator import get_parser_from_dict
 
@@ -12,7 +12,7 @@ def execute():
     Parse the execution command and execute the game
     """
     try:
-        game_config = _parse_game_config()
+        game_config = _get_game_config()
     except GameConfigError as e:
         print("Error:", e)
         sys.exit(1)
@@ -23,32 +23,54 @@ def execute():
         print("Error:", e)
         sys.exit(1)
 
-def _parse_game_config():
+def _get_game_config() -> GameConfig:
     """
-    Parse the game config specified from the command line
-    """
-    config = get_game_config()
+    Parse the game config specified from the command line and generate `GameConfig`
 
+    @return A `GameConfig` object
+    """
+    # Parse the command line arguments
+    cmd_parser = get_command_parser()
+    parsed_args = cmd_parser.parse_args()
+
+    # If "-h/--help" is specified, print help message and exit.
+    if not parsed_args.game and parsed_args.help:
+        cmd_parser.print_help()
+        sys.exit(0)
+
+    # Load the game defined parameters
     try:
         game_defined_config = importlib.import_module(
-            "games.{}.config".format(config.game_name))
+            "games.{}.config".format(parsed_args.game))
         game_defined_params = game_defined_config.GAME_PARAMS
     except ModuleNotFoundError:
         raise GameConfigError("Game '{}' dosen\'t provide 'config.py'"
-            .format(config.game_name))
+            .format(parsed_args.game))
     except AttributeError:
-        # The game doesn't define any game parameters
-        game_defined_params = {}
+        # The game doesn't define any game parameters, create a default one
+        game_defined_params = {
+            "()": {
+                "prog": parsed_args.game,
+                "game_usage": "%(prog)s"
+            }
+        }
 
-    if not game_defined_params and len(config.game_params) != 0:
-        raise GameConfigError("Game '{}' takes no game parameter"
-            .format(config.game_name))
-    else:
-        _preprocess_game_param_dict(game_defined_params)
-        param_parser = get_parser_from_dict(game_defined_params)
+    # Create game_param parser
+    _preprocess_game_param_dict(game_defined_params)
+    param_parser = get_parser_from_dict(game_defined_params)
+    # If "-h/--help" and "<game>" are specified, print help and exit.
+    if parsed_args.help:
+        param_parser.print_help()
+        sys.exit(0)
 
-        # Replace the `game_params` with the parsed one
-        config.game_params = param_parser.parse_args(config.game_params)
+    # Replace the input game_params with the parsed one
+    parsed_args.game_params = param_parser.parse_args(parsed_args.game_params)
+
+    # Generate GameConfig
+    try:
+        config = GameConfig(parsed_args)
+    except Exception as e:
+        raise GameConfigError(str(e))
 
     return config
 
