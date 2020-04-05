@@ -14,7 +14,7 @@ def get_command_parser():
     description_str = ("A platform for applying machine learning algorithm "
         "to play pixel games. "
         "In default, the game runs in the machine learning mode. "
-        "Use \"--input-script\" or \"--input-module\" flag at the end of the command "
+        "Use '--input-script' or '--input-module' flag at the end of the command "
         "to specify script(s) or module(s) for playing the game.")
 
     parser = ArgumentParser(usage = usage_str, description = description_str,
@@ -22,7 +22,7 @@ def get_command_parser():
 
     parser.add_argument("game", type = str, nargs = "?",
         help = "the name of the game to be started")
-    parser.add_argument("game_params", nargs = '*', default = None,
+    parser.add_argument("game_params", nargs = "*", default = None,
         help = "the additional settings for the game")
 
     parser.add_argument("--version", action = "version", version = version)
@@ -37,7 +37,7 @@ def get_command_parser():
     parser.add_argument("-r", "--record", action = "store_true",
         dest = "record_progress", default = False,
         help = "pickle the game progress (a list of SceneInfo) to the log file. "
-        "One file for a round, and stored in \"<game>/log/\" directory. "
+        "One file for a round, and stored in '<game>/log/' directory. "
         "[default: %(default)s]")
     parser.add_argument("-1", "--one-shot", action = "store_true",
         dest = "one_shot_mode", default = False,
@@ -47,7 +47,7 @@ def get_command_parser():
         default = None, metavar = "SCRIPT",
         help = "specify user script(s) for the machine learning mode. "
         "The script must have function `ml_loop()` and "
-        "be put in the \"<game>/ml/\" directory. [default: %(default)s]")
+        "be put in the '<game>/ml/' directory. [default: %(default)s]")
     parser.add_argument("--input-module", type = str, nargs = '+',
         default = None, metavar = "MODULE",
         help = "specify the absolute import path of user module(s) "
@@ -119,7 +119,7 @@ class GameConfig:
 
             if not os.path.exists(full_script_path):
                 raise FileNotFoundError(
-                    "The script \"{}\" does not exist. "
+                    "The script '{}' does not exist. "
                     "Cannot start the game in the machine learning mode."
                     .format(local_script_path))
 
@@ -148,7 +148,7 @@ class GameConfig:
 
             if not os.path.exists(full_script_path):
                 raise FileNotFoundError(
-                    "The script \"{}\" does not exist. "
+                    "The script '{}' does not exist. "
                     "Cannot start the game in the machine learning mode."
                     .format(local_script_path))
 

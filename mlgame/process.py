@@ -107,7 +107,7 @@ class ProcessManager:
         try:
             _game_process_entry_point(self._game_proc_helper)
         except (MLProcessError, GameProcessError) as e:
-            print("*** Error occurred in \"{}\" process:".format(e.process_name))
+            print("*** Error occurred in '{}' process:".format(e.process_name))
             print(e.message)
 
     def _terminate(self):
