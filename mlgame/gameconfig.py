@@ -162,4 +162,5 @@ class GameConfig:
             "'one_shot_mode': {}, ".format(self.one_shot_mode) +
             "'record_progress': {}, ".format(self.record_progress) +
             "'fps': {}, ".format(self.fps) +
-            "'input_modules': {}".format(self.input_modules))
+            "'input_modules': {}".format(self.input_modules) +
+            "}")
