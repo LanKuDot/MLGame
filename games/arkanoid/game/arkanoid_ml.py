@@ -14,17 +14,17 @@ class Arkanoid:
     The game for the machine learning mode
     """
 
-    def __init__(self, fps: int, difficulty, level: int, \
+    def __init__(self, fps: int, difficulty, level: int,
         record_progress: bool, one_shot_mode: bool):
         self._ml_name = "ml"
         self._ml_execute_time = 1.0 / fps
         self._frame_delayed = 0
-        self._cmd_receiver = CommandReceiver( \
+        self._cmd_receiver = CommandReceiver(
             GameCommand, {
                 "command": PlatformAction
             }, GameCommand(-1, PlatformAction.NONE))
 
-        self._record_handler = get_record_handler(record_progress, \
+        self._record_handler = get_record_handler(record_progress,
             "ml_" + str(difficulty) + "_" + str(level))
         self._one_shot_mode = one_shot_mode
 
@@ -59,8 +59,8 @@ class Arkanoid:
 
             self._screen.update(self._scene.catch_ball_times)
 
-            if game_status == GameStatus.GAME_OVER or \
-               game_status == GameStatus.GAME_PASS:
+            if (game_status == GameStatus.GAME_OVER or
+                game_status == GameStatus.GAME_PASS):
                 scene_info = self._scene.get_scene_info()
                 self._record_handler(scene_info)
                 comm.send_to_ml(scene_info, self._ml_name)
@@ -83,8 +83,8 @@ class Arkanoid:
         time.sleep(self._ml_execute_time)
         game_cmd = self._cmd_receiver.recv(self._ml_name)
 
-        if game_cmd.frame != -1 and \
-           scene_info.frame - game_cmd.frame > self._frame_delayed:
+        if (game_cmd.frame != -1 and
+            scene_info.frame - game_cmd.frame > self._frame_delayed):
             self._frame_delayed = scene_info.frame - game_cmd.frame
             print("Delayed {} frame(s)".format(self._frame_delayed))
 

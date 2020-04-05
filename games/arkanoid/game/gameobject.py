@@ -17,9 +17,9 @@ class Brick(Sprite):
     def _create_surface(self, color):
         surface = Surface((self.rect.width, self.rect.height))
         surface.fill(color)
-        pygame.draw.line(surface, (0, 0, 0), \
+        pygame.draw.line(surface, (0, 0, 0),
             (self.rect.width - 1, 0), (self.rect.width - 1, self.rect.height - 1))
-        pygame.draw.line(surface, (0, 0, 0), \
+        pygame.draw.line(surface, (0, 0, 0),
             (0, self.rect.height - 1), (self.rect.width - 1, self.rect.height - 1))
         return surface
 
@@ -83,11 +83,11 @@ class Platform(Sprite):
         self.rect.topleft = self._init_pos
 
     def move(self, move_action: PlatformAction):
-        if move_action == PlatformAction.MOVE_LEFT and \
-           self.rect.left > self._play_area_rect.left:
+        if (move_action == PlatformAction.MOVE_LEFT and
+            self.rect.left > self._play_area_rect.left):
             self._speed[0] = -self._shift_speed
-        elif move_action == PlatformAction.MOVE_RIGHT and \
-             self.rect.right < self._play_area_rect.right:
+        elif (move_action == PlatformAction.MOVE_RIGHT and
+              self.rect.right < self._play_area_rect.right):
             self._speed[0] = self._shift_speed
         else:
             self._speed[0] = 0
@@ -139,11 +139,11 @@ class Ball(Sprite):
         self.rect.move_ip(self._speed)
 
     def check_bouncing(self, platform: Platform):
-        if physics.collide_or_contact(self, platform) or \
-           self._platform_additional_check(platform):
+        if (physics.collide_or_contact(self, platform) or
+            self._platform_additional_check(platform)):
             self.hit_platform_times += 1
 
-            rect_after_bounce, speed_after_bounce = physics.bounce_off( \
+            rect_after_bounce, speed_after_bounce = physics.bounce_off(
                 self.rect, self._speed, platform.rect, platform._speed)
             # Check slicing ball when the ball goes up after bouncing (not game over)
             if self._do_slide_ball and speed_after_bounce[1] < 0:
@@ -163,8 +163,8 @@ class Ball(Sprite):
             routine_a = (Vector2(self._last_pos.bottomleft), Vector2(self.rect.bottomleft))
             routine_b = (Vector2(self._last_pos.bottomright), Vector2(self.rect.bottomright))
 
-            return physics.rect_collideline(platform.rect, routine_a) or \
-                   physics.rect_collideline(platform.rect, routine_b)
+            return (physics.rect_collideline(platform.rect, routine_a) or
+                    physics.rect_collideline(platform.rect, routine_b))
 
         return False
 
@@ -195,15 +195,15 @@ class Ball(Sprite):
         @param group_brick The sprite group containing bricks
         @return The number of destroyed bricks
         """
-        hit_bricks = pygame.sprite.spritecollide(self, group_brick, 1, \
+        hit_bricks = pygame.sprite.spritecollide(self, group_brick, 1,
             physics.collide_or_contact)
         num_of_destroyed_brick = len(hit_bricks)
 
         if num_of_destroyed_brick > 0:
             # XXX: Bad multiple collision bouncing handling
-            if num_of_destroyed_brick == 2 and \
-               (hit_bricks[0].rect.y == hit_bricks[1].rect.y or \
-                hit_bricks[0].rect.x == hit_bricks[1].rect.x):
+            if (num_of_destroyed_brick == 2 and
+                (hit_bricks[0].rect.y == hit_bricks[1].rect.y or
+                 hit_bricks[0].rect.x == hit_bricks[1].rect.x)):
                 combined_rect = hit_bricks[0].rect.union(hit_bricks[1].rect)
                 physics.bounce_off_ip(self.rect, self._speed, combined_rect, (0, 0))
             else:

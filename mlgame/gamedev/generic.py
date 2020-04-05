@@ -6,8 +6,8 @@ def quit_or_esc() -> bool:
     Check if the quit event is triggered or the ESC key is pressed.
     """
     for event in pygame.event.get():
-        if event.type == pygame.QUIT or \
-          (event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE):
+        if (event.type == pygame.QUIT or
+            (event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE)):
             return True
     return False
 

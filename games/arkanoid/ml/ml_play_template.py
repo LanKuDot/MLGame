@@ -3,7 +3,7 @@ The template of the main script of the machine learning process
 """
 
 import games.arkanoid.communication as comm
-from games.arkanoid.communication import ( \
+from games.arkanoid.communication import (
     SceneInfo, GameStatus, PlatformAction
 )
 
@@ -33,8 +33,8 @@ def ml_loop():
 
         # 3.2. If the game is over or passed, the game process will reset
         #      the scene and wait for ml process doing resetting job.
-        if scene_info.status == GameStatus.GAME_OVER or \
-            scene_info.status == GameStatus.GAME_PASS:
+        if (scene_info.status == GameStatus.GAME_OVER or
+            scene_info.status == GameStatus.GAME_PASS):
             # Do some stuff if needed
             ball_served = False
 

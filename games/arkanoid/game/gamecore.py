@@ -3,8 +3,8 @@ import random
 
 from mlgame.utils.enum import StringEnum, auto
 
-from .gameobject import ( \
-    Ball, Platform, Brick, HardBrick, PlatformAction, SERVE_BALL_ACTIONS \
+from .gameobject import (
+    Ball, Platform, Brick, HardBrick, PlatformAction, SERVE_BALL_ACTIONS
 )
 
 class Difficulty(StringEnum):
@@ -46,14 +46,15 @@ class SceneInfo:
         self.command = None
 
     def __str__(self):
-        output_str = \
-            "# Frame {}\n".format(self.frame) + \
-            "# Status {}\n".format(self.status) + \
-            "# Ball {}\n".format(self.ball) + \
-            "# Platform {}\n".format(self.platform) + \
-            "# Brick {}\n".format(" ".join(str(brick) for brick in self.bricks)) + \
-            "# HardBrick {}\n".format(" ".join(str(brick) for brick in self.hard_bricks)) + \
+        output_str = (
+            "# Frame {}\n".format(self.frame) +
+            "# Status {}\n".format(self.status) +
+            "# Ball {}\n".format(self.ball) +
+            "# Platform {}\n".format(self.platform) +
+            "# Brick {}\n".format(" ".join(str(brick) for brick in self.bricks)) +
+            "# HardBrick {}\n".format(" ".join(str(brick) for brick in self.hard_bricks)) +
             "# Command {}".format(self.command)
+        )
 
         return output_str
 
@@ -100,7 +101,7 @@ class Scene:
                     1: HardBrick,
                 }.get(type, Brick)
 
-                brick = BrickType((pos_x + offset_x, pos_y + offset_y), \
+                brick = BrickType((pos_x + offset_x, pos_y + offset_y),
                     self._group_brick)
                 self._brick_container.append(brick)
 
@@ -124,8 +125,8 @@ class Scene:
 
         if not self._ball_served:
             # Force to serve the ball after 150 frames
-            if self._frame_count >= 150 and \
-               platform_action not in SERVE_BALL_ACTIONS:
+            if (self._frame_count >= 150 and
+                platform_action not in SERVE_BALL_ACTIONS):
                 platform_action = random.choice(SERVE_BALL_ACTIONS)
 
             self._wait_for_serving_ball(platform_action)
