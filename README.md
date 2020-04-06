@@ -15,7 +15,7 @@ MLGame separates the machine learning part from the game core, which makes users
 ## Usage
 
 ```
-$ python MLGame.py [options] <game> [game_params]
+$ python MLGame.py [options] <game> [game_params] [-i SCRIPT(S)]
 ```
 
 * `game`: The name of the game to be started. Available games are "arkanoid" and "pingpong"
