@@ -10,7 +10,7 @@ def get_command_parser():
     Generate an ArgumentParser for parse the arguments in the command line
     """
     usage_str = ("python %(prog)s [options] <game> [game_params]\n" +
-        "".ljust(24) + "[-i SCRIPTS/--input-module MODULES]")
+        "".ljust(24) + "[-i SCRIPT(S)]")
     description_str = ("A platform for applying machine learning algorithm "
         "to play pixel games. "
         "In default, the game runs in the machine learning mode. "

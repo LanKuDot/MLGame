@@ -95,7 +95,7 @@ def _preprocess_game_param_dict(param_dict):
         game_usage = str(param_dict["()"].pop("game_usage"))
         param_dict["()"]["usage"] = (
             "python MLGame.py [options] " + game_usage + "\n" +
-            "".ljust(24) + "[-i SCRIPTS/--input-module MODULES]")
+            "".ljust(24) + "[-i SCRIPT(S)]")
 
 def _game_execution(game_config: GameConfig):
     """
