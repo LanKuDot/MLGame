@@ -71,9 +71,11 @@ class ProcessManager:
 
         self._create_pipes()
         self._start_ml_processes()
-        self._start_game_process()
+        returncode = self._start_game_process()
 
         self._terminate()
+
+        return returncode
 
     def _create_pipes(self):
         """
@@ -104,11 +106,15 @@ class ProcessManager:
         """
         Start the game process
         """
+        returncode = 0
         try:
             _game_process_entry_point(self._game_proc_helper)
         except (MLProcessError, GameProcessError) as e:
             print("*** Error occurred in '{}' process:".format(e.process_name))
             print(e.message)
+            returncode = 2
+
+        return returncode
 
     def _terminate(self):
         """
@@ -274,6 +280,8 @@ def _game_process_entry_point(helper: GameProcessHelper):
     try:
         helper.target_function(*helper.args, **helper.kwargs)
     except MLProcessError:
+        # This exception wil be raised when invoking `recv_from_ml()` and
+        # receive `MLProcessError` object from it
         raise
     except Exception:
         raise GameProcessError(helper.name, traceback.format_exc())
