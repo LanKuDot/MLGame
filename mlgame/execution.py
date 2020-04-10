@@ -6,6 +6,7 @@ import os
 import os.path
 import sys
 
+from .crosslang.main import compile_script
 from .gameconfig import get_command_parser, GameMode, GameConfig
 from .exception import GameConfigError
 from .utils.argparser_generator import get_parser_from_dict
@@ -272,9 +273,23 @@ def _run_ml_mode(game_config: GameConfig, process_config):
         # the last module is assigned to the rest processes.
         module_id = (i if i < len(game_config.input_modules)
             else len(game_config.input_modules) - 1)
+        ml_module = game_config.input_modules[module_id]
 
-        process_manager.add_ml_process(game_config.input_modules[module_id],
-            process_name, args, kwargs)
+        # Compile the non-python script
+        # It is stored as a (crosslang ml client module, non-python script) tuple.
+        if isinstance(ml_module, tuple):
+            execution_cmd = compile_script(ml_module[1])
+            ml_module = ml_module[0]
+            # Wrap arguments passed to be passed to the script
+            module_kwargs = {
+                "execution_cmd": execution_cmd,
+                "init_args": args,
+                "init_kwargs": kwargs
+            }
+            args = ()
+            kwargs = module_kwargs
+
+        process_manager.add_ml_process(ml_module, process_name, args, kwargs)
 
     returncode = process_manager.start()
     sys.exit(returncode)

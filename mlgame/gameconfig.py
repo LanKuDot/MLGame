@@ -129,8 +129,14 @@ class GameConfig:
                     "Cannot start the game in the machine learning mode."
                     .format(local_script_path))
 
-            module_list.append("games.{}.ml.{}"
-                .format(self.game_name, script_name.split('.py')[0]))
+            # If the assigned script is not a python file,
+            # pack the crosslang client and the script into a tuple for futher handling.
+            path_no_ext, extension = os.path.splitext(script_name)
+            if extension != ".py":
+                module_list.append(("mlgame.crosslang.ml_client", full_script_path))
+            else:
+                module_list.append("games.{}.ml.{}"
+                    .format(self.game_name, script_name.split('.py')[0]))
 
         return module_list
 
