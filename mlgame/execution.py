@@ -8,7 +8,7 @@ import sys
 
 from .crosslang.main import compile_script
 from .gameconfig import get_command_parser, GameMode, GameConfig
-from .exception import GameConfigError
+from .exception import GameConfigError, CompilationError
 from .utils.argparser_generator import get_parser_from_dict
 
 def execute():
@@ -278,7 +278,12 @@ def _run_ml_mode(game_config: GameConfig, process_config):
         # Compile the non-python script
         # It is stored as a (crosslang ml client module, non-python script) tuple.
         if isinstance(ml_module, tuple):
-            execution_cmd = compile_script(ml_module[1])
+            try:
+                execution_cmd = compile_script(ml_module[1])
+            except CompilationError as e:
+                print("Error: {}".format(e))
+                sys.exit(1)
+
             ml_module = ml_module[0]
             # Wrap arguments passed to be passed to the script
             module_kwargs = {

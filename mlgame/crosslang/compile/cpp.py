@@ -9,6 +9,8 @@ import random
 
 from subprocess import PIPE, Popen
 
+from mlgame.exception import CompilationError
+
 def compile_script(script_full_path):
     """
     Compile the script to an executable
@@ -39,7 +41,7 @@ def compile_script(script_full_path):
     os.remove(main_script_file_path)
 
     if p.returncode != 0:
-        raise RuntimeError("Failed to compile the script\n" + errs)
+        raise CompilationError(os.path.basename(script_full_path), errs)
 
     return execute_file_path
 

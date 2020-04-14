@@ -66,3 +66,14 @@ class GameParameterError(Exception):
 
     def __str__(self):
         return self.message
+
+class CompilationError(Exception):
+    """
+    Exception raised when failed to compile the user script
+    """
+    def __init__(self, file, reason):
+        self.file = file
+        self.reason = reason
+
+    def __str__(self):
+        return "Failed to compile '{}':\n{}".format(self.file, self.reason)
