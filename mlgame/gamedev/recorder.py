@@ -71,18 +71,18 @@ class RecorderHelper:
         self._saving_status = saving_status
         self._filename_prefix = filename_prefix
 
-    def record_handler(self, progress_object):
+    def record_handler(self, progress_object: dict):
         """
         A handler for passing the `progress_object` to the created recorder.
         If the member of the `progress_object` matches the `saving_status` specified
         at the constructor, it will make the recorder flush the saved progress to a file.
 
-        @param progress_object The object to be saved by the recorder
+        @param progress_object A dictionary object to be saved by the recorder
         """
         self._recorder.record_scene_info(progress_object)
 
         for member, values in self._saving_status.items():
-            target_value = progress_object.__dict__.get(member, None)
+            target_value = progress_object.get(member, None)
 
             if target_value and target_value in values:
                 self._recorder.flush_to_file(self._filename_prefix)
