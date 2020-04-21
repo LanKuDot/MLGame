@@ -7,12 +7,10 @@ import time
 
 from mlgame.gamedev.generic import quit_or_esc
 from mlgame.communication import game as comm
-from mlgame.communication.game import CommandReceiver
 
 from .gamecore import Scene, GameStatus
 from .gameobject import SnakeAction
 from .record import get_record_handler
-from ..communication import GameCommand
 
 class Snake:
     """
@@ -27,10 +25,6 @@ class Snake:
         self._ml_name = "ml"
         self._ml_execution_time = 1 / fps
         self._frame_delayed = 0
-        self._cmd_receiver = CommandReceiver(
-            GameCommand, {
-                "command": SnakeAction,
-            }, GameCommand(-1, SnakeAction.NONE))
 
         self._one_shot_mode = one_shot_mode
         self._record_handler = get_record_handler(record_progress, "ml")
@@ -64,7 +58,7 @@ class Snake:
             command = self._make_ml_execute(scene_info)
 
             # Record the scene information
-            scene_info.command = command
+            scene_info["command"] = command.value
             self._record_handler(scene_info)
 
             # Update the scene
@@ -77,6 +71,8 @@ class Snake:
                 # and record that scene info
                 scene_info = self._scene.get_scene_info()
                 comm.send_to_ml(scene_info, self._ml_name)
+
+                scene_info["command"] = None
                 self._record_handler(scene_info)
 
                 if self._one_shot_mode:
@@ -102,14 +98,45 @@ class Snake:
         """
         comm.send_to_ml(scene_info, self._ml_name)
         time.sleep(self._ml_execution_time)
-        game_cmd = self._cmd_receiver.recv(self._ml_name)
+        game_cmd = self._process_cmd(comm.recv_from_ml(self._ml_name))
 
         # Check and update the frame delayed
-        if (game_cmd.frame != -1 and
-            scene_info.frame - game_cmd.frame > self._frame_delayed):
-            self._frame_delayed = scene_info.frame - game_cmd.frame
+        if (game_cmd["frame"] != -1 and
+            scene_info["frame"] - game_cmd["frame"] > self._frame_delayed):
+            self._frame_delayed = scene_info["frame"] - game_cmd["frame"]
 
-        return game_cmd.command
+        return game_cmd["command"]
+
+    def _process_cmd(self, cmd_received):
+        """
+        Check if the type and the value of the received command valid.
+        Then return the validated command.
+        """
+        error_msg = "Received invalid command: %(reason)s"
+        cmd_processed = {"frame": -1, "command": SnakeAction.NONE}
+
+        if not cmd_received:
+            return cmd_processed
+
+        try:
+            if not isinstance(cmd_received, dict):
+                raise TypeError("the game command", "dict")
+            if not isinstance(cmd_received["frame"], int):
+                raise TypeError("'frame'", "int")
+            if not isinstance(cmd_received["command"], str):
+                raise TypeError("'command", "str")
+
+            cmd_processed["frame"] = cmd_received["frame"]
+            cmd_processed["command"] = SnakeAction(cmd_received["command"])
+        except KeyError as e:
+            print(error_msg % {"reason": "Missing {}".format(e)})
+        except TypeError as e:
+            print(error_msg % {"reason":
+                "Wrong type of {}. Should be '{}'.".format(*e.args)})
+        except ValueError as e:
+            print(error_msg % {"reason": str(e)})
+
+        return cmd_processed
 
     def _draw_scene(self):
         """

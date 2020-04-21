@@ -4,13 +4,11 @@ import os.path
 
 from mlgame.gamedev.generic import quit_or_esc
 from mlgame.communication import game as comm
-from mlgame.communication.game import CommandReceiver
 
 from . import gamecore
 from .pingpong import Screen
 from .gamecore import GameStatus, PlatformAction, Scene
 from .record import get_record_handler
-from ..communication import GameCommand
 
 class PingPong:
     """
@@ -31,10 +29,6 @@ class PingPong:
         self._frame_delayed = [0, 0]    # 1P, 2P
         self._score = [0, 0]    # 1P, 2P
         self._game_over_score = game_over_score
-        self._cmd_receiver = CommandReceiver(
-            GameCommand, {
-                "command": PlatformAction
-            }, GameCommand(-1, PlatformAction.NONE))
 
         self._record_handler = get_record_handler(record_progress, "ml_" + str(difficulty))
 
@@ -53,8 +47,8 @@ class PingPong:
             # Send the scene info to the ml processes and wait for commands
             command_1P, command_2P = self._make_ml_execute(scene_info)
 
-            scene_info.command_1P = command_1P
-            scene_info.command_2P = command_2P
+            scene_info["command_1P"] = command_1P.value
+            scene_info["command_2P"] = command_2P.value
             self._record_handler(scene_info)
 
             # Update the scene
@@ -66,11 +60,13 @@ class PingPong:
             # getting ready for the next round
             if game_status != GameStatus.GAME_ALIVE:
                 scene_info = self._scene.get_scene_info()
-                self._record_handler(scene_info)
                 comm.send_to_all_ml(scene_info)
 
+                scene_info["command_1P"] = scene_info["command_2P"] = None
+                self._record_handler(scene_info)
+
                 print("Frame: {}, Status: {}"
-                    .format(scene_info.frame, game_status.value))
+                    .format(scene_info["frame"], game_status.value))
 
                 if self._game_over(game_status):
                     break
@@ -88,14 +84,50 @@ class PingPong:
         """
         comm.send_to_all_ml(scene_info)
         time.sleep(self._ml_execute_time)
-        instructions = self._cmd_receiver.recv_all()
+        cmd_received = comm.recv_from_all_ml()
+
+        game_cmd_1P = self._process_cmd(cmd_received[self._ml_1P], self._ml_1P)
+        game_cmd_2P = self._process_cmd(cmd_received[self._ml_2P], self._ml_2P)
 
         self._check_frame_delayed(0, self._ml_1P,
-            scene_info.frame, instructions[self._ml_1P].frame)
+            scene_info["frame"], game_cmd_1P["frame"])
         self._check_frame_delayed(1, self._ml_2P,
-            scene_info.frame, instructions[self._ml_2P].frame)
+            scene_info["frame"], game_cmd_2P["frame"])
 
-        return instructions[self._ml_1P].command, instructions[self._ml_2P].command
+        return game_cmd_1P["command"], game_cmd_2P["command"]
+
+    def _process_cmd(self, cmd_received, ml_name):
+        """
+        Check if the type of the command and the value are valid.
+        Then return the validated command.
+        """
+        error_msg = "Received invalid command from '{}': %(reason)s".format(ml_name)
+        cmd_processed = {"frame": -1, "command": PlatformAction.NONE}
+
+        # If it doesn't receive the command from the client, return the default one.
+        if not cmd_received:
+            return cmd_processed
+
+        # Type checking and valie checking
+        try:
+            if not isinstance(cmd_received, dict):
+                raise TypeError("the game command", "dict")
+            if not isinstance(cmd_received["frame"], int):
+                raise TypeError("'frame'", "int")
+            if not isinstance(cmd_received["command"], str):
+                raise TypeError("'command", "str")
+
+            cmd_processed["frame"] = cmd_received["frame"]
+            cmd_processed["command"] = PlatformAction(cmd_received["command"])
+        except KeyError as e:
+            print(error_msg % {"reason": "Missing {}".format(e)})
+        except TypeError as e:
+            print(error_msg % {"reason":
+                "Wrong type of {}. Should be '{}'.".format(*e.args)})
+        except ValueError as e:
+            print(error_msg % {"reason": str(e)})
+
+        return cmd_processed
 
     def _check_frame_delayed(self, ml_index, ml_name, scene_frame, instruct_frame):
         """

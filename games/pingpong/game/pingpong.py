@@ -67,15 +67,19 @@ class PingPong:
             command_2P = self._keyboard_action_2P.get_command()
 
             scene_info = self._scene.get_scene_info()
-            scene_info.command_1P = command_1P
-            scene_info.command_2P = command_2P
+            scene_info["command_1P"] = command_1P.value
+            scene_info["command_2P"] = command_2P.value
             self._record_handler(scene_info)
 
             game_status = self._scene.update(command_1P, command_2P)
 
             if game_status != GameStatus.GAME_ALIVE:
                 print(game_status.value)
-                self._record_handler(self._scene.get_scene_info())
+
+                scene_info = self._scene.get_scene_info()
+                scene_info["command_1P"] = scene_info["command_2P"] = None
+                self._record_handler(scene_info)
+
                 if self._game_over(game_status):
                     break
 

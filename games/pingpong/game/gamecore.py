@@ -20,56 +20,6 @@ class GameStatus(StringEnum):
     GAME_DRAW = auto()
     GAME_ALIVE = auto()
 
-class SceneInfo:
-    """
-    The data structure for storing the information of the scene
-
-    `command_1P` and `command_2P` are filled after receiving the command
-    from the ml process. Note that these two fields cannot check if
-    the ml process is delayed or not.
-
-    @var frame The frame number of the game
-    @var status The status of the game. It will be the "value" (not "name")
-         of one of the member of the GameStatus.
-    @var ball An (x, y) tuple. The position of the ball.
-    @var ball_speed An (x, y) tuple. The speed of the ball.
-    @var platform_1P An (x, y) tuple. The position of the platform of 1P
-    @var platform_2P An (x, y) tuple. The position of the platform of 2P
-    @var blocker An (x, y) tuple. The position of the blocker.
-         If the game difficulty is EASY, this field will be `None`.
-    @var command_1P The command for platform_1P in this frame. It will be the "value"
-         (not "name") of one of the member of the PlatformAction.
-    @var command_2P The command for platform_2P in this frame. Similar to `command_1P`.
-    """
-    def __init__(self):
-        # These fields will be filled before being sent to the ml process
-        self.frame = None
-        self.status = None
-        self.ball = None
-        self.ball_speed = None
-        self.platform_1P = None
-        self.platform_2P = None
-        self.blocker = None
-
-        # These fields will be filled after receiving the command
-        # from the ml process
-        self.command_1P = PlatformAction.NONE.value
-        self.command_2P = PlatformAction.NONE.value
-
-    def __str__(self):
-        output_str = (
-            "# Frame {}\n".format(self.frame) +
-            "# Status {}\n".format(self.status) +
-            "# Ball {}\n".format(self.ball) +
-            "# Ball_speed {}\n".format(self.ball_speed) +
-            "# Platform_1P {}\n".format(self.platform_1P) +
-            "# Platform_2P {}\n".format(self.platform_2P) +
-            "# Blocker {}\n".format(self.blocker) +
-            "# Command_1P {}\n".format(self.command_1P) +
-            "# Command_2P {}".format(self.command_2P))
-
-        return output_str
-
 class Scene:
     area_rect = pygame.Rect(0, 0, 200, 500)
 
@@ -162,19 +112,20 @@ class Scene:
     def draw_gameobjects(self, surface):
         self._draw_group.draw(surface)
 
-    def get_scene_info(self) -> SceneInfo:
+    def get_scene_info(self):
         """
         Get the scene information
         """
-        scene_info = SceneInfo()
-        scene_info.frame = self._frame_count
-        scene_info.status = self._game_status.value
-        scene_info.ball = self._ball.pos
-        scene_info.ball_speed = self._ball.speed
-        scene_info.platform_1P = self._platform_1P.pos
-        scene_info.platform_2P = self._platform_2P.pos
+        scene_info = {
+            "frame": self._frame_count,
+            "status": self._game_status.value,
+            "ball": self._ball.pos,
+            "ball_speed": self._ball.speed,
+            "platform_1P": self._platform_1P.pos,
+            "platform_2P": self._platform_2P.pos
+        }
 
         if self._difficulty == Difficulty.HARD:
-            scene_info.blocker = self._blocker.pos
+            scene_info["blocker"] = self._blocker.pos
 
         return scene_info

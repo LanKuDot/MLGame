@@ -3,10 +3,7 @@ The script that send the instruction according to the keyboard input
 """
 
 import pygame
-import games.pingpong.communication as comm
-from games.pingpong.communication import (
-    SceneInfo, GameCommand, GameStatus, PlatformAction
-)
+from mlgame.communication import ml as comm
 
 def wait_enter_key():
     for event in pygame.event.get():
@@ -30,18 +27,24 @@ def ml_loop(side: str):
     comm.ml_ready()
 
     while True:
-        scene_info = comm.get_scene_info()
+        scene_info = comm.recv_from_game()
 
-        if scene_info.status != GameStatus.GAME_ALIVE:
+        if scene_info["status"] != "GAME_ALIVE":
             comm.ml_ready()
             continue
 
         key_pressed_list = pygame.key.get_pressed()
         if key_pressed_list[pygame.K_LEFT]:
-            comm.send_instruction(scene_info.frame, PlatformAction.MOVE_LEFT)
+            cmd = "MOVE_LEFT"
         elif key_pressed_list[pygame.K_RIGHT]:
-            comm.send_instruction(scene_info.frame, PlatformAction.MOVE_RIGHT)
+            cmd = "MOVE_RIGHT"
+        elif key_pressed_list[pygame.K_PERIOD]:
+            cmd = "SERVE_TO_LEFT"
+        elif key_pressed_list[pygame.K_SLASH]:
+            cmd = "SERVE_TO_RIGHT"
         else:
-            comm.send_instruction(scene_info.frame, PlatformAction.NONE)
+            cmd = "NONE"
+
+        comm.send_to_game({"frame": scene_info["frame"], "command": cmd})
 
         pygame.event.pump()

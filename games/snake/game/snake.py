@@ -55,7 +55,7 @@ class Snake:
             command = self._keyboard_action.get_command()
 
             # Record the scene information
-            self._record_scene(command)
+            self._record_scene(command.value)
 
             # Update the scene
             game_status = self._scene.update(command)
@@ -94,10 +94,10 @@ class Snake:
 
         pygame.display.flip()
 
-    def _record_scene(self, command):
+    def _record_scene(self, command_str):
         """
         Record the scene information
         """
         scene_info = self._scene.get_scene_info()
-        scene_info.command = command
+        scene_info["command"] = command_str
         self._record_handler(scene_info)

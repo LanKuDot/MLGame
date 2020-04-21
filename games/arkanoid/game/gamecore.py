@@ -16,48 +16,6 @@ class GameStatus(StringEnum):
     GAME_OVER = auto()
     GAME_PASS = auto()
 
-class SceneInfo:
-    """
-    The data structure for the information of the scene
-
-    Containing the frame no, the status, and the position of the gameobjects.
-    Note that the position is the coordinate at the top-left corner of the gameobject.
-
-    @var frame The frame number of the game. Used as the timestamp.
-    @var status The status of the game. It will only be one of `GameStatus`
-    @var ball A (x, y) tuple which is the position of the ball.
-    @var platform A (x, y) tuple which is the position of the platform.
-    @var bricks A list storing (x, y) tuples which are
-         the position of the remaining bricks.
-    @var hard_bricks Similar to `bricks` but for hard bricks
-    @var command The command decided according to this scene information
-    """
-
-    def __init__(self):
-        # These members will be filled in the `Scene.get_scene_info()`.
-        self.frame = -1
-        self.status = None
-        self.ball = None
-        self.platform = None
-        self.bricks = []
-        self.hard_bricks = []
-
-        # The member is filled after received the command
-        self.command = None
-
-    def __str__(self):
-        output_str = (
-            "# Frame {}\n".format(self.frame) +
-            "# Status {}\n".format(self.status) +
-            "# Ball {}\n".format(self.ball) +
-            "# Platform {}\n".format(self.platform) +
-            "# Brick {}\n".format(" ".join(str(brick) for brick in self.bricks)) +
-            "# HardBrick {}\n".format(" ".join(str(brick) for brick in self.hard_bricks)) +
-            "# Command {}".format(self.command)
-        )
-
-        return output_str
-
 class Scene:
     area_rect = pygame.Rect(0, 0, 200, 500)
 
@@ -159,20 +117,24 @@ class Scene:
         self._group_brick.draw(surface)
         self._group_move.draw(surface)
 
-    def get_scene_info(self) -> SceneInfo:
+    def get_scene_info(self) -> dict:
         """
         Get the scene information
         """
-        scene_info = SceneInfo()
-        scene_info.frame = self._frame_count
-        scene_info.status = self._game_status.value
-        scene_info.ball = self._ball.pos
-        scene_info.platform = self._platform.pos
+        scene_info = {
+            "frame": self._frame_count,
+            "status": self._game_status.value,
+            "ball": self._ball.pos,
+            "platform": self._platform.pos,
+            "bricks": [],
+            "hard_bricks": []
+        }
+
         for brick in self._group_brick:
             if isinstance(brick, HardBrick) and brick.hp == 2:
-                scene_info.hard_bricks.append(brick.pos)
+                scene_info["hard_bricks"].append(brick.pos)
             else:
-                scene_info.bricks.append(brick.pos)
+                scene_info["bricks"].append(brick.pos)
 
         return scene_info
 

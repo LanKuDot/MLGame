@@ -15,40 +15,6 @@ class GameStatus(StringEnum):
     GAME_OVER = auto()
     GAME_ALIVE = auto()
 
-class SceneInfo:
-    """
-    The data structure for storing the scene information
-
-    @var frame The number of frame for this scene information
-    @var status The game status
-    @var snake_head The position of the snake head
-    @var snake_body A list of the position of snake bodies which
-         are stored from the head (excluded) to the tail
-    @var food The position of the food
-    @var command The command decided according to this scene information
-    """
-
-    def __init__(self):
-        self.frame = 0
-        self.status = GameStatus.GAME_ALIVE
-
-        self.snake_head = (0, 0)
-        self.snake_body = []
-        self.food = (0, 0)
-
-        self.command = None
-
-    def __str__(self):
-        output_str = (
-            "# Frame {}\n".format(self.frame) +
-            "# Status {}\n".format(self.status.value) +
-            "# Snake Head {}\n".format(self.snake_head) +
-            "# Snake Body {}\n".format(' '.join(str(body) for body in self.snake_body)) +
-            "# Food {} \n".format(self.food) +
-            "# Command {}".format(self.command.value))
-
-        return output_str
-
 class Scene:
     """
     The main game scene
@@ -130,13 +96,12 @@ class Scene:
         """
         Get the current scene information
         """
-        scene_info = SceneInfo()
-
-        scene_info.frame = self._frame
-        scene_info.status = self._status
-        scene_info.snake_head = self._snake.head_pos
-        for body in self._snake.body:
-            scene_info.snake_body.append(body.pos)
-        scene_info.food = self._food.pos
+        scene_info = {
+            "frame": self._frame,
+            "status": self._status.value,
+            "snake_head": self._snake.head_pos,
+            "snake_body": [body.pos for body in self._snake.body],
+            "food": self._food.pos
+        }
 
         return scene_info

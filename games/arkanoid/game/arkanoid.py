@@ -65,7 +65,7 @@ class Arkanoid:
     def game_loop(self):
         while not quit_or_esc():
             command = self._keyboard.get_command()
-            self._record_scene_info(command)
+            self._record_scene_info(command.value)
             game_status = self._scene.update(command)
 
             if (game_status == GameStatus.GAME_OVER or
@@ -81,8 +81,7 @@ class Arkanoid:
             self._screen.update(self._scene.catch_ball_times)
             self._clock.tick(self._fps)
 
-    def _record_scene_info(self, command):
+    def _record_scene_info(self, command_str):
         scene_info = self._scene.get_scene_info()
-        if command:
-            scene_info.command = command
+        scene_info["command"] = command_str
         self._record_handler(scene_info)

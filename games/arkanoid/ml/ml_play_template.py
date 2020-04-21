@@ -2,10 +2,7 @@
 The template of the main script of the machine learning process
 """
 
-import games.arkanoid.communication as comm
-from games.arkanoid.communication import (
-    SceneInfo, GameStatus, PlatformAction
-)
+from mlgame.communication import ml as comm
 
 def ml_loop():
     """
@@ -29,12 +26,12 @@ def ml_loop():
     # 3. Start an endless loop.
     while True:
         # 3.1. Receive the scene information sent from the game process.
-        scene_info = comm.get_scene_info()
+        scene_info = comm.recv_from_game()
 
         # 3.2. If the game is over or passed, the game process will reset
         #      the scene and wait for ml process doing resetting job.
-        if (scene_info.status == GameStatus.GAME_OVER or
-            scene_info.status == GameStatus.GAME_PASS):
+        if (scene_info["status"] == "GAME_OVER" or
+            scene_info["status"] == "GAME_PASS"):
             # Do some stuff if needed
             ball_served = False
 
@@ -46,7 +43,7 @@ def ml_loop():
 
         # 3.4. Send the instruction for this frame to the game process
         if not ball_served:
-            comm.send_instruction(scene_info.frame, PlatformAction.SERVE_TO_LEFT)
+            comm.send_to_game({"frame": scene_info["frame"], "command": "SERVE_TO_LEFT"})
             ball_served = True
         else:
-            comm.send_instruction(scene_info.frame, PlatformAction.MOVE_LEFT)
+            comm.send_to_game({"frame": scene_info["frame"], "command": "MOVE_LEFT"})
