@@ -72,53 +72,46 @@
 
 ### 函式
 
-以下函式定義在 [`games.arkanoid.communication`](communication.py) 模組中
+使用 `mlgmae.communication.ml` 模組來與遊戲端溝通
 
 * `ml_ready()`：通知遊戲端已經準備好了。呼叫此函式後遊戲端才會開始傳送訊息
-* `get_scene_info()`：從遊戲端接收遊戲場景資訊 `SceneInfo`
-* `send_instruction(frame, command)`：傳送指令給遊戲端
-    * `frame`：標記這個指令是給哪一個影格的。這個值必須跟收到的 `SceneInfo.frame` 一樣
-    * `command`：控制板子的指令，必須是 `PlatformAction` 其中之一
+* `recv_from_game()`：從遊戲端接收擁有遊戲場景資訊的字典物件
+* `send_to_game(dict)`：傳送包含指令的字典物件給遊戲端
 
-### 資料結構
+### 溝通物件
 
-以下資料結構都已經先匯入到 [`games.arkanoid.communication`](communication.py) 中
+遊戲端與機器學習端使用字典物件做溝通。
 
-#### `SceneInfo`
+#### 場景資訊
 
-儲存遊戲場景的資訊。定義在 [`game/gamecore.py`](game/gamecore.py)。
+從遊戲端接受到的字典物件，也會作為存在紀錄檔中的物件。
 
-`SceneInfo` 的成員：
+該字典物件的鍵值對應：
 
-* `frame`：這個 `SceneInfo` 紀錄的是第幾影格的場景資訊
-* `status`：目前的遊戲狀態，會是 `GameStatus` 其中之一
-* `ball`：球的位置。為一個 `(x, y)` tuple
-* `platform`：平台的位置。為一個 `(x, y)` tuple
-* `bricks`：剩餘的普通磚塊的位置，包含被打過一次的硬磚塊。為一個 list，裡面每個元素皆為 `(x, y)` tuple
-* `hard_bricks`：剩餘的硬磚塊位置。為一個 list，裡面每個元素皆為 `(x, y)` tuple
-* `command`：依照這個影格的場景資訊而決定的指令。用於產生紀錄檔，在遊戲中沒有用途
+* `"frame"`：整數。紀錄的是第幾影格的場景資訊。
+* `"status"`：字串。目前的遊戲狀態，會是以下值的其中之一：
+    * `"GAME_ALIVE"`：遊戲進行中
+    * `"GAME_PASS"`：所有磚塊都被破壞
+    * `"GAME_OVER"`：平台無法接到球
+* `"ball"`：`(x, y)` tuple。球的位置。
+* `"platform"`：`(x, y)` tuple。平台的位置。
+* `"bricks"`：為一個 list，裡面每個元素皆為 `(x, y)` tuple。剩餘的普通磚塊的位置，包含被打過一次的硬磚塊。
+* `"hard_bricks"`：為一個 list，裡面每個元素皆為 `(x, y)` tuple。剩餘的硬磚塊位置。
+* `"command"`：字串。依照這個影格的場景資訊而決定的指令。用於產生紀錄檔，在遊戲中沒有用途。
 
-#### `GameStatus`
+#### 遊戲指令
 
-遊戲狀態。定義在 [`game/gamecore.py`](game/gamecore.py)
+傳給遊戲端，用來控制平台的移動的字典物件。
 
-一共有三種遊戲狀態：
+該字典物件的鍵值對應：
 
-* `GAME_ALIVE`：遊戲進行中
-* `GAME_PASS`：所有磚塊都被破壞
-* `GAME_OVER`：平台無法接到球
-
-#### `PlatformAction`
-
-控制平台的移動。定義在 [`game/gameobject.py`](game/gameobject.py)
-
-一共有五種指令：
-
-* `SERVE_TO_LEFT`：將球發往左邊
-* `SERVE_TO_RIGHT`：將球發往右邊
-* `MOVE_LEFT`：將平台往左移動
-* `MOVE_RIGHT`：將平台往右移動
-* `NONE`：平台無動作
+* `"frame"`：整數。這個指令是給第幾影格的指令，必須與收到的場景資訊的影格一樣。
+* `"command"`：字串。用來控制平台移動的指令，須是以下值的其中之一：
+    * `"SERVE_TO_LEFT"`：將球發往左邊
+    * `"SERVE_TO_RIGHT"`：將球發往右邊
+    * `"MOVE_LEFT"`：將平台往左移動
+    * `"MOVE_RIGHT"`：將平台往右移動
+    * `"NONE"`：平台無動作
 
 ## 自訂關卡地圖
 

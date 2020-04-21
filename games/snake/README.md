@@ -44,37 +44,41 @@ View the example of the ml script in [`ml/ml_play_template.py`](ml/ml_play_templ
 
 ### Methods
 
-The following methods are defined in [`games/snake/communication`](communication.py).
+Use `mlgame.communication.ml` module to communicate with the game process
 
-* `ml_ready()`: Inform the game process that ml process is ready.
-* `get_scene_info()`: Receive the `SceneInfo` sent from the game process.
-* `send_command(frame, command)`: Send the command to the game process.
-    * `frame`: The number of frame that this command is for. This value should be the same as the `frame` of the received `SceneInfo`.
-    * `command`: The command for controlling the snake. It's one of `SnakeAction`.
+* `ml_ready()`: Inform the game process that ml process is ready
+* `recv_from_game`: Receive an dictionary object storing the scene information from the game process
+* `send_to_game(dict)`: Send an dictionary object storing the game command to the game process
 
-### Data Structures
+### Communication Objects
 
-#### `SceneInfo`
+The dictionary object is used as the communication object transporting between game and ml processes.
 
-Store the information of the scene. Defined in [`game/gamecore.py`](game/gamecore.py).
+#### Scene Information
 
-The members of the `SceneInfo`:
+It's an dictionary object sent from the game process, and also an object to be pickled in the record file.
 
-* `frame`: The number of the frame that this `SceneInfo` is for
-* `status`: The game status at this frame. It's one of `GameStatus`.
-* `snake_head`: The position of the snake head. It's a `(x, y)` tuple.
-* `snake_body`: A list storing the position of snake bodies, and the storing order is from the head to the tail. Each element in the list is a `(x, y)` tuple.
-* `food`: The position of the food. It's a `(x, y)` tuple.
-* `command`: The command decided for this frame. This member is used for recording the game progress.
+The keys and values of the scene information:
 
-#### `GameStatus`
+* `"frame"`: An integer. The number of the frame that this scene information is for.
+* `"status"`: A string. The game status at this frame. It's one of the following value:
+    * `"GAME_ALIVE"`: The snake is still going.
+    * `"GAME_OVER"`: The snake hits the wall or itself.
+* `"snake_head"`: An `(x, y)` tuple. The position of the snake head.
+* `"snake_body"`: A list storing the position of snake bodies, and the storing order is from the head to the tail. Each element in the list is an `(x, y)` tuple.
+* `"food"`: An `(x, y)` tuple. The position of the food.
+* `"command"`: A string. The command decided for this frame. This member is used for recording the game progress.
 
-The game status. Defined in [`game/gamecore.py`](game/gamecore.py).
+#### Game Command
 
-There are two `GameStatus`: `GAME_ALIVE` and `GAME_OVER`.
+It's an dictionary object sent to the game process for controlling the moving direction of the snake.
 
-#### `SnakeAction`
+The keys and values of the game command:
 
-Control the moving direction of the snake. Defined in [`game/gameobject.py`](game/gameobject.py).
-
-There are five `SnakeAction`: `UP`, `DOWN`, `LEFT`, `RIGHT`, and `NONE`. The action `NONE` will not change the moving direction.
+* `"frame"`: An integer. The number of frame the command is for. It should be the same as the frame of the scene information received.
+* `"command"`: A string. The command for controlling the snake. It's one of the following value:
+    * `"UP"`: Make the snake move upward.
+    * `"DOWN"`: Make the snake move downward.
+    * `"LEFT"`: Make the snake move to left.
+    * `"RIGHT"`: Make the snake move to right.
+    * `"NONE"`: Do not change the moving direction of snake.

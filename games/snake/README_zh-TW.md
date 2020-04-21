@@ -44,42 +44,41 @@
 
 ### 函式
 
-以下函式定義在 [`games/snake/communication`](communication.py) 模組中
+使用 `mlgame.communication.ml` 模組來與遊戲端溝通。
 
 * `ml_ready()`：通知遊戲端已經準備好接收訊息了
-* `get_scene_info()`：從遊戲端接接收遊戲場景資訊 `SceneInfo`
-* `send_command(frame, command)`：傳送指令給遊戲端
-    * `frame`：標記這個指令是給哪一個影格的。這個值必須跟收到的 `SceneInfo.frame` 一樣
-    * `command`：控制蛇的指令，必須是 `SnakeAction` 之一
+* `recv_from_game()`：從遊戲端接接收包含遊戲場景資訊的字典物件
+* `send_to_game(dict)`：傳送包含指令的字典物件給遊戲端
 
-### 資料結構
+### 溝通物件
 
-以下資料結構已經先匯入到 [`games/snake/communication`](communication.py) 模組中，可以透過此模組匯入
+遊戲端與機器學習端使用字典物件作為溝通物件
 
-#### `SceneInfo`
+#### 場景資訊
 
-儲存遊戲場景的資訊。定義在 [`game/gamecore.py`](game/gamecore.py) 中
+從遊戲端接受的字典物件，也是用來儲存在紀錄檔中的物件。
 
-* `frame`：標記這個 `SceneInfo` 紀錄的是第幾影格的場景資訊
-* `status`：目前的遊戲狀態，會是 `GameStatus` 其中之一
-* `snake_head`：蛇頭的位置。為一個 `(x, y)` tuple
-* `snake_body`：蛇身的位置。為一個 list，從蛇頭後一個蛇身依序紀錄到蛇尾，裡面每一個元素都是 `(x, y)` tuple
-* `food`：食物的位置。為一個 `(x, y`) tuple
-* `command`：依據這個影格的場景資訊而決定的指令，用於產生紀錄檔
+以下是物件的鍵值對應：
 
-#### `GameStatus`
+* `"frame"`：整數。標記紀錄的是第幾影格的場景資訊。
+* `"status"`：字串。目前的遊戲狀態，會是以下值其中之一：
+    * `"GAME_ALIVE"`：蛇還活著
+    * `"GAME_OVER"`：蛇撞到牆或是撞到自己
+* `"snake_head"`：`(x, y)` tuple。蛇頭的位置。
+* `"snake_body"`：為一個 list 儲存所有蛇身的位置，從蛇頭後一個蛇身依序紀錄到蛇尾，裡面每一個元素都是 `(x, y)` tuple。
+* `"food"`：`(x, y)` tuple。食物的位置。
+* `"command"`：字串。依據這個影格的場景資訊而決定的指令，用於產生紀錄檔。
 
-遊戲狀態。定義在 [`game/gamecore.py`](game/gamecore.py)
+#### 遊戲指令
 
-* `GAME_ALIVE`：蛇還活著
-* `GAME_OVER`：蛇撞到牆或是撞到自己
+傳送給遊戲端的字典物件，控制蛇的移動方向。
 
-#### `SnakeAction`
+以下是物件的鍵值對應：
 
-控制蛇的移動方向。定義在 [`game/gameobject.py`](game/gameobject.py)
-
-* `UP`：蛇頭向上
-* `DOWN`：蛇頭向下
-* `LEFT`：蛇頭向左
-* `RIGHT`：蛇頭向右
-* `NONE`：保持前進方向
+* `"frame"`：整數。標記是給第幾影格的指令，其值必須與接收到的場景資訊的影格數一樣。
+* `"command"`：字串。控制蛇頭的移動方向，須是以下值其中之一：
+    * `"UP"`：蛇頭向上
+    * `"DOWN"`：蛇頭向下
+    * `"LEFT"`：蛇頭向左
+    * `"RIGHT"`：蛇頭向右
+    * `"NONE"`：保持前進方向

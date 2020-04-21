@@ -85,50 +85,49 @@ def ml_loop(side):
 
 ### 函式
 
-以下函式定義在 [`games.pingpong.communication`](communication.py) 模組中。
+使用 `mlgame.communication.ml` 模組來與遊戲端溝通。
 
 * `ml_ready()`：通知遊戲端已經準備好接收訊息了
-* `get_scene_info()`：從遊戲端接接收遊戲場景資訊 `SceneInfo`
-* `send_instruction(frame, command)`：傳送指令給遊戲端
-    * `frame`：標記這個指令是給哪一個影格的。這個值必須跟收到的 `SceneInfo.frame` 一樣
-    * `command`：控制板子的指令，必須是 `PlatformAction` 之一
+* `recv_from_game()`：從遊戲端接接收存有遊戲場景資訊的字典物件
+* `send_to_game(dict)`：傳送存有指令的字典物件給遊戲端
 
-### 資料結構
+### 溝通物件
 
-以下資料結構已經事先匯入到 [`games.pingpong.communication`](communication.py) 模組中了，可以直接從此模組匯入。
+遊戲端與機器學習端的溝通使用字典物件來傳遞。
 
-#### `SceneInfo`
+#### 遊戲場景資訊
 
-儲存遊戲場景資訊。定義在 [`game/gamecore.py`](game/gamecore.py) 中
+由遊戲端發送的字典物件，同時也是存到紀錄檔的物件。
 
-* `frame`：這個 `SceneInfo` 紀錄的是第幾影格的場景資訊
-* `status`：目前的遊戲狀態，會是 `GameStatus` 其中之一
-* `ball`：球的位置。為一個 `(x, y)` tuple
-* `ball_speed`：目前的球速。為一個 `(x, y)` tuple
-* `platform_1P`：1P 板子的位置。為一個 `(x, y)` tuple
-* `platform_2P`：2P 板子的位置。為一個 `(x, y)` tuple
-* `blocker`：障礙物的位置。為一個 `(x, y)` tuple，如果選擇的難度不是 `HARD`，則其值為 `None`
-* `command_1P`：1P 根據這個影格的資訊決定的指令，用在產生紀錄檔中，在遊戲中不會有值
-* `command_2P`：同 `command_1P`，但是是 2P 決定的指令
+以下是該字典物件的鍵值對應：
 
-### `GameStatus`
+* `"frame"`：整數。紀錄的是第幾影格的場景資訊
+* `"status"`：字串。目前的遊戲狀態，會是以下的值其中之一：
+    * `"GAME_ALIVE"`：遊戲正在進行中
+    * `"GAME_1P_WIN"`：這回合 1P 獲勝
+    * `"GAME_2P_WIN"`：這回合 2P 獲勝
+    * `"GAME_DRAW"`：這回合平手
+* `"ball"`：`(x, y)` tuple。球的位置。
+* `"ball_speed"`：`(x, y)` tuple。目前的球速。
+* `"platform_1P"`：`(x, y)` tuple。1P 板子的位置。
+* `"platform_2P"`：`(x, y)` tuple。2P 板子的位置。
+* `"blocker"`：`(x, y)` tuple。障礙物的位置。如果選擇的難度不是 `HARD`，則其值為 `None`。
+* `"command_1P"`：字串。1P 根據這個影格的資訊決定的指令，用在產生紀錄檔中，在遊戲中不會有值。
+* `"command_2P"`：字串。同 `command_1P`，但是是 2P 決定的指令。
 
-遊戲狀態。定義在 [`game/gamecore.py`](game/gamecore.py) 中
+#### 遊戲指令
 
-* `GAME_ALIVE`：遊戲正在進行中
-* `GAME_1P_WIN`：這回合 1P 獲勝
-* `GAME_2P_WIN`：這回合 2P 獲勝
-* `GAME_DRAW`：這回合平手
+傳給遊戲端用來控制板子的指令。
 
-### `PlatformAction`
+以下是該字典物件的鍵值對應：
 
-控制板子的指令。定義在 [`game/gameobject.py`](game/gameobject.py) 中
-
-* `SERVE_TO_LEFT`：將球發向左邊
-* `SERVE_TO_RIGHT`：將球發向右邊
-* `MOVE_LEFT`：將板子往左移
-* `MOVE_RIGHT`：將板子往右移
-* `NONE`：無動作
+* `"frame"`：整數。標示這個指令是給第幾影格的指令，需要與接收到的遊戲場景資訊中影格值一樣。
+* `"command"`：字串。控制板子的指令，須為以下值的其中之一：
+    * `"SERVE_TO_LEFT"`：將球發向左邊
+    * `"SERVE_TO_RIGHT"`：將球發向右邊
+    * `"MOVE_LEFT"`：將板子往左移
+    * `"MOVE_RIGHT"`：將板子往右移
+    * `"NONE"`：無動作
 
 ## 機器學習模式的玩家程式
 

@@ -72,53 +72,46 @@ View the example of the ml script in [`ml/ml_play_template.py`](ml/ml_play_templ
 
 ### Methods
 
-The following methods are defined in [`games.arkanoid.communication`](communication.py).
+Use `mlgame.communication.ml` module to communicate with the game process.
 
 * `ml_ready()`: Inform the game process that ml process is ready.
-* `get_scene_info()`: Receive the `SceneInfo` sent from the game process.
-* `send_instruction(frame, command)`: Send the command to the game process.
-    * `frame`: The number of frame that this command is for. This value should be the same as the `frame` of the received `SceneInfo`.
-    * `command`: The command for controlling the platform. It's one of `PlatformAction`.
+* `recv_from_game()`: Receive an dictionary object storing the game information from the game process.
+* `send_to_game(dict)`: Send an dictionary object storing the command to the game process.
 
-### Data Structures
+### Communication Objects
 
-The following data structures are imported in the module [`games.arkanoid.communication`](communication.py).
+The dictionary object is used as the communication object transporting between game and ml processes.
 
-#### `SceneInfo`
+#### Scene Information
 
-Store the information of the scene. Defined in [`game/gamecore.py`](game/gamecore.py).
+It's an dictionary object sent from the game process, and also an object to be pickled in the record file.
 
-The members of the `SceneInfo`:
+The keys and values of the scene information:
 
-* `frame`: The number of the frame that this `SceneInfo` is for
-* `status`: The game status at this frame. It's one of `GameStatus`.
-* `ball`: The position of the ball. It's a `(x, y)` tuple.
-* `platform`: The position of the platform. It's a `(x, y)` tuple.
-* `bricks`: A list storing the position of remaining normal bricks (including the hard bricks that are hit once). All elements are `(x, y)` tuples.
-* `hard_bricks`: A list storing the position of remaining hard bricks. All elements are `(x, y)` tuples.
-* `command`: The command decided for this frame. It's one of `PlatformAction`. This member is used for recording the game progress
+* `"frame"`: An integer, The number of the frame that this scene information is for
+* `"status"`: A string. The game status at this frame. It's one of the following value:
+    * `"GAME_ALIVE"`: The game is still going.
+    * `"GAME_PASS"`: All the bricks are broken.
+    * `"GAME_OVER"`: The platform can't catch the ball.
+* `"ball"`: An `(x, y)` tuple. The position of the ball.
+* `"platform"`: An `(x, y)` tuple. The position of the platform.
+* `"bricks"`: A list storing the position of remaining normal bricks (including the hard bricks that are hit once). All elements are `(x, y)` tuples.
+* `"hard_bricks"`: A list storing the position of remaining hard bricks. All elements are `(x, y)` tuples.
+* `"command"`: A string. The command decided for this frame. This member is used for recording the game progress
 
-#### `GameStatus`
+#### Game Command
 
-The game status. Defined in [`game/gamecore.py`](game/gamecore.py).
+It's an dictionary object sent to the game process for controlling the movement of the platform.
 
-There are 3 `GameStatus`:
+The keys and values of the game command:
 
-* `GAME_ALIVE`: The game is still going.
-* `GAME_PASS`: All the bricks are broken.
-* `GAME_OVER`: The platform can't catch the ball.
-
-#### `PlatformAction`
-
-Control the movement of the platform. Defined in [`game/gameobject.py`](game/gameobject.py).
-
-There are 5 `PlatformAction`:
-
-* `SERVE_TO_LEFT`: Serve the ball to the left
-* `SERVE_TO_RIGHT`: Serve the ball to the right
-* `MOVE_LEFT`: Move the platform to the left
-* `MOVE_RIGHT`: Move the platform to the right
-* `NONE`: Do nothing
+* `"frame"`: An integer. The number of frame that this game command is for. It should be the same as the frame of the scene information received.
+* `"command"`: A string. The command for controlling the platform. It's one of the following value:
+    * `"SERVE_TO_LEFT"`: Serve the ball to the left
+    * `"SERVE_TO_RIGHT"`: Serve the ball to the right
+    * `"MOVE_LEFT"`: Move the platform to the left
+    * `"MOVE_RIGHT"`: Move the platform to the right
+    * `"NONE"`: Do nothing
 
 ## Custom Level Map Files
 
