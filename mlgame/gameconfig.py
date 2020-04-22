@@ -29,6 +29,9 @@ def get_command_parser():
     parser.add_argument("-h", "--help", action = "store_true",
         help = "show this help message and exit. "
         "If the <game> is specified, show the help message of the game instead.")
+    parser.add_argument("-l", "--list", action = "store_true", dest = "list_games",
+        help = "list available games. If the game in the 'games' directory "
+        "provides 'config.py', it will be listed.")
     parser.add_argument("-f", "--fps", type = int, default = 30,
         help = "the updating frequency of the game process [default: %(default)s]")
     parser.add_argument("-m", "--manual-mode", action = "store_true", default = False,

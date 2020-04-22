@@ -2,6 +2,8 @@
 Parse the execution command, load the game config, and execute the game
 """
 import importlib
+import os
+import os.path
 import sys
 
 from .gameconfig import get_command_parser, GameMode, GameConfig
@@ -43,9 +45,14 @@ def _get_game_config() -> GameConfig:
     cmd_parser = get_command_parser()
     parsed_args = cmd_parser.parse_args()
 
-    # If "-h/--help" is specified, print help message and exit.
-    if not parsed_args.game and parsed_args.help:
-        cmd_parser.print_help()
+    # Functional print
+    if not parsed_args.game:
+        # If "-h/--help" is specified, print help message and exit.
+        if parsed_args.help:
+            cmd_parser.print_help()
+        # If "-l/--list" is specified, list available games and exit.
+        elif parsed_args.list_games:
+            _list_games()
         sys.exit(0)
 
     # Load the game defined parameters
@@ -83,6 +90,18 @@ def _get_game_config() -> GameConfig:
         raise GameConfigError(str(e))
 
     return config
+
+def _list_games():
+    """
+    List available games which provide "config.py" in the game directory.
+    """
+    game_root_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), "games")
+    dirs = [f for f in os.listdir(game_root_dir)
+        if ("__" not in f) and (os.path.isdir(os.path.join(game_root_dir, f)))]
+
+    for game_dir in dirs:
+        if os.path.exists(os.path.join(game_root_dir, game_dir, "config.py")):
+            print(game_dir)
 
 def _preprocess_game_param_dict(param_dict):
     """
