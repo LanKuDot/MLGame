@@ -279,10 +279,12 @@ def _run_ml_mode(game_config: GameConfig, process_config):
         # It is stored as a (crosslang ml client module, non-python script) tuple.
         if isinstance(ml_module, tuple):
             try:
+                print("Compiling '{}'...".format(ml_module[1]), end = " ", flush = True)
                 execution_cmd = compile_script(ml_module[1])
             except CompilationError as e:
-                print("Error: {}".format(e))
+                print("Failed\nError: {}".format(e))
                 sys.exit(1)
+            print("OK")
 
             ml_module = ml_module[0]
             # Wrap arguments passed to be passed to the script
