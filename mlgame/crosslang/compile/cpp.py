@@ -43,7 +43,7 @@ def compile_script(script_full_path):
     if p.returncode != 0:
         raise CompilationError(os.path.basename(script_full_path), errs)
 
-    return execute_file_path
+    return [execute_file_path]
 
 def _preprocess_script(user_script_path, outfile_dir):
     """
