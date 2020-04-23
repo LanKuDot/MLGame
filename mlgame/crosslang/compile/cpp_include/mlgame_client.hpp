@@ -22,7 +22,7 @@ using namespace std;
 json get_init_args()
 {
     string init_args_str;
-    cin >> init_args_str;
+    getline(cin, init_args_str);
 
     // Ignore header "__init__"
     init_args_str.erase(0, init_args_str.find_first_of('{'));
@@ -44,7 +44,7 @@ void ml_ready()
 json get_scene_info()
 {
     string scene_info_str;
-    cin >> scene_info_str;
+    getline(cin, scene_info_str);
 
     // Ignore header "__scene_info__"
     scene_info_str.erase(0, scene_info_str.find_first_of('{'));
@@ -55,7 +55,7 @@ json get_scene_info()
 /*
  * Send the instruction to the game
  */
-void send_instruction(string instruction)
+void send_instruction(json instruction)
 {
     cout << "__command__ " << instruction << endl;
 }
