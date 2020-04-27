@@ -29,7 +29,7 @@ def compile_script(script_full_path):
         os.remove(execute_file_path)
 
     compile_cmd = [
-        "g++", main_script_file_path, "-I" + lib_dir,
+        "g++", main_script_file_path, "-I" + lib_dir, "--std=c++11",
         "-o", execute_file_path
     ]
 
