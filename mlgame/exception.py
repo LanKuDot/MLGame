@@ -77,3 +77,16 @@ class CompilationError(Exception):
 
     def __str__(self):
         return "Failed to compile '{}':\n{}".format(self.file, self.reason)
+
+class MLClientExecutionError(Exception):
+    """
+    Exception raised when an error occurred while running non-python ml script
+    """
+    def __init__(self, message):
+        """
+        Constructor
+        """
+        self.message = message
+
+    def __str__(self):
+        return self.message
