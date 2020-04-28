@@ -8,10 +8,10 @@
 
 ## 執行
 
-* 手動模式：`python MLGame.py snake -m`
+* 手動模式：`python MLGame.py -m snake`
     * 控制蛇的方向：方向鍵
     * 蛇一個影格移動一步，可以加入 `-f <FPS>` 來降低蛇的移動速度
-* 機器學習模式：`python MLGame.py snake -i ml_play_template.py`
+* 機器學習模式：`python MLGame.py -i ml_play_template.py snake`
 
 ## 詳細遊戲資訊
 

@@ -10,10 +10,10 @@
 
 ## 執行
 
-* 手動模式：`python MLGame.py arkanoid <difficulty> <level_id> -m`
+* 手動模式：`python MLGame.py -m arkanoid <difficulty> <level_id>`
     * 將球發到左邊/右邊：`A` 或 `D`
     * 移動板子：左右方向鍵
-* 機器學習模式：`python MLGame.py arkanoid <difficulty> <level_id> -i ml_play_template.py`
+* 機器學習模式：`python MLGame.py -i ml_play_template.py arkanoid <difficulty> <level_id>`
 
 ### 遊戲參數
 

@@ -10,10 +10,10 @@
 
 ## 執行
 
-* 手動模式：`python MLGame.py pingpong <difficulty> [game_over_score] -m`
+* 手動模式：`python MLGame.py -m pingpong <difficulty> [game_over_score]`
     * 將球發往左邊/右邊：1P - `.`、`/`，2P - `Q`、`E`
     * 移動板子：1P - 左右方向鍵，2P - `A`、`D`
-* 機器學習模式：`python MLGame.py pingpong <difficulty> [game_over_score] -i ml_play_template.py`
+* 機器學習模式：`python MLGame.py -i ml_play_template.py pingpong <difficulty> [game_over_score]`
 
 ### 遊戲參數
 
@@ -131,11 +131,11 @@ def ml_loop(side):
 
 ## 機器學習模式的玩家程式
 
-乒乓球是雙人遊戲，所以在啟動機器學習模式時，可以利用 `-i <script_for_1P> <script_for_2P>` 指定兩個不同的玩家程式。如果只有指定一個玩家程式，則兩邊都會使用同一個程式。
+乒乓球是雙人遊戲，所以在啟動機器學習模式時，可以利用 `-i <script_for_1P> -i <script_for_2P>` 指定兩個不同的玩家程式。如果只有指定一個玩家程式，則兩邊都會使用同一個程式。
 
 而在遊戲中有提供 `ml_play_manual.py` 這個程式，它會建立一個手把，讓玩家可以在機器學習模式中手動與另一個程式對玩。使用流程：
 
-1. 使用 `python MLGame.py pingpong -i ml_play_template.py ml_play_manual.py` 啟動遊戲。會看到有兩個視窗，其中一個就是手把。終端機會輸出 "Invisible joystick is used. Press Enter to start the 2P ml process." 的訊息。
+1. 使用 `python MLGame.py -i ml_play_template.py -i ml_play_manual.py pingpong <difficulty>` 啟動遊戲。會看到有兩個視窗，其中一個就是手把。終端機會輸出 "Invisible joystick is used. Press Enter to start the 2P ml process." 的訊息。
 
 <img src="https://i.imgur.com/iyrS87t.png" height="500px" />
 

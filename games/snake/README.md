@@ -8,10 +8,10 @@ Control the snake, eat as much food as possible.
 
 ## Execution
 
-* Manual mode: `python MLGame.py snake -m`
+* Manual mode: `python MLGame.py -m snake`
     * Controlling: arrow keys
     * Perhaps 30 fps is too fast to play.
-* ML mode: `python MLGame.py snake -i ml_play_template.py`
+* ML mode: `python MLGame.py -i ml_play_template.py snake`
 
 ## Detailed Game Information
 

@@ -10,10 +10,10 @@ There are two difficulties. The `EASY` one is a simple arkanoid game, and the ba
 
 ## Execution
 
-* Manual mode: `python MLGame.py arkanoid <difficulty> <level_id> -m`
+* Manual mode: `python MLGame.py -m arkanoid <difficulty> <level_id>`
     * Serve the ball to the left/right: `A`, `D`
     * Move the platform: `left`, `right` arrow key
-* ML mode: `python MLGame.py arkanoid <difficulty> <level_id> -i ml_play_template.py`
+* ML mode: `python MLGame.py -i ml_play_template.py arkanoid <difficulty> <level_id>`
 
 ### Game Parameters
 

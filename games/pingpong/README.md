@@ -10,10 +10,10 @@ There are two mechanisms. One is ball slicing: The x speed of the ball will be c
 
 ## Execution
 
-* Manual mode: `python MLGame.py pingpong <difficulty> [game_over_score] -m`
+* Manual mode: `python MLGame.py -m pingpong <difficulty> [game_over_score]`
     * Serve the ball to the left/right: 1P - `.`, `/`; 2P - `Q`, `E`
     * Move the platform: 1P - `left`, `right` arrow keys; 2P - `A`, `D`
-* ML mode: `python MLGame.py pingpong <difficulty> [game_over_score] -i ml_play_template.py`
+* ML mode: `python MLGame.py -i ml_play_template.py pingpong <difficulty> [game_over_score]`
 
 ### Game Parameters
 
@@ -134,10 +134,10 @@ The keys and values of the game command:
 
 ## Input Scripts for ML Mode
 
-The pingpong game is a 2P game, so it can accept two different ml scripts by specifying `-i <script_for_1P> <script_for_2P>`. If there is only one script specified, 1P and 2P will use the same script.
+The pingpong game is a 2P game, so it can accept two different ml scripts by specifying `-i <script_for_1P> -i <script_for_2P>`. If there is only one script specified, 1P and 2P will use the same script.
 
-You can specify `ml_play_manual.py` as the input script. It will create an invisible joystick for you to play with the ml process. For example: 
-1. Start the game by the command `python MLGame.py pingpong <difficulty> -i ml_play_template.py ml_play_manual.py`. There will be 2 windows, and one is the "Invisible joystick". The terminal will output a message "Invisible joystick is used. Press Enter to start the 2P ml process."
+You can specify `ml_play_manual.py` as the input script. It will create an invisible joystick for you to play with the ml process. For example:
+1. Start the game by the command `python MLGame.py -i ml_play_template.py -i ml_play_manual.py pingpong <difficulty>`. There will be 2 windows, and one is the "Invisible joystick". The terminal will output a message "Invisible joystick is used. Press Enter to start the 2P ml process."
 
 <img src="https://i.imgur.com/iyrS87t.png" height="500px" />
 
@@ -149,4 +149,4 @@ You can specify `ml_play_manual.py` as the input script. It will create an invis
 
 ## About the Ball
 
-The behavior of the ball is the same as the game "Arkanoid". 
+The behavior of the ball is the same as the game "Arkanoid".
