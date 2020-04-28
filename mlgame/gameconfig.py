@@ -31,7 +31,7 @@ def get_command_parser():
         "show the help message of the game instead.")
     group.add_argument("-l", "--list", action = "store_true", dest = "list_games",
         help = "list available games. If the game in the 'games' directory "
-        "provides 'config.py', it will be listed.")
+        "provides 'config.py' which can be loaded, it will be listed.")
 
     group = parser.add_argument_group(title = "game execution options")
     group.add_argument("-f", "--fps", type = int, default = 30,

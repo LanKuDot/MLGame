@@ -95,9 +95,24 @@ def _list_games():
     dirs = [f for f in os.listdir(game_root_dir)
         if ("__" not in f) and (os.path.isdir(os.path.join(game_root_dir, f)))]
 
+    game_info_list = [("Game", "Version"), ("-----", "-----")]
+    max_name_len = 5
+    # Load the config and version
     for game_dir in dirs:
-        if os.path.exists(os.path.join(game_root_dir, game_dir, "config.py")):
-            print(game_dir)
+        try:
+            game_defined_config = importlib.import_module(
+                "games.{}.config".format(game_dir))
+            game_version = game_defined_config.GAME_VERSION
+        except ModuleNotFoundError:
+            continue
+        except AttributeError:
+            game_version = ""
+
+        game_info_list.append((game_dir, game_version))
+        max_name_len = max(max_name_len, len(game_dir))
+
+    for name, version in game_info_list:
+        print(name.ljust(max_name_len + 1), version)
 
 def _preprocess_game_param_dict(param_dict, game_defined_config):
     """
