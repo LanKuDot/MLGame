@@ -1,4 +1,4 @@
-from argparse import ArgumentParser
+from argparse import ArgumentParser, REMAINDER
 from enum import Enum, auto
 import os.path
 
@@ -9,13 +9,10 @@ def get_command_parser():
     """
     Generate an ArgumentParser for parse the arguments in the command line
     """
-    usage_str = ("python %(prog)s [options] <game> [game_params]\n" +
-        "".ljust(24) + "[-i SCRIPT(S)]")
+    usage_str = ("python %(prog)s [options] <game> [game_params]")
     description_str = ("A platform for applying machine learning algorithm "
         "to play pixel games. "
-        "In default, the game runs in the machine learning mode. "
-        "Use '--input-script' or '--input-module' flag at the end of the command "
-        "to specify script(s) or module(s) for playing the game.")
+        "In default, the game runs in the machine learning mode.")
 
     parser = ArgumentParser(usage = usage_str, description = description_str,
         add_help = False)

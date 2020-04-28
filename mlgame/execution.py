@@ -45,14 +45,14 @@ def _get_game_config() -> GameConfig:
     cmd_parser = get_command_parser()
     parsed_args = cmd_parser.parse_args()
 
-    # Functional print
-    if not parsed_args.game:
-        # If "-h/--help" is specified, print help message and exit.
-        if parsed_args.help:
-            cmd_parser.print_help()
-        # If "-l/--list" is specified, list available games and exit.
-        elif parsed_args.list_games:
-            _list_games()
+    ## Functional print ##
+    # If "-h/--help" is specified, print help message and exit.
+    if parsed_args.help:
+        cmd_parser.print_help()
+        sys.exit(0)
+    # If "-l/--list" is specified, list available games and exit.
+    elif parsed_args.list_games:
+        _list_games()
         sys.exit(0)
 
     # Load the game defined parameters
@@ -75,10 +75,6 @@ def _get_game_config() -> GameConfig:
     # Create game_param parser
     _preprocess_game_param_dict(game_defined_params)
     param_parser = get_parser_from_dict(game_defined_params)
-    # If "-h/--help" and "<game>" are specified, print help and exit.
-    if parsed_args.help:
-        param_parser.print_help()
-        sys.exit(0)
 
     # Replace the input game_params with the parsed one
     parsed_args.game_params = param_parser.parse_args(parsed_args.game_params)
@@ -113,8 +109,7 @@ def _preprocess_game_param_dict(param_dict):
         param_dict["()"].get("game_usage")):
         game_usage = str(param_dict["()"].pop("game_usage"))
         param_dict["()"]["usage"] = (
-            "python MLGame.py [options] " + game_usage + "\n" +
-            "".ljust(24) + "[-i SCRIPT(S)]")
+            "python MLGame.py [options] " + game_usage)
 
 def _game_execution(game_config: GameConfig):
     """

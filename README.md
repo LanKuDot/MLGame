@@ -15,23 +15,24 @@ MLGame separates the machine learning part from the game core, which makes users
 ## Usage
 
 ```
-$ python MLGame.py [options] <game> [game_params] [-i SCRIPT(S)]
+$ python MLGame.py [options] <game> [game_params]
 ```
 
 * `game`: The name of the game to be started. Use `-l` flag to list available games.
 * `game_params`: The additional parameters for the game. Use `python MLGame.py <game> -h` to list game parameters of a game.
-* `function options`:
+  * Note that all arguments after `<game>` will be collected to this paremeter
+* functional options:
   * `--version`: Show the version number
   * `-h`: Show the help message
   * `-l`: List available games
-* `game execution options`:
+* game execution options:
   * `-f FPS`: Specify the updating frequency of the game
   * `-m`: Play the game in the manual mode (as a normal game)
   * `-1`: Quit the game when the game is over or is passed. Otherwise, the game will restart automatically.
   * `-r`: Pickle the game progress (a list of `SceneInfo`) to log files.
   * `-i SCRIPT [SCRIPT ...]`: Specify the script(s) used in the machine learning mode. The script must have function `ml_loop()` and be put in the `games/<game>/ml/` directory.
 
-Use `python MLGame.py -h` for more information. Note that `-i` flag and its following "SCRIPTs" should be placed at the end of the command.
+Use `python MLGame.py -h` for more information.
 
 For example:
 
@@ -53,7 +54,7 @@ For example:
 * Play the game arkanoid level 2 on normal difficulty, record the game progress, and specify the script ml_play_template.py
 
   ```
-  $ python MLGame.py arkanoid NORMAL 2 -r -i ml_play_template.py
+  $ python MLGame.py -r -i ml_play_template.py arkanoid NORMAL 2
   ```
 
 ## Machine Learning Mode
