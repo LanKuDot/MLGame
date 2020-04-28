@@ -29,7 +29,7 @@ $ python MLGame.py [options] <game> [game_params]
   * `-f FPS`: Specify the updating frequency of the game
   * `-m`: Play the game in the manual mode (as a normal game)
   * `-1`: Quit the game when the game is over or is passed. Otherwise, the game will restart automatically.
-  * `-r`: Pickle the game progress (a list of `SceneInfo`) to log files.
+  * `-r`: Pickle the game progress (a list of "SceneInfo") to log files.
   * `-i SCRIPT [-i SCRIPT ...]`: Specify the script used in the machine learning mode. For multiple scripts, use this flag multiple times. The script must have function `ml_loop()` and be put in the `games/<game>/ml/` directory.
 
 **Game execution options must be specified before &lt;game&gt; arguments.** \
@@ -64,7 +64,7 @@ If `-m` flag is **not** specified, the game will execute in the machine learning
 
 ![Imgur](https://i.imgur.com/ELXiFIZ.png)
 
-"SceneInfo" is a dictionary object that stores the game status and the position of gameobjects in the scene. "GameCommand is also a dictionary object that stores the command for controlling the gameobject (such as a platform).
+"SceneInfo" is a dictionary object that stores the game status and the position of gameobjects in the scene. "GameCommand" is also a dictionary object that stores the command for controlling the gameobject (such as a platform).
 
 ### Execution Order
 
