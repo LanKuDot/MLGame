@@ -30,8 +30,9 @@ $ python MLGame.py [options] <game> [game_params]
   * `-m`: Play the game in the manual mode (as a normal game)
   * `-1`: Quit the game when the game is over or is passed. Otherwise, the game will restart automatically.
   * `-r`: Pickle the game progress (a list of `SceneInfo`) to log files.
-  * `-i SCRIPT [SCRIPT ...]`: Specify the script(s) used in the machine learning mode. The script must have function `ml_loop()` and be put in the `games/<game>/ml/` directory.
+  * `-i SCRIPT [-i SCRIPT ...]`: Specify the script used in the machine learning mode. For multiple scripts, use this flag multiple times. The script must have function `ml_loop()` and be put in the `games/<game>/ml/` directory.
 
+**The game execution flags must be specified before &lt;game&gt; arguments.**
 Use `python MLGame.py -h` for more information.
 
 For example:
