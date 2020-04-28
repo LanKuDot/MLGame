@@ -14,6 +14,9 @@ The format is modified from [Keep a Changelog](https://keepachangelog.com/en/1.0
 
 **Changed**
 
+* The game execution flags must be specified before the game name, including `-i/--input-script/--input-module` flags
+* `-i/--input-script/--input-module` flags carry one script or one module at a time.
+  * Specify these flags multiple times for multiple scripts or modules, such as `-i script_1P -i script_2P`.
 * Games: Use dictionary objects as communication objects between game and ml processes for flexibility
   * The record file only contains dictionay objects and built-in types, therefore, it can be read outside the `mlgame` directory.
 * `mlgame.gamedev.recorder.RecorderHelper` only accepts dictionary object.
