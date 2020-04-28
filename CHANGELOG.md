@@ -2,6 +2,32 @@
 
 The format is modified from [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+### [Beta 6.0] - 2020.04.28
+
+**Added**
+
+* Add `-l` and `--list` flag for listing available games
+* Use `config.py` in games to set up the game parameters and the game execution
+* Use `argparse` for generating and handling game parameters
+  * List game parameters of a game by using `python MLGame.py <game> -h`
+* Exit with non-zero value when an error occurred
+
+**Changed**
+
+* Games: Use dictionary objects as communication objects between game and ml processes for flexibility
+  * The record file only contains dictionay objects and built-in types, therefore, it can be read outside the `mlgame` directory.
+* `mlgame.gamedev.recorder.RecorderHelper` only accepts dictionary object.
+* Code refactoring
+
+**Removed**
+
+* Games
+  * Remove `main.py` (replaced by `config.py`)
+  * Remove `communication.py`
+    * For the ml script, use `mlgame.communication.ml` module to communicate with the game process. See `ml_play_template.py` for the example.
+* Remove `CommandReceiver` from the `mlgame.communication.game`
+  * The game has to validate the command recevied by itself.
+
 ### [Beta 5.0.1] - 2020.03.06
 
 **Fixed**
