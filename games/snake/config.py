@@ -1,3 +1,5 @@
+GAME_VERSION = "1.0"
+
 def run_game(game_config, run_ml_mode):
     if run_ml_mode:
         from .game.snake_ml import Snake

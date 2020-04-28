@@ -1,3 +1,4 @@
+GAME_VERSION = "1.0"
 GAME_PARAMS = {
     "()": {
         "prog": "arkanoid",

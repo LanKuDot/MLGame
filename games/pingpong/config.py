@@ -1,3 +1,5 @@
+GAME_VERSION = "1.0"
+
 from argparse import ArgumentTypeError
 
 def positive_int(string):
