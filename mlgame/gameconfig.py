@@ -34,7 +34,7 @@ def get_command_parser():
         "provides 'config.py' which can be loaded, it will be listed.")
 
     group = parser.add_argument_group(title = "game execution options",
-        description = "The game execution flags must be specified before <game> arguments.")
+        description = "Game execution options must be specified before <game> arguments.")
     group.add_argument("-f", "--fps", type = int, default = 30,
         help = "the updating frequency of the game process [default: %(default)s]")
     group.add_argument("-m", "--manual-mode", action = "store_true",

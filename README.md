@@ -32,7 +32,7 @@ $ python MLGame.py [options] <game> [game_params]
   * `-r`: Pickle the game progress (a list of `SceneInfo`) to log files.
   * `-i SCRIPT [-i SCRIPT ...]`: Specify the script used in the machine learning mode. For multiple scripts, use this flag multiple times. The script must have function `ml_loop()` and be put in the `games/<game>/ml/` directory.
 
-**The game execution flags must be specified before &lt;game&gt; arguments.**
+**Game execution options must be specified before &lt;game&gt; arguments.** \
 Use `python MLGame.py -h` for more information.
 
 For example:
