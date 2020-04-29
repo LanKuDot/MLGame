@@ -20,4 +20,8 @@ def compile_script(script_full_path):
     compilation_module = importlib.import_module(
         ".compile.{}".format(EXTESION_LANG_MAP[extension]), __package__)
 
-    return compilation_module.compile_script(script_full_path)
+    execution_cmd = compilation_module.compile_script(script_full_path)
+    if not isinstance(execution_cmd, list):
+        raise TypeError("The returned execution command is not a list.")
+
+    return execution_cmd
