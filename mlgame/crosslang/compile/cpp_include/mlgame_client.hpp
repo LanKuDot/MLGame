@@ -53,11 +53,11 @@ json get_scene_info()
 }
 
 /*
- * Send the instruction to the game
+ * Send the game command to the game
  */
-void send_instruction(json instruction)
+void send_command(json command)
 {
-    cout << "__command__ " << instruction << endl;
+    cout << "__command__ " << command << endl;
 }
 
 #endif //_MLGAME_CLIENT_
