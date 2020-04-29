@@ -4,7 +4,7 @@ The subprocess for running the client script and handling the I/O of it
 import json
 
 from subprocess import PIPE, Popen
-from threading import Thread
+from threading import Thread, Event
 from queue import Queue
 
 from ..exception import MLClientExecutionError
@@ -24,6 +24,7 @@ class Client(Popen):
 
         # Thread for reading message
         self._command_obj_queue = Queue()
+        self._is_program_exited = Event()
         self._read_stdout_thread = Thread(target = self._read_stdout,
             name = "read_stdout")
 
@@ -38,8 +39,9 @@ class Client(Popen):
         @param header The header to be added at the begin of the message
         @param dict_payload A dictionay object
         """
-        self.stdin.write(header + " " + json.dumps(dict_payload) + "\n")
-        self.stdin.flush()
+        if not self._is_program_exited.is_set():
+            self.stdin.write(header + " " + json.dumps(dict_payload) + "\n")
+            self.stdin.flush()
 
     def recv_from_client(self):
         """
@@ -65,18 +67,24 @@ class Client(Popen):
                     self._command_obj_queue.put(json.loads(message))
             elif len(message):
                 print(message, flush = True)
-            else:   # zero-length read
+            else:   # zero-length read, program is exited
                 break
 
+        self._is_program_exited.set()
         self.wait()
+
         if self.returncode != 0:
-            self._read_stderr()
+            message = " Get output from stderr:\n" + self._read_stderr()
+        else:
+            message = ""
+
+        self._command_obj_queue.put(MLClientExecutionError(
+            "The user program is exited with returncode {}.{}"
+            .format(self.returncode, message)))
 
     def _read_stderr(self):
         """
         Read the message from stderr of the client.
-        If it has message, create a `MLScriptError` object and send to
-        the command object queue.
         """
         message = self.stderr.readlines()
-        self._command_obj_queue.put(MLClientExecutionError("".join(message)))
+        return "".join(message)
