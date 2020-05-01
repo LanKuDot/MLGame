@@ -20,7 +20,7 @@ def compile_script(script_full_path):
     @param script_full_path The full path of the target script
     @return The execution command of the executable
     """
-    lib_dir = os.path.join(os.path.dirname(__file__), "cpp_include")
+    lib_dir = os.path.join(os.path.dirname(__file__), "include", "cpp")
 
     dir_path = os.path.dirname(script_full_path)
     main_script_file_path = _preprocess_script(script_full_path, dir_path)
@@ -53,7 +53,7 @@ def _preprocess_script(user_script_path, outfile_dir):
     @param outfile_dir The path of the directory to put the new file
     @return The path of the new file
     """
-    basefile_path = os.path.join(os.path.dirname(__file__), "cpp_include",
+    basefile_path = os.path.join(os.path.dirname(__file__), "include", "cpp",
         "base_main.cpp")
     char_choice = string.ascii_lowercase + string.digits
     outfile_name = ("main_" +
