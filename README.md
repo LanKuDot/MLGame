@@ -2,7 +2,7 @@
 
 A platform for applying machine learning algorithm to play pixel games
 
-MLGame separates the machine learning part from the game core, which makes users easily apply codes to play the game.
+MLGame separates the machine learning part from the game core, which makes users easily apply codes to play the game. (Support non-python script as the client. Check [here](mlgame/crosslang/README.md) for more information.)
 
 **MLGame Beta 6.0+ is not compatible with the previous version.**
 
@@ -62,15 +62,15 @@ For example:
 
 If `-m` flag is **not** specified, the game will execute in the machine learning mode. In the machine learning mode, the main process will generate two new processes, one is for executing the machine learning code (called ml process), the other is for executing the game core (called game process). They use pipes to communicate with each other.
 
-![Imgur](https://i.imgur.com/ELXiFIZ.png)
+![Imgur](https://i.imgur.com/NQoXsZf.png)
 
-"SceneInfo" is a dictionary object that stores the game status and the position of gameobjects in the scene. "GameCommand" is also a dictionary object that stores the command for controlling the gameobject (such as a platform).
+Scene information is a dictionary object that stores the game status and the position of gameobjects in the scene. Game command is also a dictionary object that stores the command for controlling the gameobject (such as a platform).
 
 ### Execution Order
 
-![Imgur](https://i.imgur.com/t7itbDH.png)
+![Imgur](https://i.imgur.com/0yDfdyr.png)
 
-Note that the game process won't wait for the ml process (except for the initialization). Therefore, if the ml process cannot send a "GameCommand" in time, the instruction will be consumed in the next frame in the game process, which is "delayed".
+Note that the game process won't wait for the ml process (except for the initialization). Therefore, if the ml process cannot send a game command in time, the command will be consumed in the next frame in the game process, which is "delayed".
 
 The example script for the ml process is in the file `games/<game>/ml/ml_play_template.py`, which is a script that simply sent the same command to the game process. There are detailed comments in the script to describe how to write your own script.
 
@@ -78,7 +78,7 @@ The example script for the ml process is in the file `games/<game>/ml/ml_play_te
 
 MLGame supports that a non-python script runs as a ml client. For the supported programming languages and how to use it, please view the [README](mlgame/crosslang/README.md) of the `mlgame.crosslang` module.
 
-### Access trained data
+### Access Trained Data
 
 The ml script needs to load the trained data from external files. It is recommended that put these files in the same directory of the ml script and use absolute path to access them.
 
@@ -98,7 +98,7 @@ def ml_loop():
 
 ## Log Game Progress
 
-if `-r` flag is specified, the game progress will be logged into a file. When a game round is ended, a list of "SceneInfo" (i.e. a list of dictionay objects) is dumped to a file `<prefix>_<timestamp>.pickle` by using `pickle.dump()`. The prefix of the filename contains the game mode and game parameters, such as `ml_EASY_2_<timestamp>.pickle`. The file is saved in `games/<game>/log/` directory. These log files can be used to train the model.
+If `-r` flag is specified, the game progress will be logged into a file. When a game round is ended, a list of "SceneInfo" (i.e. a list of dictionay objects) is dumped to a file `<prefix>_<timestamp>.pickle` by using `pickle.dump()`. The prefix of the filename contains the game mode and game parameters, such as `ml_EASY_2_<timestamp>.pickle`. The file is saved in `games/<game>/log/` directory. These log files can be used to train the model.
 
 ### Read Game Progress
 
@@ -120,6 +120,8 @@ def print_log():
 if __name__ == "__main__":
     print_log()
 ```
+
+For the non-python client, it may need to write a python script to read the record file and convert the game progess to other format (such as plain text) for the non-python client to read.
 
 ## Change Log
 
