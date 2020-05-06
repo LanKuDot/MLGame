@@ -66,14 +66,14 @@ class Platform(pygame.sprite.Sprite):
         self.rect.move_ip(*self._speed)
 
 class Blocker(pygame.sprite.Sprite):
-    def __init__(self, init_pos, play_area_rect: pygame.Rect, *groups):
+    def __init__(self, init_pos_y, play_area_rect: pygame.Rect, *groups):
         super().__init__(*groups)
 
-        self._init_pos = init_pos
         self._play_area_rect = play_area_rect
-        self._speed = [random.choice((3 , -3)), 0]
+        self._speed = [random.choice((5 , -5)), 0]
 
-        self.rect = pygame.Rect(*init_pos, 30, 20)
+        self.rect = pygame.Rect(
+            random.randrange(0, play_area_rect.width - 10, 20), init_pos_y, 30, 20)
         self.image = self._create_surface()
 
     def _create_surface(self):
@@ -86,8 +86,8 @@ class Blocker(pygame.sprite.Sprite):
         return self.rect.topleft
 
     def reset(self):
-        self.rect.x, self.rect.y = self._init_pos
-        self._speed = [random.choice((3, -3)), 0]
+        self.rect.x = random.randrange(0, self._play_area_rect.width - 10, 20)
+        self._speed = [random.choice((5, -5)), 0]
 
     def move(self):
         self.rect.move_ip(self._speed)

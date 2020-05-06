@@ -43,9 +43,9 @@ class Scene:
             Scene.area_rect, "2P", color_2P, self._draw_group)
         if self._difficulty != Difficulty.HARD:
             # Put the blocker at the end of the world
-            self._blocker = Blocker((85, 1000), Scene.area_rect, self._draw_group)
+            self._blocker = Blocker(1000, Scene.area_rect, self._draw_group)
         else:
-            self._blocker = Blocker((85, 240), Scene.area_rect, self._draw_group)
+            self._blocker = Blocker(240, Scene.area_rect, self._draw_group)
 
         # Initialize the position of the ball
         self._ball.stick_on_platform(self._platform_1P.rect, self._platform_2P.rect)
@@ -103,7 +103,7 @@ class Scene:
 
     def _ball_moving(self):
         # Speed up the ball every 200 frames
-        if (self._frame_count - self._ball_served_frame) % 200 == 0:
+        if (self._frame_count - self._ball_served_frame) % 100 == 0:
             self._ball.speed_up()
 
         self._ball.move()
