@@ -2,6 +2,14 @@
 
 The format is modified from [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+### [Beta 6.1] - 2020.05.06
+
+**Changed**
+
+* Pingpong - version 1.1
+  * Shorten the ball speed increasing interval
+  * Randomly set the initial position of the blocker, and speed up the moving speed of it
+
 ### [Beta 6.0] - 2020.04.28
 
 **Added**
