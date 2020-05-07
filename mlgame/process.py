@@ -2,6 +2,8 @@ import importlib
 import traceback
 
 from multiprocessing import Process, Pipe
+from threading import Thread
+from queue import Queue
 from .communication.base import CommunicationSet, CommunicationHandler
 from .exception import (
     GameProcessError, MLProcessError,
@@ -243,13 +245,37 @@ class MLProcessHelper:
         self._comm_to_game.set_recv_end(recv_end)
         self._comm_to_game.set_send_end(send_end)
 
+    def start_recv_obj_thread(self):
+        """
+        Start a thread to keep receiving objects from the game
+        """
+        self._obj_queue = Queue(15)
+
+        thread = Thread(target = self._keep_recv_obj_from_game)
+        thread.start()
+
+    def _keep_recv_obj_from_game(self):
+        """
+        Keep receiving object from the game and put it in the queue
+
+        If the queue is full, the received object will be dropped.
+        """
+        while True:
+            if self._obj_queue.full():
+                self._obj_queue.get()
+                print("Warning: The object queue for the process '{}' is full. "
+                    "Drop the oldest object."
+                    .format(self.name))
+
+            self._obj_queue.put(self._comm_to_game.recv())
+
     def recv_from_game(self):
         """
         Receive an object from the game process
 
         @return The received object
         """
-        return self._comm_to_game.recv()
+        return self._obj_queue.get()
 
     def send_to_game(self, obj):
         """
@@ -290,6 +316,8 @@ def _ml_process_entry_point(helper: MLProcessHelper):
     """
     The real entry point of the ml process
     """
+    helper.start_recv_obj_thread()
+
     # Bind the helper functions to the handlers
     from .communication import base
     base.send_to_game.set_function(helper.send_to_game)
