@@ -7,8 +7,9 @@ import os.path
 import sys
 
 from .crosslang.main import compile_script
+from .crosslang.exceptions import CompilationError
 from .gameconfig import get_command_parser, GameMode, GameConfig
-from .exception import GameConfigError, CompilationError
+from .exception import GameConfigError
 from .utils.argparser_generator import get_parser_from_dict
 
 def execute():

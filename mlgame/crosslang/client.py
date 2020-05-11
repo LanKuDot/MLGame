@@ -7,7 +7,7 @@ from subprocess import PIPE, Popen
 from threading import Thread, Event
 from queue import Queue
 
-from ..exception import MLClientExecutionError
+from .exceptions import MLClientExecutionError
 
 class Client(Popen):
     """

@@ -9,7 +9,7 @@ import random
 
 from subprocess import PIPE, Popen
 
-from mlgame.exception import CompilationError
+from mlgame.crosslang.exceptions import CompilationError
 
 def compile_script(script_full_path):
     """

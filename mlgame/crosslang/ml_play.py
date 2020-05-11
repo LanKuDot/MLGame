@@ -4,7 +4,7 @@ The ml client runs in ml process as the bridge of cross language client and game
 from .client import Client
 
 from ..communication import ml as comm
-from ..exception import MLClientExecutionError
+from .exceptions import MLClientExecutionError
 
 def ml_loop(execution_cmd, init_args, init_kwargs):
     """
