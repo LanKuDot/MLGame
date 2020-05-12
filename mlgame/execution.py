@@ -84,8 +84,8 @@ def _get_execution_command() -> ExecutionCommand:
     # Generate execution command
     try:
         return ExecutionCommand(parsed_args)
-    except Exception as e:
-        raise ExecutionCommandError(str(e))
+    except ExecutionCommandError:
+        raise
 
 def _list_games():
     """

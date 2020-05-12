@@ -102,7 +102,7 @@ class ExecutionCommand:
         self.input_modules.extend(self._parse_ml_scripts(parsed_args.input_script))
         self.input_modules.extend(self._parse_ml_modules(parsed_args.input_module))
         if self.game_mode == GameMode.ML and len(self.input_modules) == 0:
-            raise FileNotFoundError("No script or module is specified. "
+            raise ExecutionCommandError("No script or module is specified. "
                 "Cannot start the game in the machine learning mode.")
 
     def _parse_ml_scripts(self, input_scripts):
@@ -111,7 +111,7 @@ class ExecutionCommand:
 
         If it passes, the name of scripts is converted to the absolute import path and
         return a list of them.
-        Otherwise, raise the FileNotFoundError.
+        Otherwise, raise the ExecutionCommandError.
         """
         if not input_scripts:
             return []
@@ -124,7 +124,7 @@ class ExecutionCommand:
             full_script_path = os.path.join(top_dir_path, local_script_path)
 
             if not os.path.exists(full_script_path):
-                raise FileNotFoundError(
+                raise ExecutionCommandError(
                     "The script '{}' does not exist. "
                     "Cannot start the game in the machine learning mode."
                     .format(local_script_path))
@@ -159,7 +159,7 @@ class ExecutionCommand:
             full_script_path = os.path.join(top_dir_path, local_script_path)
 
             if not os.path.exists(full_script_path):
-                raise FileNotFoundError(
+                raise ExecutionCommandError(
                     "The script '{}' does not exist. "
                     "Cannot start the game in the machine learning mode."
                     .format(local_script_path))
