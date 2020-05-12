@@ -32,19 +32,22 @@ class KeyCommandMap:
         self._command_map = command_map
         self._default_command = default_command
 
-    def get_command(self):
+    def get_commands(self):
         """
-        Check the pressed key and return the corresponding command
+        Check the pressed keys and return the corresponding commands
 
-        If there is no registered key pressed, return the `default_command` instead.
-        Note that only one command is returned at once, and the key checking order is
-        the same as the ordering in `command_map` (Python 3.6+).
+        @return A list of commands of which corresponding keys are pressed
+                If there is no registered key pressed, return a list containing
+                the `default_command` instead.
         """
         key_pressed_list = pygame.key.get_pressed()
+        pressed_commands = []
         for key, command in self._command_map.items():
             if key_pressed_list[key]:
-                return command
-        return self._default_command
+                pressed_commands.append(command)
+
+        # The boolean value of an empy list is False.
+        return pressed_commands if pressed_commands else [self._default_command]
 
 class FPSCounter:
     """
