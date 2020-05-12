@@ -8,8 +8,8 @@ import sys
 
 from .crosslang.main import compile_script
 from .crosslang.exceptions import CompilationError
-from .gameconfig import get_command_parser, GameMode, GameConfig
-from .exception import GameConfigError
+from .execution_command import get_command_parser, GameMode, ExecutionCommand
+from .exception import ExecutionCommandError
 from .utils.argparser_generator import get_parser_from_dict
 
 def execute():
@@ -17,23 +17,23 @@ def execute():
     Parse the execution command and execute the game
     """
     try:
-        game_config = _get_game_config()
-    except GameConfigError as e:
+        execution_cmd = _get_execution_command()
+    except ExecutionCommandError as e:
         print("Error:", e)
         sys.exit(1)
 
     try:
-        _game_execution(game_config)
-    except GameConfigError as e:
+        _game_execution(execution_cmd)
+    except ExecutionCommandError as e:
         print("Error:", e)
         sys.exit(1)
 
-def _get_game_config() -> GameConfig:
+def _get_execution_command() -> ExecutionCommand:
     """
-    Parse the game config specified from the command line and generate `GameConfig`
+    Parse the execution command and generate `ExecutionCommand`
 
     This function will load `GAME_PARAMS` defined in the "config.py" in the game
-    directory to generate a parser for parsing the game parameters.
+    directory to generate a parser for parsing the game parameters specified in the command.
     If it cannot find `GAME_PARAMS`, it will generate a default parser.
     Refer `mlgame.utils.argparser_generator` for the format of the `GAME_PARAMS`.
 
@@ -41,7 +41,7 @@ def _get_game_config() -> GameConfig:
     The program will append the usage of `MLGame.py` to the "game_usage" and
     assign it to the "usage".
 
-    @return A `GameConfig` object
+    @return A `ExecutionCommand` object
     """
     # Parse the command line arguments
     cmd_parser = get_command_parser()
@@ -63,7 +63,7 @@ def _get_game_config() -> GameConfig:
             "games.{}.config".format(parsed_args.game))
         game_defined_params = game_defined_config.GAME_PARAMS
     except ModuleNotFoundError:
-        raise GameConfigError("Game '{}' dosen\'t provide 'config.py'"
+        raise ExecutionCommandError("Game '{}' dosen\'t provide 'config.py'"
             .format(parsed_args.game))
     except AttributeError:
         # The game doesn't define any game parameters, create a default one
@@ -81,13 +81,11 @@ def _get_game_config() -> GameConfig:
     # Replace the input game_params with the parsed one
     parsed_args.game_params = param_parser.parse_args(parsed_args.game_params)
 
-    # Generate GameConfig
+    # Generate execution command
     try:
-        config = GameConfig(parsed_args)
+        return ExecutionCommand(parsed_args)
     except Exception as e:
-        raise GameConfigError(str(e))
-
-    return config
+        raise ExecutionCommandError(str(e))
 
 def _list_games():
     """
@@ -141,7 +139,7 @@ def _preprocess_game_param_dict(param_dict, game_defined_config):
             "version": game_version
         }
 
-def _game_execution(game_config: GameConfig):
+def _game_execution(execution_cmd: ExecutionCommand):
     """
     Execute the game
 
@@ -158,9 +156,9 @@ def _game_execution(game_config: GameConfig):
         callable. If it is a string, the program will try to find the function
         of the same name defined in the "config.py" of the game. The "target" must
         provide a parameter as the first parameter for the program to pass a
-        `GameConfig` object.
+        `ExecutionCommand` object.
     - "args": [Optional] The positional arguments to be passed to the "target".
-        Should be a tuple or a list. The `GameConfig` object will be added as the
+        Should be a tuple or a list. The `ExecutionCommand` object will be added as the
         first object in the "args" before invoking "target".
     - "kwargs": [Optional] The keyword arguments to be passed to the "target".
         Should be a dictionary.
@@ -168,7 +166,7 @@ def _game_execution(game_config: GameConfig):
     The "process_config" for the "ml_mode" is similar to the "manual_mode",
     but it has additional members for the ml processes. The key name is the name
     of the ml process, its value is similar to the "game"s', but it dosen't
-    have the key "target", and the `GameConfig` object will not be added to
+    have the key "target", and the `ExecutionCommand` object will not be added to
     the "args".
 
     An example of `PROCESSES`:
@@ -189,7 +187,7 @@ def _game_execution(game_config: GameConfig):
         }
     }
 
-    def run_game(game_config, bar):
+    def run_game(execution_cmd, bar):
         print(bar)
     ```
 
@@ -197,32 +195,32 @@ def _game_execution(game_config: GameConfig):
     """
     try:
         game_defined_config = importlib.import_module(
-            "games.{}.config".format(game_config.game_name))
+            "games.{}.config".format(execution_cmd.game_name))
         game_defined_processes = game_defined_config.PROCESSES
 
         process_config = {
             GameMode.MANUAL: game_defined_processes["manual_mode"],
             GameMode.ML: game_defined_processes["ml_mode"]
-        }.get(game_config.game_mode)
+        }.get(execution_cmd.game_mode)
     except AttributeError:
-        raise GameConfigError("'PROCESSES' is not defined in '{}'"
+        raise ExecutionCommandError("'PROCESSES' is not defined in '{}'"
             .format(game_defined_config.__name__))
     except KeyError as e:
-        raise GameConfigError("Cannot find {} in 'PROCESSES' in {}"
+        raise ExecutionCommandError("Cannot find {} in 'PROCESSES' in {}"
             .format(game_defined_config.__name__, e))
-    # The exist of 'config.py' had been checked at '_parse_game_config',
+    # The exist of 'config.py' had been checked at '_parse_execution_cmd',
     # so no need to catch ModuleNotFoundError.
 
     try:
         _preprocess_process_config(process_config, game_defined_config)
     except Exception as e:
-        raise GameConfigError("Error occurred while preprocessing 'PROCESSES' in '{}': "
+        raise ExecutionCommandError("Error occurred while preprocessing 'PROCESSES' in '{}': "
             "{}".format(game_defined_config.__name__, e))
 
-    if game_config.game_mode == GameMode.MANUAL:
-        _run_manual_mode(game_config, process_config)
+    if execution_cmd.game_mode == GameMode.MANUAL:
+        _run_manual_mode(execution_cmd, process_config)
     else:
-        _run_ml_mode(game_config, process_config)
+        _run_ml_mode(execution_cmd, process_config)
 
 def _preprocess_process_config(process_config, game_defined_config):
     """
@@ -233,19 +231,19 @@ def _preprocess_process_config(process_config, game_defined_config):
     if isinstance(target_function, str):
         process_config["game"]["target"] = game_defined_config.__dict__[target_function]
 
-def _run_manual_mode(game_config: GameConfig, process_config):
+def _run_manual_mode(execution_cmd: ExecutionCommand, process_config):
     """
     Execute the game specified in manual mode
     """
     game_process_config = process_config["game"]
 
-    # Append "game_config" at the beginning of function arguments
-    args = (game_config, ) + game_process_config.get("args", ())
+    # Append "execution_cmd" at the beginning of function arguments
+    args = (execution_cmd, ) + game_process_config.get("args", ())
     kwargs = game_process_config.get("kwargs", {})
 
     game_process_config["target"](*args, **kwargs)
 
-def _run_ml_mode(game_config: GameConfig, process_config):
+def _run_ml_mode(execution_cmd: ExecutionCommand, process_config):
     """
     Execute the game specified in ml mode
     """
@@ -256,7 +254,7 @@ def _run_ml_mode(game_config: GameConfig, process_config):
     # Set game process #
 
     game_process_config = process_config["game"]
-    args = (game_config, ) + game_process_config.get("args", ())
+    args = (execution_cmd, ) + game_process_config.get("args", ())
     kwargs = game_process_config.get("kwargs", {})
 
     process_manager.set_game_process(game_process_config["target"], args, kwargs)
@@ -272,9 +270,9 @@ def _run_ml_mode(game_config: GameConfig, process_config):
         # Assign the input modules to the ml processes
         # If the number of provided modules is less than the number of processes,
         # the last module is assigned to the rest processes.
-        module_id = (i if i < len(game_config.input_modules)
-            else len(game_config.input_modules) - 1)
-        ml_module = game_config.input_modules[module_id]
+        module_id = (i if i < len(execution_cmd.input_modules)
+            else len(execution_cmd.input_modules) - 1)
+        ml_module = execution_cmd.input_modules[module_id]
 
         # Compile the non-python script
         # It is stored as a (crosslang ml client module, non-python script) tuple.

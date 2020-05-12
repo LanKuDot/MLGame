@@ -3,7 +3,7 @@ from enum import Enum, auto
 import os.path
 
 from ._version import version
-from mlgame.exception import GameConfigError
+from .exception import ExecutionCommandError
 
 def get_command_parser():
     """
@@ -71,9 +71,9 @@ class GameMode(Enum):
     MANUAL = auto()
     ML = auto()
 
-class GameConfig:
+class ExecutionCommand:
     """
-    The data class for storing the configuration of the game
+    The data class for storing the command of the game execution
 
     @var game_name The name of the game to be executed
     @var game_params A list of parameters for the game

@@ -41,9 +41,9 @@ def trim_callstack(exception_msg: str, target_user_file: str):
 
     return trimmed_msg + "".join(exception_msg_list[i:])
 
-class GameConfigError(Exception):
+class ExecutionCommandError(Exception):
     """
-    Exception raised when parsed invalid game config from the command line
+    Exception raised when parsed invalid execution command
     """
     def __init__(self, message):
         """
