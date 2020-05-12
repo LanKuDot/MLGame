@@ -54,9 +54,9 @@ class ExecutionCommandError(Exception):
     def __str__(self):
         return self.message
 
-class GameParameterError(Exception):
+class GameConfigError(Exception):
     """
-    Exception raised when receiving the invalid game parameter
+    Exception raised when the game provides invalid game config
     """
     def __init__(self, message):
         """

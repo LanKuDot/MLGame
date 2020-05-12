@@ -9,7 +9,7 @@ import sys
 from .crosslang.main import compile_script
 from .crosslang.exceptions import CompilationError
 from .execution_command import get_command_parser, GameMode, ExecutionCommand
-from .exception import ExecutionCommandError
+from .exception import ExecutionCommandError, GameConfigError
 from .utils.argparser_generator import get_parser_from_dict
 
 def execute():
@@ -18,13 +18,13 @@ def execute():
     """
     try:
         execution_cmd = _get_execution_command()
-    except ExecutionCommandError as e:
+    except (ExecutionCommandError, GameConfigError) as e:
         print("Error:", e)
         sys.exit(1)
 
     try:
         _game_execution(execution_cmd)
-    except ExecutionCommandError as e:
+    except GameConfigError as e:
         print("Error:", e)
         sys.exit(1)
 
@@ -63,7 +63,7 @@ def _get_execution_command() -> ExecutionCommand:
             "games.{}.config".format(parsed_args.game))
         game_defined_params = game_defined_config.GAME_PARAMS
     except ModuleNotFoundError:
-        raise ExecutionCommandError("Game '{}' dosen\'t provide 'config.py'"
+        raise GameConfigError("Game '{}' dosen\'t provide 'config.py'"
             .format(parsed_args.game))
     except AttributeError:
         # The game doesn't define any game parameters, create a default one
@@ -203,10 +203,10 @@ def _game_execution(execution_cmd: ExecutionCommand):
             GameMode.ML: game_defined_processes["ml_mode"]
         }.get(execution_cmd.game_mode)
     except AttributeError:
-        raise ExecutionCommandError("'PROCESSES' is not defined in '{}'"
+        raise GameConfigError("'PROCESSES' is not defined in '{}'"
             .format(game_defined_config.__name__))
     except KeyError as e:
-        raise ExecutionCommandError("Cannot find {} in 'PROCESSES' in {}"
+        raise GameConfigError("Cannot find {} in 'PROCESSES' in {}"
             .format(game_defined_config.__name__, e))
     # The exist of 'config.py' had been checked at '_parse_execution_cmd',
     # so no need to catch ModuleNotFoundError.
@@ -214,7 +214,7 @@ def _game_execution(execution_cmd: ExecutionCommand):
     try:
         _preprocess_process_config(process_config, game_defined_config)
     except Exception as e:
-        raise ExecutionCommandError("Error occurred while preprocessing 'PROCESSES' in '{}': "
+        raise GameConfigError("Error occurred while preprocessing 'PROCESSES' in '{}': "
             "{}".format(game_defined_config.__name__, e))
 
     if execution_cmd.game_mode == GameMode.MANUAL:
