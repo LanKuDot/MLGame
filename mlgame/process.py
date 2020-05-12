@@ -7,7 +7,6 @@ from queue import Queue
 from .communication.base import CommunicationSet, CommunicationHandler
 from .exceptions import (
     GameProcessError, MLProcessError,
-        trim_callstack
 )
 
 class ProcessManager:
@@ -316,18 +315,7 @@ def _ml_process_entry_point(helper: MLProcessHelper):
     """
     The real entry point of the ml process
     """
-    helper.start_recv_obj_thread()
+    from .loops import MLExecutor
 
-    # Bind the helper functions to the handlers
-    from .communication import base
-    base.send_to_game.set_function(helper.send_to_game)
-    base.recv_from_game.set_function(helper.recv_from_game)
-
-    try:
-        ml_module = importlib.import_module(helper.target_module, __package__)
-        ml_module.ml_loop(*helper.args, **helper.kwargs)
-    except Exception as e:
-        target_script = helper.target_module.split('.')[-1] + ".py"
-        trimmed_callstack = trim_callstack(traceback.format_exc(), target_script)
-        exception = MLProcessError(helper.name, trimmed_callstack)
-        helper.send_exception(exception)
+    executor = MLExecutor(helper)
+    executor.start()
