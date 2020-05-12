@@ -3,7 +3,7 @@ from enum import Enum, auto
 import os.path
 
 from ._version import version
-from .exception import ExecutionCommandError
+from .exceptions import ExecutionCommandError
 
 def get_command_parser():
     """

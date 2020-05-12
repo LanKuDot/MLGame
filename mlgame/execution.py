@@ -9,7 +9,7 @@ import sys
 from .crosslang.main import compile_script
 from .crosslang.exceptions import CompilationError
 from .execution_command import get_command_parser, GameMode, ExecutionCommand
-from .exception import ExecutionCommandError, GameConfigError
+from .exceptions import ExecutionCommandError, GameConfigError
 from .utils.argparser_generator import get_parser_from_dict
 
 def execute():

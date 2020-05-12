@@ -5,7 +5,7 @@ from multiprocessing import Process, Pipe
 from threading import Thread
 from queue import Queue
 from .communication.base import CommunicationSet, CommunicationHandler
-from .exception import (
+from .exceptions import (
     GameProcessError, MLProcessError,
         trim_callstack
 )
