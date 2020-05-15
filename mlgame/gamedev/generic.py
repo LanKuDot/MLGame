@@ -13,9 +13,10 @@ def quit_or_esc() -> bool:
 
 class KeyCommandMap:
     """
-    Map the keys to the commands and return the mapped command when the key is pressed
+    Map the keys to the commands and return the mapped command when the corresponding
+    key is pressed
     """
-    def __init__(self, command_map: dict, default_command = None):
+    def __init__(self, command_map: dict):
         """
         Constructor
 
@@ -23,22 +24,18 @@ class KeyCommandMap:
                The key of the dict is the key-code defined in pygame, and
                the value is the command that will be returned when the corresponding
                key is pressed.
-        @param default_command The command will be returned when there is no
-               registered key pressed.
         """
         if not isinstance(command_map, dict):
-            raise TypeError("The 'action_dict' should be a 'dict'.")
+            raise TypeError("The 'command_map' should be a 'dict'.")
 
         self._command_map = command_map
-        self._default_command = default_command
 
     def get_commands(self):
         """
         Check the pressed keys and return the corresponding commands
 
         @return A list of commands of which corresponding keys are pressed
-                If there is no registered key pressed, return a list containing
-                the `default_command` instead.
+                If there is no registered key pressed, return an empty list.
         """
         key_pressed_list = pygame.key.get_pressed()
         pressed_commands = []
@@ -46,8 +43,7 @@ class KeyCommandMap:
             if key_pressed_list[key]:
                 pressed_commands.append(command)
 
-        # The boolean value of an empy list is False.
-        return pressed_commands if pressed_commands else [self._default_command]
+        return pressed_commands
 
 class FPSCounter:
     """
