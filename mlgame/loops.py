@@ -27,14 +27,12 @@ class MLExecutor:
         try:
             self._loop()
         except Exception as e:
-            target_script = self._helper.target_module.split('.')[-1] + ".py"
-            trimmed_callstack = trim_callstack(traceback.format_exc(), target_script)
-            exception = MLProcessError(self._helper.name, trimmed_callstack)
+            exception = MLProcessError(self._helper.name, traceback.format_exc())
             self._helper.send_exception(exception)
 
     def _loop(self):
         """
-        The loop for receving scene information from the game, make ml module execute,
+        The loop for receiving scene information from the game, make ml class execute,
         and send the command back to the game.
         """
         ml_module = importlib.import_module(self._helper.target_module, __package__)
@@ -50,6 +48,14 @@ class MLExecutor:
                 continue
 
             if command:
+                # Check if the command format is valid
+                if not isinstance(command["frame"], int):
+                    raise TypeError("The value of 'frame' in the returned game command "
+                        "should be an 'int'")
+                if not isinstance(command["command"], list):
+                    raise TypeError("The value of 'command' in the returned game command "
+                        "should be a 'list'")
+
                 self._helper.send_to_game(command)
 
     def _ml_ready(self):
