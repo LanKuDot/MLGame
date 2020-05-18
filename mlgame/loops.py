@@ -40,14 +40,20 @@ class MLExecutor:
         ml_module = importlib.import_module(self._helper.target_module, __package__)
         ml = ml_module.MLPlay(*self._helper.args, **self._helper.kwargs)
 
-        self._helper.send_to_game("READY")
+        self._ml_ready()
         while True:
             command = ml.execute(self._helper.recv_from_game())
 
             if command == "RESET":
                 ml.reset()
-                self._helper.send_to_game("READY")
+                self._ml_ready()
                 continue
 
             if command:
                 self._helper.send_to_game(command)
+
+    def _ml_ready(self):
+        """
+        Send a "READY" command to the game process
+        """
+        self._helper.send_to_game("READY")
