@@ -18,8 +18,11 @@ class GameMLModeExecutor:
         self._helper = helper
         self._execution_cmd = self._helper.execution_cmd
         self._game_cls = self._helper.game_cls
-        self._ml_execution_time = 1 / self._execution_cmd.fps
         self._ml_names = self._helper.get_ml_names()
+        self._ml_execution_time = 1 / self._execution_cmd.fps
+        self._ml_delayed_frames = {}
+        for name in self._ml_names:
+            self._ml_delayed_frames[name] = 0
 
     def start(self):
         """
@@ -80,7 +83,11 @@ class GameMLModeExecutor:
         commands = []
         for ml_name in self._ml_names:
             cmd_received = game_cmd_dict[ml_name]
-            commands.append(cmd_received["command"] if cmd_received else [])
+            if cmd_received:
+                self._check_delay(ml_name, scene_info["frame"], cmd_received["frame"])
+                commands.append(cmd_received["command"])
+            else:
+                commands.append([])
 
         return commands
 
@@ -95,6 +102,15 @@ class GameMLModeExecutor:
         Receive game commands sent from all ml processes
         """
         return self._helper.recv_from_all_ml()
+
+    def _check_delay(self, ml_name, scene_info_frame, cmd_frame):
+        """
+        Check if the timestamp of the received command is delayed
+        """
+        delayed_frame = scene_info_frame - cmd_frame
+        if delayed_frame > self._ml_delayed_frames[ml_name]:
+            self._ml_delayed_frames[ml_name] = delayed_frame
+            print("The client '{}' delayed '{}' frame(s)".format(ml_name, delayed_frame))
 
 class MLExecutor:
     """
