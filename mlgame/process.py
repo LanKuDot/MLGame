@@ -155,6 +155,12 @@ class GameProcessHelper:
         self._comm_to_ml_set.add_recv_end(to_ml, recv_end)
         self._comm_to_ml_set.add_send_end(to_ml, send_end)
 
+    def get_ml_names(self):
+        """
+        Get the registered ml names for the communication
+        """
+        return self._comm_to_ml_set.get_send_end_names()
+
     def send_to_ml(self, obj, to_ml: str):
         """
         Send an object to the specified ml process
@@ -292,21 +298,10 @@ def _game_process_entry_point(helper: GameProcessHelper):
     """
     The real entry point of the game process
     """
-    # Bind the helper functions to the handlers
-    from .communication import base
-    base.send_to_ml.set_function(helper.send_to_ml)
-    base.send_to_all_ml.set_function(helper.send_to_all_ml)
-    base.recv_from_ml.set_function(helper.recv_from_ml)
-    base.recv_from_all_ml.set_function(helper.recv_from_all_ml)
+    from .loops import GameMLModeExecutor
 
-    try:
-        helper.target_function(*helper.args, **helper.kwargs)
-    except MLProcessError:
-        # This exception wil be raised when invoking `recv_from_ml()` and
-        # receive `MLProcessError` object from it
-        raise
-    except Exception:
-        raise GameProcessError(helper.name, traceback.format_exc())
+    executor = GameMLModeExecutor(helper)
+    executor.start()
 
 def _ml_process_entry_point(helper: MLProcessHelper):
     """
