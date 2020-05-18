@@ -9,7 +9,7 @@ class MLPlay:
         """
         self.ball_served = False
 
-    def execute(self, scene_info):
+    def update(self, scene_info):
         """
         Generate the command according to the received `scene_info`.
         """

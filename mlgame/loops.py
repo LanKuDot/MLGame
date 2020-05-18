@@ -40,7 +40,7 @@ class MLExecutor:
 
         self._ml_ready()
         while True:
-            command = ml.execute(self._helper.recv_from_game())
+            command = ml.update(self._helper.recv_from_game())
 
             if command == "RESET":
                 ml.reset()
