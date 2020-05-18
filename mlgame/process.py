@@ -4,7 +4,7 @@ import traceback
 from multiprocessing import Process, Pipe
 from threading import Thread
 from queue import Queue
-from .communication.base import CommunicationSet, CommunicationHandler
+from .communication import CommunicationSet, CommunicationHandler
 from .exceptions import (
     GameProcessError, MLProcessError,
 )

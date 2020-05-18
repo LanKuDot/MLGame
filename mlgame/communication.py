@@ -162,7 +162,7 @@ class CommunicationHandler:
     def send(self, obj):
         self._send_end.send(obj)
 
-from ..utils.delegate import FunctionDelegate
+from .utils.delegate import FunctionDelegate
 
 ## The handlers for communicating between processes
 ## They will be initialized at the start of the corresponding processes.
