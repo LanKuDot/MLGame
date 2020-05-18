@@ -77,9 +77,10 @@ def _get_execution_command() -> ExecutionCommand:
     # Create game_param parser
     _preprocess_game_param_dict(game_defined_params, game_defined_config)
     param_parser = get_parser_from_dict(game_defined_params)
+    parsed_game_params = param_parser.parse_args(parsed_args.game_params)
 
     # Replace the input game_params with the parsed one
-    parsed_args.game_params = param_parser.parse_args(parsed_args.game_params)
+    parsed_args.game_params = [value for value in vars(parsed_game_params).values()]
 
     # Generate execution command
     try:
@@ -143,129 +144,75 @@ def _game_execution(execution_cmd: ExecutionCommand):
     """
     Execute the game
 
-    This function will load the `PROCESSES` which specifies how to start the game
-    from the "config.py" in the game directory. The `PROCESSES` is a dictionary which
-    has 2 keys - "manual_mode" and "ml_mode", and the program will use either key
-    according to the game mode.
+    This function will load the `GAME_SETUP` which specifies how to start the game
+    from the "config.py" in the game directory. The `GAME_SETUP` is a dictionary which
+    has several keys:
+    - "game": Specify the class of the game to be execute
+    - "keyboards": A list containing the mapping of key to the game command.
+      Each mapping is a dictionary, the key is the keycode of pygame, the value is the
+      command. One mapping per player (i.e. if the game has two players, then there is
+      two mapping in the list). This field is used for the manual mode.
+    - "ml_clients": A list containing the information of the ml client.
+      Each element in the list is a dictionary in which members are:
+      - "name": A string which is the name of the ml client.
+      - "args": (Optional) A tuple which contains the initial positional arguments
+        to be passed to the ml client.
+      - "kwargs": (Optional) A dictionary which contains the initial keyword arguments
+        to be passed to the ml client.
 
-    The value of the key "manual_mode" or "ml_mode" is a "process_config" which is
-    a dictionary specifying how to start processes. The "process_config" for
-    "manual_mode" has only a key "game" to specify how to start a game process.
-    The value for the key "game" is also a dictionary which has 3 members:
-    - "target": The entry function to start a game process. The value must be a
-        callable. If it is a string, the program will try to find the function
-        of the same name defined in the "config.py" of the game. The "target" must
-        provide a parameter as the first parameter for the program to pass a
-        `ExecutionCommand` object.
-    - "args": [Optional] The positional arguments to be passed to the "target".
-        Should be a tuple or a list. The `ExecutionCommand` object will be added as the
-        first object in the "args" before invoking "target".
-    - "kwargs": [Optional] The keyword arguments to be passed to the "target".
-        Should be a dictionary.
-
-    The "process_config" for the "ml_mode" is similar to the "manual_mode",
-    but it has additional members for the ml processes. The key name is the name
-    of the ml process, its value is similar to the "game"s', but it dosen't
-    have the key "target", and the `ExecutionCommand` object will not be added to
-    the "args".
-
-    An example of `PROCESSES`:
-    ```python
-    PROCESSES = {
-        "manual_mode": {
-            "game": {
-                "target": "run_game",
-                "args": ("foo", )
-            }
-        },
-        "ml_mode": {
-            "game": {
-                "target": "run_game",
-                "args": ("bar", )
-            },
-            "ml": {}
-        }
-    }
-
-    def run_game(execution_cmd, bar):
-        print(bar)
-    ```
-
-    @param config The parsed game config
+    @param execution_cmd The execution command
     """
     try:
         game_defined_config = importlib.import_module(
             "games.{}.config".format(execution_cmd.game_name))
-        game_defined_processes = game_defined_config.PROCESSES
+        game_setup_config = game_defined_config.GAME_SETUP
 
-        process_config = {
-            GameMode.MANUAL: game_defined_processes["manual_mode"],
-            GameMode.ML: game_defined_processes["ml_mode"]
-        }.get(execution_cmd.game_mode)
+        game_cls = game_setup_config["game"]
+        keyboard_maps = game_setup_config["keyboards"]
+        ml_clients = game_setup_config["ml_clients"]
     except AttributeError:
-        raise GameConfigError("'PROCESSES' is not defined in '{}'"
+        raise GameConfigError("'GAME_SETUP' is not defined in '{}'"
             .format(game_defined_config.__name__))
     except KeyError as e:
-        raise GameConfigError("Cannot find {} in 'PROCESSES' in {}"
-            .format(game_defined_config.__name__, e))
-    # The exist of 'config.py' had been checked at '_parse_execution_cmd',
-    # so no need to catch ModuleNotFoundError.
-
-    try:
-        _preprocess_process_config(process_config, game_defined_config)
-    except Exception as e:
-        raise GameConfigError("Error occurred while preprocessing 'PROCESSES' in '{}': "
-            "{}".format(game_defined_config.__name__, e))
+        raise GameConfigError("{} is not found in 'GAME_SETUP'".format(e))
 
     if execution_cmd.game_mode == GameMode.MANUAL:
-        _run_manual_mode(execution_cmd, process_config)
+        _run_manual_mode(execution_cmd, game_cls, keyboard_maps)
     else:
-        _run_ml_mode(execution_cmd, process_config)
+        _run_ml_mode(execution_cmd, game_cls, ml_clients)
 
-def _preprocess_process_config(process_config, game_defined_config):
-    """
-    Replace the some string value in `process_config` to usable objects
-    """
-    # Replace the function name to the function defined in the game_defined_config
-    target_function = process_config["game"]["target"]
-    if isinstance(target_function, str):
-        process_config["game"]["target"] = game_defined_config.__dict__[target_function]
-
-def _run_manual_mode(execution_cmd: ExecutionCommand, process_config):
+def _run_manual_mode(execution_cmd: ExecutionCommand, game_cls, keyboard_maps):
     """
     Execute the game specified in manual mode
+
+    @param execution_cmd The `ExecutionCommand` object
+    @param game_cls The class of the game to be executed
+    @param keyboard_maps A list of mappings of keycode to command
     """
-    game_process_config = process_config["game"]
+    pass
 
-    # Append "execution_cmd" at the beginning of function arguments
-    args = (execution_cmd, ) + game_process_config.get("args", ())
-    kwargs = game_process_config.get("kwargs", {})
-
-    game_process_config["target"](*args, **kwargs)
-
-def _run_ml_mode(execution_cmd: ExecutionCommand, process_config):
+def _run_ml_mode(execution_cmd: ExecutionCommand, game_cls, ml_clients):
     """
     Execute the game specified in ml mode
+
+    @param execution_cmd The `ExecutionCommand` object
+    @param game_cls The class of the game to be executed
+    @param ml_clients A list of configs of the ml clients
     """
     from .process import ProcessManager
 
     process_manager = ProcessManager()
 
-    # Set game process #
+    # Set game process
+    process_manager.set_game_process(execution_cmd, game_cls)
 
-    game_process_config = process_config["game"]
-    args = (execution_cmd, ) + game_process_config.get("args", ())
-    kwargs = game_process_config.get("kwargs", {})
+    # Set ml processes
+    for i in range(len(ml_clients)):
+        ml_client = ml_clients[i]
 
-    process_manager.set_game_process(game_process_config["target"], args, kwargs)
-
-    # Set ml processes #
-
-    ml_process_names = [key for key in process_config.keys() if key != "game"]
-    for i in range(len(ml_process_names)):
-        process_name = ml_process_names[i]
-        args = process_config[process_name].get("args", ())
-        kwargs = process_config[process_name].get("kwargs", {})
+        process_name = ml_client["name"]
+        args = ml_client.get("args", ())
+        kwargs = ml_client.get("kwargs", {})
 
         # Assign the input modules to the ml processes
         # If the number of provided modules is less than the number of processes,

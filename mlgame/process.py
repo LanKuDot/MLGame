@@ -23,26 +23,25 @@ class ProcessManager:
         self._ml_proc_helpers = []
         self._ml_procs = []
 
-    def set_game_process(self, target, args = (), kwargs = {}):
+    def set_game_process(self, execution_cmd, game_cls):
         """
         Set the game process
 
-        @param target A target function which is the starting point of the game process
-        @param args The positional arguments to be passed to the target function
-        @param kwargs The keyword arguments to be passed to the target function
+        @param execution_cmd A `ExecutionCommand` object that contains execution config
+        @param game_cls The class of the game to be executed
         """
-        self._game_proc_helper = GameProcessHelper(target, args, kwargs)
+        self._game_proc_helper = GameProcessHelper(execution_cmd, game_cls)
 
     def add_ml_process(self, target_module, name = "", args = (), kwargs = {}):
         """
         Add a ml process
 
         @param target_module The full name of the module
-               to be executed in the ml process. The module must have `ml_loop` function.
+               to be executed in the ml process. The module must have `MLPlay` class.
         @param name The name of the ml process
                If it is not specified, it will be "ml_0", "ml_1", and so on.
-        @param args The positional arguments to be passed to the `ml_loop` function
-        @param kwargs The keyword arguments to be passed to the `ml_loop` function
+        @param args The positional arguments to be passed to the `MLPlay.__init__()`
+        @param kwargs The keyword arguments to be passed to the `MLPlay.__init__()`
         """
         if name == "":
             name = "ml_" + str(len(self._ml_proc_helpers))
@@ -134,17 +133,15 @@ class GameProcessHelper:
     """
     name = "_game"
 
-    def __init__(self, target_function, args = (), kwargs = {}):
+    def __init__(self, execution_cmd, game_cls):
         """
         Constructor
 
-        @param target_function The starting point of the game process
-        @param args The positional arguments to be passed to the target function
-        @param kwargs The keyword arguments to be passed to the target function
+        @param execution_cmd A `ExecutionCommand` object that contains execution config
+        @param game_cls The class of the game to be executed
         """
-        self.target_function = target_function
-        self.args = args
-        self.kwargs = kwargs
+        self.execution_cmd = execution_cmd
+        self.game_cls = game_cls
         self._comm_to_ml_set = CommunicationSet()
 
     def add_comm_to_ml(self, to_ml: str, recv_end, send_end):
