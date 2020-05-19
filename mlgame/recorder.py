@@ -15,8 +15,9 @@ def get_recorder(game_name, game_params, game_mode, record_progress):
     log_dir_path = os.path.join(root_dir_path, "games", game_name, "log")
 
     game_params_str = [str(p) for p in game_params]
-    filename_prefix = "manual_" if game_mode == GameMode.MANUAL else "ml_"
-    filename_prefix += "_".join(game_params_str)
+    filename_prefix = "manual" if game_mode == GameMode.MANUAL else "ml"
+    if game_params_str:
+        filename_prefix += "_" + "_".join(game_params_str)
 
     return Recorder(log_dir_path, filename_prefix)
 
