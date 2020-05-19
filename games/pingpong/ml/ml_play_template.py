@@ -13,7 +13,7 @@ class MLPlay:
         self.ball_served = False
         self.side = side
 
-    def execute(self, scene_info):
+    def update(self, scene_info):
         """
         Generate the command according to the received scene information
         """
@@ -22,9 +22,9 @@ class MLPlay:
 
         if not self.ball_served:
             self.ball_served = True
-            return {"frame": scene_info["frame"], "command": "SERVE_TO_LEFT"}
+            return {"frame": scene_info["frame"], "command": ["SERVE_TO_LEFT"]}
         else:
-            return {"frame": scene_info["frame"], "command": "MOVE_LEFT"}
+            return {"frame": scene_info["frame"], "command": ["MOVE_LEFT"]}
 
     def reset(self):
         """

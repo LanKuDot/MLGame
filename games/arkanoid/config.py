@@ -15,29 +15,18 @@ GAME_PARAMS = {
     }
 }
 
-PROCESSES = {
-    "manual_mode": {
-        "game": {
-            "target": "run_game",
-            "args": (False, )
-        }
-    },
-    "ml_mode": {
-        "game": {
-            "target": "run_game",
-            "args": (True, )
-        },
-        "ml": {}
-    }
+from .game.arkanoid import Arkanoid
+import pygame
+
+GAME_SETUP = {
+    "game": Arkanoid,
+    "keyboards": [{
+        pygame.K_a:     "SERVE_TO_LEFT",
+        pygame.K_d:     "SERVE_TO_RIGHT",
+        pygame.K_LEFT:  "MOVE_LEFT",
+        pygame.K_RIGHT: "MOVE_RIGHT",
+    }],
+    "ml_clients": [
+        { "name": "ml" }
+    ]
 }
-
-def run_game(game_config, run_ml_mode):
-    if run_ml_mode:
-        from .game.arkanoid_ml import Arkanoid
-    else:
-        from .game.arkanoid import Arkanoid
-
-    game = Arkanoid(game_config.fps,
-        game_config.game_params.difficulty, game_config.game_params.level,
-        game_config.record_progress, game_config.one_shot_mode)
-    game.game_loop()

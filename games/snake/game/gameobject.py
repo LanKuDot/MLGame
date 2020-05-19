@@ -17,7 +17,7 @@ class Food(Sprite):
         surface = Surface(self.rect.size)
         draw.circle(surface, (232, 54, 42), self.rect.center, 5)
 
-        self.image = surface.convert()
+        self.image = surface
 
     @property
     def pos(self):
@@ -42,7 +42,7 @@ class SnakeBody(Sprite):
         draw.line(surface, (0, 0, 0), (width - 1, 0), (width - 1, height - 1))
         draw.line(surface, (0, 0, 0), (0, height - 1), (width - 1, height - 1))
 
-        self.image = surface.convert()
+        self.image = surface
 
     @property
     def pos(self):

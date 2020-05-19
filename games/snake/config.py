@@ -1,27 +1,17 @@
 GAME_VERSION = "1.0"
 
-def run_game(game_config, run_ml_mode):
-    if run_ml_mode:
-        from .game.snake_ml import Snake
-    else:
-        from .game.snake import Snake
+from .game.snake import Snake
+import pygame
 
-    game = Snake(game_config.fps, game_config.one_shot_mode,
-        game_config.record_progress)
-    game.game_loop()
-
-PROCESSES = {
-    "manual_mode": {
-        "game": {
-            "target": run_game,
-            "args": (False, )
-        }
-    },
-    "ml_mode": {
-        "game": {
-            "target": run_game,
-            "args": (True, )
-        },
-        "ml": {}
-    }
+GAME_SETUP = {
+    "game": Snake,
+    "keyboards": [{
+        pygame.K_UP:    "UP",
+        pygame.K_DOWN:  "DOWN",
+        pygame.K_LEFT:  "LEFT",
+        pygame.K_RIGHT: "RIGHT",
+    }],
+    "ml_clients": [
+        { "name": "ml" }
+    ]
 }

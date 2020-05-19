@@ -6,16 +6,16 @@ import pygame
 
 class MLPlay:
     def __init__(self, side):
-        self._init_pygame()
+        self._pygame_init()
         print("Invisible joystick is used for the {} side."
             .format(side))
 
-    def _init_pygame(self):
+    def _pygame_init(self):
         pygame.display.init()
         pygame.display.set_mode((300, 100))
         pygame.display.set_caption("Invisible joystick")
 
-    def execute(self, scene_info):
+    def update(self, scene_info):
         if scene_info["status"] != "GAME_ALIVE":
             return "RESET"
 
@@ -32,7 +32,7 @@ class MLPlay:
         else:
             cmd = "NONE"
 
-        return {"frame": scene_info["frame"], "command": cmd}
+        return {"frame": scene_info["frame"], "command": [cmd]}
 
     def reset(self):
         pass

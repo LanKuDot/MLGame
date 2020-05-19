@@ -9,14 +9,14 @@ class MLPlay:
         """
         pass
 
-    def execute(self, scene_info):
+    def update(self, scene_info):
         """
         Generate the command according to the received scene information
         """
         if scene_info["status"] == "GAME_OVER":
             return "RESET"
 
-        return {"frame": scene_info["frame"], "command": "RIGHT"}
+        return {"frame": scene_info["frame"], "command": ["RIGHT"]}
 
     def reset(self):
         """
