@@ -106,13 +106,16 @@ class GameMLModeExecutor:
             if result == "RESET" or result == "QUIT":
                 scene_info = game.get_player_scene_info()
                 self._send_scene_info(scene_info)
-                self._recorder.record(scene_info, [])
+                self._recorder.record(scene_info,
+                    [[] for _ in range(len(self._ml_names))])
                 self._recorder.flush_to_file()
 
                 if self._execution_cmd.one_shot_mode or result == "QUIT":
                     break
 
                 game.reset()
+                for name in self._ml_names:
+                    self._ml_delayed_frames[name] = 0
                 self._wait_all_ml_ready()
 
     def _wait_all_ml_ready(self):
@@ -162,7 +165,7 @@ class GameMLModeExecutor:
         delayed_frame = scene_info_frame - cmd_frame
         if delayed_frame > self._ml_delayed_frames[ml_name]:
             self._ml_delayed_frames[ml_name] = delayed_frame
-            print("The client '{}' delayed '{}' frame(s)".format(ml_name, delayed_frame))
+            print("The client '{}' delayed {} frame(s)".format(ml_name, delayed_frame))
 
 class MLExecutor:
     """
