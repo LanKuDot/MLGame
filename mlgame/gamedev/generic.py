@@ -30,7 +30,7 @@ class KeyCommandMap:
 
         self._command_map = command_map
 
-    def get_commands(self):
+    def get_pressed_commands(self):
         """
         Check the pressed keys and return the corresponding commands
 

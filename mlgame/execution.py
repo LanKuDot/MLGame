@@ -189,7 +189,10 @@ def _run_manual_mode(execution_cmd: ExecutionCommand, game_cls, keyboard_maps):
     @param game_cls The class of the game to be executed
     @param keyboard_maps A list of mappings of keycode to command
     """
-    pass
+    from .loops import GameManualModeExecutor
+
+    executor = GameManualModeExecutor(execution_cmd, game_cls, keyboard_maps)
+    executor.start()
 
 def _run_ml_mode(execution_cmd: ExecutionCommand, game_cls, ml_clients):
     """
