@@ -9,6 +9,7 @@ import traceback
 from .exceptions import GameProcessError, MLProcessError
 from .gamedev.generic import quit_or_esc
 from .process import GameProcessHelper, MLProcessHelper
+from .recorder import get_recorder
 
 class GameMLModeExecutor:
     """
@@ -23,6 +24,9 @@ class GameMLModeExecutor:
         self._ml_delayed_frames = {}
         for name in self._ml_names:
             self._ml_delayed_frames[name] = 0
+        self._recorder = get_recorder(self._execution_cmd.game_name,
+            self._execution_cmd.game_params, self._execution_cmd.game_mode,
+            self._execution_cmd.record_progress)
 
     def start(self):
         """
@@ -48,6 +52,7 @@ class GameMLModeExecutor:
         while not quit_or_esc():
             scene_info = game.get_player_scene_info()
             commands = self._make_ml_execute(scene_info)
+            self._recorder.record(scene_info, commands)
 
             result = game.update(*commands)
 
@@ -55,6 +60,8 @@ class GameMLModeExecutor:
             if result == "RESET":
                 scene_info = game.get_player_scene_info()
                 self._send_scene_info(scene_info)
+                self._recorder.record(scene_info, [])
+                self._recorder.flush_to_file()
 
                 if self._execution_cmd.one_shot_mode:
                     break
