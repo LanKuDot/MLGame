@@ -61,7 +61,7 @@ class Client(Popen):
             if "__command__" in message:
                 # Remove header and the trailing newline
                 message = message[12:-1]
-                if message == "READY":
+                if message == "READY" or message == "RESET":
                     self._command_obj_queue.put(message)
                 else:
                     self._command_obj_queue.put(json.loads(message))

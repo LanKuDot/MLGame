@@ -3,31 +3,42 @@ The ml client runs in ml process as the bridge of cross language client and game
 """
 from .client import Client
 
-from ..communication import ml as comm
 from .exceptions import MLClientExecutionError
 
-def ml_loop(execution_cmd, init_args, init_kwargs):
-    """
-    The main loop for communicating with non-py client and game process
-    """
-    with Client(execution_cmd) as client:
+class MLPlay:
+    def __init__(self, execution_cmd, init_args, init_kwargs):
+        self._client = Client(execution_cmd)
+
         # Pass initial arguments
-        client.send_to_client("__init__", {
+        self._client.send_to_client("__init__", {
             "args": init_args,
             "kwargs": init_kwargs
         })
 
-        # Start communication loop
-        while True:
-            command = client.recv_from_client()
-            # Ready command
-            if command == "READY":
-                comm.ml_ready()
-            # Error occurred while running client script
-            elif isinstance(command, MLClientExecutionError):
-                raise command
-            # Game command
-            else:
-                comm.send_to_game(command)
+        self._wait_ready()
 
-            client.send_to_client("__scene_info__", comm.recv_from_game())
+    def update(self, scene_info):
+        self._client.send_to_client("__scene_info__", scene_info)
+        return self._recv_from_client()
+
+    def reset(self):
+        self._wait_ready()
+
+    def _wait_ready(self):
+        """
+        Wait for the ready command from the client
+        """
+        command = self._recv_from_client()
+        while command != "READY":
+            command = self._client.recv_from_client()
+
+    def _recv_from_client(self):
+        """
+        Receive the command sent from the client
+        """
+        command = self._client.recv_from_client()
+
+        if isinstance(command, MLClientExecutionError):
+            raise command
+
+        return command
