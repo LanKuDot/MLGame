@@ -1,5 +1,5 @@
 /*
- * The mlgame client library for C++
+ * The library for C++ client to communicate with mlgame
  */
 #ifndef _MLGAME_CLIENT_
 #define _MLGAME_CLIENT_
@@ -31,11 +31,19 @@ json get_init_args()
 }
 
 /*
- * Inform the game that ml client is ready for receiving the data
+ * Inform the game that the client is ready for receiving the data
  */
-void ml_ready()
+void client_ready()
 {
     cout << "__command__ READY" << endl;
+}
+
+/*
+ * Inform the game that the client is resetting
+ */
+void client_reset()
+{
+    cout << "__command__ RESET" << endl;
 }
 
 /*

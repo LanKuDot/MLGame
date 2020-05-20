@@ -3,7 +3,6 @@ The cross language handler for C++
 """
 import os
 import os.path
-import shutil
 import string
 import random
 
@@ -20,7 +19,7 @@ def compile_script(script_full_path):
     @param script_full_path The full path of the target script
     @return The execution command of the executable
     """
-    lib_dir = os.path.join(os.path.dirname(__file__), "include", "cpp")
+    lib_dir = os.path.join(os.path.dirname(__file__), "include")
 
     dir_path = os.path.dirname(script_full_path)
     main_script_file_path = _preprocess_script(script_full_path, dir_path)
@@ -53,19 +52,17 @@ def _preprocess_script(user_script_path, outfile_dir):
     @param outfile_dir The path of the directory to put the new file
     @return The path of the new file
     """
-    basefile_path = os.path.join(os.path.dirname(__file__), "include", "cpp",
-        "base_main.cpp")
+    basefile_path = os.path.join(os.path.dirname(__file__), "include", "base_main.cpp")
     char_choice = string.ascii_lowercase + string.digits
     outfile_name = ("main_" +
         "".join([random.choice(char_choice) for _ in range(8)]) +
         ".cpp")
     outfile_path = os.path.join(outfile_dir, outfile_name)
 
-    shutil.copy(basefile_path, outfile_path)
-    with open(outfile_path, "a") as out_file, \
-         open(user_script_path, "r") as in_file:
-        # Set the line number and filename
-        out_file.write('#line 1 "{}"\n'.format(os.path.basename(user_script_path)))
+    with open(outfile_path, "w") as out_file, \
+         open(basefile_path, "r") as in_file:
+        # Include the user file
+        out_file.write("#include \"{}\"\n".format(os.path.basename(user_script_path)))
         for line in in_file:
             out_file.write(line)
 

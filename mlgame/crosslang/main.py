@@ -18,7 +18,7 @@ def compile_script(script_full_path):
     """
     path_no_ext, extension = os.path.splitext(script_full_path)
     compilation_module = importlib.import_module(
-        ".compile.{}".format(EXTESION_LANG_MAP[extension]), __package__)
+        ".compile.{}.main".format(EXTESION_LANG_MAP[extension]), __package__)
 
     execution_cmd = compilation_module.compile_script(script_full_path)
     if not isinstance(execution_cmd, list):
