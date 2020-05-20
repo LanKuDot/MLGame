@@ -97,3 +97,46 @@ class PingPong:
         Get the scene information to be sent to the player
         """
         return self._scene.get_scene_info()
+
+    def get_game_info(self):
+        return {
+            "scene": {
+                "size": [200, 500],
+            },
+            "game_object": [
+                { "name": "platform_1P", "size": [40, 30], "color": [84, 149, 255] },
+                { "name": "platform_2P", "size": [40, 30], "color": [219, 70, 92] },
+                { "name": "blocker", "size": [30, 20], "color": [213, 224, 0] },
+                { "name": "ball", "size": [5, 5], "color": [66, 226, 126] },
+            ]
+        }
+
+    def get_game_progress(self):
+        scene_info = self._scene.get_scene_info()
+
+        return {
+            "status": {
+                "ball_speed": scene_info["ball_speed"],
+            },
+            "game_object": {
+                "ball": [scene_info["ball"]],
+                "platform_1P": [scene_info["platform_1P"]],
+                "platform_2P": [scene_info["platform_2P"]],
+            }
+        }
+
+    def get_game_result(self):
+        scene_info = self._scene.get_scene_info()
+
+        if self._score[0] > self._score[1]:
+            status = ["GAME_PASS", "GAME_OVER"]
+        elif self._score[0] < self._score[1]:
+            status = ["GAME_OVER", "GAME_PASS"]
+        else:
+            status = ["GAME_DRAW", "GAME_DRAW"]
+
+        return {
+            "frame_used": scene_info["frame"],
+            "result": status,
+            "ball_speed": scene_info["ball_speed"],
+        }

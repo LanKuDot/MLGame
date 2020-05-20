@@ -74,3 +74,35 @@ class Snake:
         Get the scene information to be sent to the player
         """
         return self._scene.get_scene_info()
+
+    def get_game_info(self):
+        return {
+            "scene": {
+                "size": [300, 300]
+            },
+            "game_object": [
+                { "name": "snake_head", "size": [10, 10], "color": [31, 204, 42] },
+                { "name": "snake_body", "size": [10, 10], "color": [255, 255, 255] },
+                { "name": "food", "size": [10, 10], "color": [232, 54, 42] },
+            ]
+        }
+
+    def get_game_progress(self):
+        scene_info = self._scene.get_scene_info()
+
+        return {
+            "game_object": {
+                "snake_head": [scene_info["snake_head"]],
+                "snake_body": scene_info["snake_body"],
+                "food": [scene_info["food"]]
+            }
+        }
+
+    def get_game_result(self):
+        scene_info = self._scene.get_scene_info()
+
+        return {
+            "frame_used": scene_info["frame"],
+            "result": ["GAME_OVER"],
+            "score": self._scene.score
+        }

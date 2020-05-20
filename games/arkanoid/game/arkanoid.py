@@ -57,3 +57,46 @@ class Arkanoid:
         Get the scene information to be sent to the player
         """
         return self._scene.get_scene_info()
+
+    def get_game_info(self):
+        """
+        Get the scene and object information for drawing on the web
+        """
+        return {
+            "scene": {
+                "size": [200, 500]
+            },
+            "game_object": [
+                { "name": "ball", "size": [5, 5], "color": [44, 185, 214] },
+                { "name": "platform", "size": [40, 5], "color": [66, 226, 126] },
+                { "name": "brick", "size": [25, 10], "color": [244, 158, 66] },
+                { "name": "hard_brick", "size": [25, 10], "color": [209, 31, 31] },
+            ]
+        }
+
+    def get_game_progress(self):
+        """
+        Get the position of game objects for drawing on the web
+        """
+        scene_info = self._scene.get_scene_info()
+
+        return {
+            "game_object": {
+                "ball": [scene_info["ball"]],
+                "platform": [scene_info["platform"]],
+                "brick": scene_info["bricks"],
+                "hard_brick": scene_info["hard_bricks"],
+            }
+        }
+
+    def get_game_result(self):
+        """
+        Get the game result for the web
+        """
+        scene_info = self._scene.get_scene_info()
+
+        return {
+            "frame_used": scene_info["frame"],
+            "result": [scene_info["status"]],
+            "brick_remain": len(scene_info["bricks"]),
+        }
