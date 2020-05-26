@@ -22,9 +22,9 @@ class MLPlay:
 
         if not self.ball_served:
             self.ball_served = True
-            return {"frame": scene_info["frame"], "command": ["SERVE_TO_LEFT"]}
+            return "SERVE_TO_LEFT"
         else:
-            return {"frame": scene_info["frame"], "command": ["MOVE_LEFT"]}
+            return "MOVE_LEFT"
 
     def reset(self):
         """

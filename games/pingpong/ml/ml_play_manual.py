@@ -32,7 +32,7 @@ class MLPlay:
         else:
             cmd = "NONE"
 
-        return {"frame": scene_info["frame"], "command": [cmd]}
+        return cmd
 
     def reset(self):
         pass

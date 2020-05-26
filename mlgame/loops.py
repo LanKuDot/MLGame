@@ -123,18 +123,17 @@ class GameMLModeExecutor:
         self._wait_all_ml_ready()
         while not quit_or_esc():
             scene_info = game.get_player_scene_info()
-            commands = self._make_ml_execute(scene_info)
-            self._recorder.record(scene_info, commands)
+            command = self._make_ml_execute(scene_info)
+            self._recorder.record(scene_info, command)
 
-            result = game.update(*commands)
+            result = game.update(command)
             self._frame_count += 1
 
             # Do reset stuff
             if result == "RESET" or result == "QUIT":
                 scene_info = game.get_player_scene_info()
                 self._comm_manager.send_to_all_ml(scene_info)
-                self._recorder.record(scene_info,
-                    [[] for _ in range(len(self._ml_names))])
+                self._recorder.record(scene_info, None)
                 self._recorder.flush_to_file()
 
                 if self._execution_cmd.one_shot_mode or result == "QUIT":
@@ -163,16 +162,16 @@ class GameMLModeExecutor:
         time.sleep(self._ml_execution_time)
         game_cmd_dict = self._comm_manager.recv_from_all_ml()
 
-        commands = []
+        cmd_list = []
         for ml_name in self._ml_names:
             cmd_received = game_cmd_dict[ml_name]
             if cmd_received:
                 self._check_delay(ml_name, scene_info["frame"], cmd_received["frame"])
-                commands.append(cmd_received["command"])
+                cmd_list.append(cmd_received["command"])
             else:
-                commands.append([])
+                cmd_list.append(None)
 
-        return commands
+        return cmd_list if len(cmd_list) > 1 else cmd_list[0]
 
     def _check_delay(self, ml_name, scene_info_frame, cmd_frame):
         """
@@ -253,16 +252,12 @@ class MLExecutor:
                 continue
 
             if command:
-                # Check if the command format is valid
-                if not isinstance(command, list):
-                    raise TypeError("The value of returned game command "
-                        "should be a 'list'")
-
                 self._comm_manager.send_to_game({
                     "frame": self._frame_count,
                     "command": command
                 })
-                self._frame_count += 1
+
+            self._frame_count += 1
 
     def _ml_ready(self):
         """

@@ -24,7 +24,7 @@ class MLPlay:
         else:
             command = "MOVE_LEFT"
 
-        return {"frame": scene_info["frame"], "command": [command]}
+        return command
 
     def reset(self):
         """

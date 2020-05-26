@@ -16,7 +16,7 @@ class MLPlay:
         if scene_info["status"] == "GAME_OVER":
             return "RESET"
 
-        return {"frame": scene_info["frame"], "command": ["RIGHT"]}
+        return "RIGHT"
 
     def reset(self):
         """
