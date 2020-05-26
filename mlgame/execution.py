@@ -229,7 +229,7 @@ def _run_ml_mode(execution_cmd: ExecutionCommand, game_cls, ml_clients):
         if isinstance(ml_module, tuple):
             try:
                 print("Compiling '{}'...".format(ml_module[1]), end = " ", flush = True)
-                execution_cmd = compile_script(ml_module[1])
+                script_execution_cmd = compile_script(ml_module[1])
             except CompilationError as e:
                 print("Failed\nError: {}".format(e))
                 sys.exit(1)
@@ -238,7 +238,7 @@ def _run_ml_mode(execution_cmd: ExecutionCommand, game_cls, ml_clients):
             ml_module = ml_module[0]
             # Wrap arguments passed to be passed to the script
             module_kwargs = {
-                "execution_cmd": execution_cmd,
+                "script_execution_cmd": script_execution_cmd,
                 "init_args": args,
                 "init_kwargs": kwargs
             }

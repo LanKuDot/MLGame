@@ -6,8 +6,8 @@ from .client import Client
 from .exceptions import MLClientExecutionError
 
 class MLPlay:
-    def __init__(self, execution_cmd, init_args, init_kwargs):
-        self._client = Client(execution_cmd)
+    def __init__(self, script_execution_cmd, init_args, init_kwargs):
+        self._client = Client(script_execution_cmd)
 
         # Pass initial arguments
         self._client.send_to_client("__init__", {
