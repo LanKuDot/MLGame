@@ -102,6 +102,7 @@ class GameMLModeExecutor:
         self._recorder = get_recorder(self._execution_cmd.game_name,
             self._execution_cmd.game_params, self._execution_cmd.game_mode,
             self._execution_cmd.record_progress)
+        self._frame_count = 0
 
     def start(self):
         """
@@ -130,6 +131,7 @@ class GameMLModeExecutor:
             self._recorder.record(scene_info, commands)
 
             result = game.update(*commands)
+            self._frame_count += 1
 
             # Do reset stuff
             if result == "RESET" or result == "QUIT":
@@ -143,6 +145,7 @@ class GameMLModeExecutor:
                     break
 
                 game.reset()
+                self._frame_count = 0
                 for name in self._ml_names:
                     self._ml_delayed_frames[name] = 0
                 self._wait_all_ml_ready()
@@ -221,6 +224,7 @@ class MLExecutor:
         self._init_args = propty.init_args
         self._init_kwargs = propty.init_kwargs
         self._comm_manager = propty.comm_manager
+        self._frame_count = 0
 
     def start(self):
         """
@@ -248,19 +252,21 @@ class MLExecutor:
 
             if command == "RESET":
                 ml.reset()
+                self._frame_count = 0
                 self._ml_ready()
                 continue
 
             if command:
                 # Check if the command format is valid
-                if not isinstance(command["frame"], int):
-                    raise TypeError("The value of 'frame' in the returned game command "
-                        "should be an 'int'")
-                if not isinstance(command["command"], list):
-                    raise TypeError("The value of 'command' in the returned game command "
+                if not isinstance(command, list):
+                    raise TypeError("The value of returned game command "
                         "should be a 'list'")
 
-                self._comm_manager.send_to_game(command)
+                self._comm_manager.send_to_game({
+                    "frame": self._frame_count,
+                    "command": command
+                })
+                self._frame_count += 1
 
     def _ml_ready(self):
         """
