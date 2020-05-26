@@ -217,8 +217,9 @@ class MLCommManager:
     """
     The communication manager for the ml process
     """
-    def __init__(self):
+    def __init__(self, ml_name):
         self._comm_to_game = CommunicationHandler()
+        self._ml_name = ml_name
 
     def set_comm_to_game(self, recv_end, send_end):
         """
@@ -250,7 +251,7 @@ class MLCommManager:
                 self._obj_queue.get()
                 print("Warning: The object queue for the process '{}' is full. "
                     "Drop the oldest object."
-                    .format(self.name))
+                    .format(self._ml_name))
 
             self._obj_queue.put(self._comm_to_game.recv())
 

@@ -202,7 +202,7 @@ class MLExecutorProperty:
         self.target_module = target_module
         self.init_args = init_args
         self.init_kwargs = init_kwargs
-        self.comm_manager = MLCommManager()
+        self.comm_manager = MLCommManager(name)
 
     def set_comm_to_game(self, recv_end, send_end):
         """
