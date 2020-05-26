@@ -19,11 +19,13 @@ class Arkanoid:
         self._font = pygame.font.Font(None, 22)
         self._font_pos = (1, self._surface.get_height() - 21)
 
-    def update(self, cmd_list):
+    def update(self, command):
         """
         Update the game
         """
-        command = cmd_list[0] if cmd_list else PlatformAction.NONE
+        command = (PlatformAction(command)
+            if command in PlatformAction.__members__ else PlatformAction.NONE)
+
         game_status = self._scene.update(command)
         self._draw_screen()
 
@@ -57,6 +59,19 @@ class Arkanoid:
         Get the scene information to be sent to the player
         """
         return self._scene.get_scene_info()
+
+    def get_keyboard_command(self):
+        """
+        Get the command according to the pressed key command
+        """
+        key_pressed_list = pygame.key.get_pressed()
+
+        if key_pressed_list[pygame.K_a]:     return "SERVE_TO_LEFT"
+        if key_pressed_list[pygame.K_d]:     return "SERVE_TO_RIGHT"
+        if key_pressed_list[pygame.K_LEFT]:  return "MOVE_LEFT"
+        if key_pressed_list[pygame.K_RIGHT]: return "MOVE_RIGHT"
+
+        return "NONE"
 
     def get_game_info(self):
         """

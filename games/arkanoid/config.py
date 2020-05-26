@@ -20,12 +20,6 @@ import pygame
 
 GAME_SETUP = {
     "game": Arkanoid,
-    "keyboards": [{
-        pygame.K_a:     "SERVE_TO_LEFT",
-        pygame.K_d:     "SERVE_TO_RIGHT",
-        pygame.K_LEFT:  "MOVE_LEFT",
-        pygame.K_RIGHT: "MOVE_RIGHT",
-    }],
     "ml_clients": [
         { "name": "ml" }
     ]

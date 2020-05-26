@@ -30,12 +30,13 @@ class Snake:
         self._font = pygame.font.Font(None, 22)
         self._font_pos = (1, Scene.area_rect.width + 5)
 
-    def update(self, cmd_list):
+    def update(self, command):
         """
         Update the game
         """
         # Get the command from the cmd_list
-        command = cmd_list[0] if cmd_list else SnakeAction.NONE
+        command = (SnakeAction(command)
+            if command in SnakeAction.__members__ else SnakeAction.NONE)
 
         # Pass the command to the scene and get the status
         game_status = self._scene.update(command)
@@ -74,6 +75,19 @@ class Snake:
         Get the scene information to be sent to the player
         """
         return self._scene.get_scene_info()
+
+    def get_keyboard_command(self):
+        """
+        Get the command according to the pressed key
+        """
+        key_pressed_list = pygame.key.get_pressed()
+
+        if key_pressed_list[pygame.K_UP]:     return "UP"
+        if key_pressed_list[pygame.K_DOWN]:   return "DOWN"
+        if key_pressed_list[pygame.K_LEFT]:   return "LEFT"
+        if key_pressed_list[pygame.K_RIGHT]:  return "RIGHT"
+
+        return "NONE"
 
     def get_game_info(self):
         return {

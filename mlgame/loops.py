@@ -8,20 +8,17 @@ import traceback
 
 from .communication import GameCommManager, MLCommManager
 from .exceptions import GameProcessError, MLProcessError
-from .gamedev.generic import quit_or_esc, KeyCommandMap
+from .gamedev.generic import quit_or_esc
 from .recorder import get_recorder
 
 class GameManualModeExecutor:
     """
     The loop executor for the game process running in manual mode
     """
-    def __init__(self, execution_cmd, game_cls, keyboard_maps):
+    def __init__(self, execution_cmd, game_cls):
         self._execution_cmd = execution_cmd
         self._game_cls = game_cls
         self._frame_interval = 1 / self._execution_cmd.fps
-        self._keyboards = []
-        for keymap in keyboard_maps:
-            self._keyboards.append(KeyCommandMap(keymap))
         self._recorder = get_recorder(execution_cmd.game_name,
             execution_cmd.game_params, execution_cmd.game_mode,
             execution_cmd.record_progress)
@@ -41,15 +38,14 @@ class GameManualModeExecutor:
         while not quit_or_esc():
             scene_info = game.get_player_scene_info()
             time.sleep(self._frame_interval)
-            commands = [keyboard.get_pressed_commands() for keyboard in self._keyboards]
-            self._recorder.record(scene_info, commands)
+            command = game.get_keyboard_command()
+            self._recorder.record(scene_info, command)
 
-            result = game.update(*commands)
+            result = game.update(command)
 
             if result == "RESET" or result == "QUIT":
                 scene_info = game.get_player_scene_info()
-                self._recorder.record(scene_info,
-                    [[] for _ in range(len(self._keyboards))])
+                self._recorder.record(scene_info, None)
                 self._recorder.flush_to_file()
 
                 if self._execution_cmd.one_shot_mode or result == "QUIT":

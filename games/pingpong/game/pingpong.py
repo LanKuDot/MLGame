@@ -22,9 +22,11 @@ class PingPong:
         self._font_pos_speed = (self._surface.get_width() - 120,
             self._surface.get_height() - 21)
 
-    def update(self, cmd_list_1P, cmd_list_2P):
-        command_1P = cmd_list_1P[0] if cmd_list_1P else PlatformAction.NONE
-        command_2P = cmd_list_2P[0] if cmd_list_2P else PlatformAction.NONE
+    def update(self, cmd_list):
+        command_1P = (PlatformAction(cmd_list[0])
+            if cmd_list[0] in PlatformAction.__members__ else PlatformAction.NONE)
+        command_2P = (PlatformAction(cmd_list[1])
+            if cmd_list[1] in PlatformAction.__members__ else PlatformAction.NONE)
 
         game_status = self._scene.update(command_1P, command_2P)
         self._draw_screen()
@@ -97,6 +99,26 @@ class PingPong:
         Get the scene information to be sent to the player
         """
         return self._scene.get_scene_info()
+
+    def get_keyboard_command(self):
+        """
+        Get the command according to the pressed keys
+        """
+        key_pressed_list = pygame.key.get_pressed()
+
+        if   key_pressed_list[pygame.K_PERIOD]: cmd_1P = "SERVE_TO_LEFT"
+        elif key_pressed_list[pygame.K_SLASH]:  cmd_1P = "SERVE_TO_RIGHT"
+        elif key_pressed_list[pygame.K_LEFT]:   cmd_1P = "MOVE_LEFT"
+        elif key_pressed_list[pygame.K_RIGHT]:  cmd_1P = "MOVE_RIGHT"
+        else: cmd_1P = "NONE"
+
+        if   key_pressed_list[pygame.K_q]:  cmd_2P = "SERVE_TO_LEFT"
+        elif key_pressed_list[pygame.K_e]:  cmd_2P = "SERVE_TO_RIGHT"
+        elif key_pressed_list[pygame.K_a]:  cmd_2P = "MOVE_LEFT"
+        elif key_pressed_list[pygame.K_d]:  cmd_2P = "MOVE_RIGHT"
+        else: cmd_2P = "NONE"
+
+        return [cmd_1P, cmd_2P]
 
     def get_game_info(self):
         return {
