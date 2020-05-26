@@ -245,7 +245,7 @@ def _run_ml_mode(execution_cmd: ExecutionCommand, game_cls, ml_clients):
             args = ()
             kwargs = module_kwargs
 
-        process_manager.add_ml_process(ml_module, process_name, args, kwargs)
+        process_manager.add_ml_process(process_name, ml_module, args, kwargs)
 
     returncode = process_manager.start()
     sys.exit(returncode)

@@ -1,3 +1,8 @@
+from threading import Thread
+from queue import Queue
+
+from .exceptions import MLProcessError
+
 class CommunicationSet:
     """
     A data class for storing a set of communication objects and
@@ -100,7 +105,7 @@ class CommunicationSet:
         """
         objs = {}
         for comm_name in self._recv_end.keys():
-            obj[comm_name] = self.recv(comm_name, to_wait)
+            objs[comm_name] = self.recv(comm_name, to_wait)
 
         return objs
 
@@ -162,35 +167,105 @@ class CommunicationHandler:
     def send(self, obj):
         self._send_end.send(obj)
 
-from .utils.delegate import FunctionDelegate
+class GameCommManager:
+    """
+    The commnuication manager for the game process
+    """
+    def __init__(self):
+        self._comm_to_ml_set = CommunicationSet()
 
-## The handlers for communicating between processes
-## They will be initialized at the start of the corresponding processes.
+    def add_comm_to_ml(self, ml_name, recv_end, send_end):
+        """
+        Set communication objects for communicating with specified ml process
+        """
+        self._comm_to_ml_set.add_recv_end(ml_name, recv_end)
+        self._comm_to_ml_set.add_send_end(ml_name, send_end)
 
-##### The handlers for game process communicating with ml process #####
+    def get_ml_names(self):
+        """
+        Get the name of all registered ml process
+        """
+        return self._comm_to_ml_set.get_recv_end_names()
 
-# The handler for sending an object to a ml process
-# See GameProcessHelper.send_to_ml
-send_to_ml = FunctionDelegate()
+    def send_to_all_ml(self, obj):
+        """
+        Send the object to all ml process
+        """
+        self._comm_to_ml_set.send_all(obj)
 
-# The handler for sending an object to all ml processes
-# See GameProcessHelper.send_to_all_ml
-send_to_all_ml = FunctionDelegate()
+    def recv_from_ml(self, ml_name):
+        """
+        Receive the object from the specified ml process
 
-# The handler for receiving an object from a ml process
-# See GameProcessHelper.recv_from_ml
-recv_from_ml = FunctionDelegate()
+        If the received object is `MLProcessError`, raise the exception.
+        """
+        obj = self._comm_to_ml_set.recv(ml_name, to_wait = False)
+        if isinstance(obj, MLProcessError):
+            raise obj
+        return obj
 
-# The handler for receiving objects from all ml processes
-# See GameProcessHelper.recv_from_all_ml
-recv_from_all_ml = FunctionDelegate()
+    def recv_from_all_ml(self):
+        """
+        Receive objects from all the ml processes
+        """
+        obj_dict = {}
+        for ml_name in self.get_ml_names():
+            obj_dict[ml_name] = self.recv_from_ml(ml_name)
+        return obj_dict
 
-##### The handlers for ml process communicating with game process #####
+class MLCommManager:
+    """
+    The communication manager for the ml process
+    """
+    def __init__(self):
+        self._comm_to_game = CommunicationHandler()
 
-# The handler for sending object to the game process
-# See MLProcessHelper.send_to_game
-send_to_game = FunctionDelegate()
+    def set_comm_to_game(self, recv_end, send_end):
+        """
+        Set communication objects for communicating with game process
 
-# The handler for receiving object from the game process
-# See MLProcessHelper.recv_from_game
-recv_from_game = FunctionDelegate()
+        @param recv_end The communication object for receiving objects from game process
+        @param send_end The communication object for sending objects to game process
+        """
+        self._comm_to_game.set_recv_end(recv_end)
+        self._comm_to_game.set_send_end(send_end)
+
+    def start_recv_obj_thread(self):
+        """
+        Start a thread to keep receiving objects from the game
+        """
+        self._obj_queue = Queue(15)
+
+        thread = Thread(target = self._keep_recv_obj_from_game)
+        thread.start()
+
+    def _keep_recv_obj_from_game(self):
+        """
+        Keep receiving object from the game and put it in the queue
+
+        If the queue is full, the received object will be dropped.
+        """
+        while True:
+            if self._obj_queue.full():
+                self._obj_queue.get()
+                print("Warning: The object queue for the process '{}' is full. "
+                    "Drop the oldest object."
+                    .format(self.name))
+
+            self._obj_queue.put(self._comm_to_game.recv())
+
+    def recv_from_game(self):
+        """
+        Receive an object from the game process
+
+        @return The received object
+        """
+        return self._obj_queue.get()
+
+    def send_to_game(self, obj: MLProcessError):
+        """
+        Send an object to the game process
+
+        @param obj An object to be sent
+        """
+        self._comm_to_game.send(obj)
