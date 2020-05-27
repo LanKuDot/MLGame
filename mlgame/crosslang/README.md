@@ -29,7 +29,7 @@ The communication message between the client and the module is always a JSON str
 * The message received from the client:
     * Ready command: `"__command__ READY\n"`
     * Reset command: `"__command__ RESET\n"`
-    * Game command: `"__command__ <game_command_in_JSON_str>\n"`. The `game_command_in_JSON_str` will be decoded to a dictionary object and be sent to the game.
+    * Game command: `"__command__ <game_command_in_JSON_str>\n"`. The `game_command_in_JSON_str` will be decoded to python object by using `json.loads()` and be sent to the game.
 
 The message received from the client without `"__command__"` header will be printed out directly.
 
@@ -49,7 +49,7 @@ The communication API for the target language helps to convert the message forma
 
 Here is the interaction flow between MLGame and the communication API:
 
-<img src="https://i.imgur.com/hSRF9bd.png" width="650px" />
+<img src="https://i.imgur.com/VS84oB6.png" width="650px" />
 
 When the game ends, the communication API has to send the "RESET" command:
 
@@ -110,16 +110,15 @@ public:
 
         if (scene_info["status"] == "GAME_OVER" ||
             scene_info["status"] == "GAME_PASS") {
-            command["command"] = "RESET";   // "RESET" command
+            command = "RESET";   // "RESET" command
             return command;
         }
 
-        command["frame"] = scene_info["frame"];
         if (!this -> is_ball_served) {
-            command["command"] = {"SERVE_TO_LEFT"};
+            command = "SERVE_TO_LEFT";
             this -> is_ball_served = true;
         } else
-            command["command"] = {"MOVE_LEFT"};
+            command = "MOVE_LEFT";
 
         return command;
     }
