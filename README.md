@@ -4,8 +4,6 @@ A platform for applying machine learning algorithm to play pixel games
 
 MLGame separates the machine learning part from the game core, which makes users easily apply codes to play the game. (Support non-python script as the client. Check [here](mlgame/crosslang/README.md) for more information.)
 
-**MLGame Beta 6.0+ is not compatible with the previous version.**
-
 ## Requirements
 
 * Python 3.6+
@@ -30,10 +28,9 @@ $ python MLGame.py [options] <game> [game_params]
   * `-m`: Play the game in the manual mode (as a normal game)
   * `-1`: Quit the game when the game is over or is passed. Otherwise, the game will restart automatically.
   * `-r`: Pickle the game progress (a list of "SceneInfo") to log files.
-  * `-i SCRIPT [-i SCRIPT ...]`: Specify the script used in the machine learning mode. For multiple scripts, use this flag multiple times. The script must have function `ml_loop()` and be put in the `games/<game>/ml/` directory.
+  * `-i SCRIPT [-i SCRIPT ...]`: Specify the script used in the machine learning mode. For multiple scripts, use this flag multiple times. The script must have class `MLPlay` and be put in the `games/<game>/ml/` directory.
 
-**Game execution options must be specified before &lt;game&gt; arguments.** \
-Use `python MLGame.py -h` for more information.
+**Game execution options must be specified before &lt;game&gt; arguments.** Use `python MLGame.py -h` for more information.
 
 For example:
 
@@ -60,23 +57,127 @@ For example:
 
 ## Machine Learning Mode
 
-If `-m` flag is **not** specified, the game will execute in the machine learning mode. In the machine learning mode, the main process will generate two new processes, one is for executing the machine learning code (called ml process), the other is for executing the game core (called game process). They use pipes to communicate with each other.
+If `-m` flag is **not** specified, the game will execute in the machine learning mode. In the machine learning mode, the main process will generate two new processes, one is for executing the game core (called game process), the other one is for executing the machine learning code (called ml process). They use pipes to communicate with each other.
 
-![Imgur](https://i.imgur.com/NQoXsZf.png)
+![Imgur](https://i.imgur.com/xrkYm46.png)
 
-Scene information is a dictionary object that stores the game status and the position of gameobjects in the scene. Game command is also a dictionary object that stores the command for controlling the gameobject (such as a platform).
+Scene information is an object (such as dictionary) that stores the game status and the position of gameobjects in the scene. Game command is an object that stores the command for controlling the gameobject (such as a platform). The format of the scene information and the command are defined by game.
 
-### Execution Order
+Below is an overview of the relationship between executor and class.
 
-![Imgur](https://i.imgur.com/0yDfdyr.png)
+### Executor and Class
 
-Note that the game process won't wait for the ml process (except for the initialization). Therefore, if the ml process cannot send a game command in time, the command will be consumed in the next frame in the game process, which is "delayed".
+The executor runs a loop for executing the game or the machine learning code, and invokes member functions of the game class or the `MLPlay` class for passing the received object to the function or sending the object returned from the function.
 
-The example script for the ml process is in the file `games/<game>/ml/ml_play_template.py`, which is a script that simply sent the same command to the game process. There are detailed comments in the script to describe how to write your own script.
+#### Game class
+
+Here is a template of the game class:
+
+```python
+class Game:
+    def __init__(self, game_param_1, game_param_2, ...):
+        ...
+
+    def update(self, command):
+        ...
+
+    def reset(self):
+        ...
+
+    def get_player_scene_info(self):
+        ...
+```
+
+* `__init__(game_param_1, game_param_2, ...)`: The initialization of the game class. The game parameters specified in the command line will be passed to it.
+* `update(command)`: Update the game according to the received command.
+  * If it's a multiplayer game, commands received from different players will be collected into a list and pass the list to `command` parameter.
+  * If there is no returned value from `update()`, the game keeps going. If a string `"RESET"` is returned, the executor will invoke `reset()` to reset the game for the next round. If a string `"QUIT"` is returned, the game will be exited.
+* `reset()`: Reset the game.
+* `get_player_scene_info`: Get the scene information to be sent to the machine learning process.
+
+#### `MLPlay` class
+
+Here is a template of the game class:
+
+```python
+class MLPlay:
+    def __init__(self, init_arg_1, init_arg_2, ...):
+        ...
+
+    def update(self, scene_info):
+        ...
+
+    def reset():
+        ...
+```
+
+* `__init__(init_arg_1, init_arg_2, ...)`: The initialization of `MLPlay` class. The initial arguments sent from the game will be passed to it.
+* `update(scene_info)`: Generate the game command according to the received scene information.
+  * The format of game command is defined by the game.
+  * If the returned value is a string `"RESET"`, `reset()` will be invoked.
+* `reset()`: Do reset stuffs.
+
+#### Execution Order
+
+![Imgur](https://i.imgur.com/Ye3llUy.png)
+
+The yellow blocks are the member functions of the game class or the `MLPlay` class which are invoked by the executor. Note that the game executor won't wait for the ml executor (except for the initialization or the resetting). Therefore, if the ml executor cannot send a game command in time, the command will be consumed in the next frame in the game executor, which is "delayed". Futhermore, when the game is over, the returned scene information must contain the game over status for the `MLPlay` class to inform the ml executor to reset.
+
+The example script for the `MLPlay` class is in the file `games/<game>/ml/ml_play_template.py`, which is a class that simply returns the same command in `update()`.
 
 ### Non-python Client Support
 
 MLGame supports that a non-python script runs as a ml client. For the supported programming languages and how to use it, please view the [README](mlgame/crosslang/README.md) of the `mlgame.crosslang` module.
+
+## Log Game Progress
+
+If `-r` flag is specified, the game progress will be logged into a file. When a game round is ended, the game progress is dumped to a file `<prefix>_<timestamp>.pickle` by using `pickle.dump()`. The prefix of the filename contains the game mode and game parameters, such as `ml_EASY_2_<timestamp>.pickle`. The file is saved in `games/<game>/log/` directory. These log files can be used to train the model.
+
+### Format
+
+The dumped game progress is a dictionary with two keys. The first key is `"scene_info"` whose value is a list of scene informations sent from the game process. The second key is `"command"` whose value is a list of commands sent from the ml process, but the last element of it is always `None` (Because there is no command to be sent when the game is over). If the game is a multiplayer game, each element in the list of the `"command"` is a list storing the commands returned by different players.
+
+The game progress of the single player game will be like:
+
+```
+{
+    "scene_info": [scene_info_0, scene_info_1, ... , scene_info_n-1, scene_info_n],
+    "command": [command_0, command_1, ... , command_n-1, None]
+}
+```
+
+And the multiplayer game:
+
+```
+{
+    "scene_info": [scene_info_0, scene_info_1, ... , scene_info_n-1, scene_info_n],
+    "command": [[command_1P_0, command_2P_0], ... , [command_1P_n-1, command_2P_n-1], None]
+}
+```
+
+### Read Game Progress
+
+You can use `pickle.load()` to read the game progress from the file.
+
+Here is the example for read the game progress:
+
+```python
+import pickle
+import random
+
+def print_log():
+    with open("path/to/log/file", "rb") as f:
+        p = pickle.load(f)
+
+    random_id = random.randrange(len(p))
+    print("Scene information:", p["scene_info"][p])
+    print("Command:", p["command"][p])
+
+if __name__ == "__main__":
+    print_log()
+```
+
+For the non-python client, it may need to write a python script to read the record file and convert the game progess to other format (such as plain text) for the non-python client to read.
 
 ### Access Trained Data
 
@@ -95,33 +196,6 @@ def ml_loop():
     with open(data_file_path, "rb") as f:
         data = pickle.load(f)
 ```
-
-## Log Game Progress
-
-If `-r` flag is specified, the game progress will be logged into a file. When a game round is ended, a list of "SceneInfo" (i.e. a list of dictionay objects) is dumped to a file `<prefix>_<timestamp>.pickle` by using `pickle.dump()`. The prefix of the filename contains the game mode and game parameters, such as `ml_EASY_2_<timestamp>.pickle`. The file is saved in `games/<game>/log/` directory. These log files can be used to train the model.
-
-### Read Game Progress
-
-You can use `pickle.load()` to read the game progress from the file.
-
-Here is the example for read the game progress:
-
-```python
-import pickle
-import random
-
-def print_log():
-    with open("path/to/log/file", "rb") as f:
-        p = pickle.load(f)
-
-    random_id = random.randrange(len(p))
-    print(p[random_id])
-
-if __name__ == "__main__":
-    print_log()
-```
-
-For the non-python client, it may need to write a python script to read the record file and convert the game progess to other format (such as plain text) for the non-python client to read.
 
 ## Change Log
 
