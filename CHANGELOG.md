@@ -2,6 +2,28 @@
 
 The format is modified from [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+### [Beta 7.0] - 2020.05.27
+
+**Added**
+
+* Use executors to control the execution loop
+  * The game and the ml script only need to provide "class" for the executor to invoke (like an interface).
+  * The game doesn't need to provide manual and ml version. Just one game class.
+  * Replace `ml_loop()` with `MLPlay` class in ml script
+* Add commnuication manager
+  * The manager for the ml process has a queue for storing the object received. If the queue has more than 15 objects, the oldest object will be dropped.
+
+**Changed**
+
+* Change the format of the recording game progress
+* Replace `PROCESSES` with `GAME_SETUP` in `config.py` of the game to setup the game and the ml scripts
+* Rename `GameConfig` to `ExecutionCommand`
+* Simplfy the `communication` package into a module
+
+**Removed**
+
+* Remove `record.py` and ml version of the game in the game directory
+
 ### [Beta 6.1] - 2020.05.06
 
 **Changed**
