@@ -68,23 +68,22 @@ The mechanism is added on the `NORMAL` difficulty.
 
 ## Communicate with Game
 
-View the example of the ml script in [`ml/ml_play_template.py`](ml/ml_play_template.py).
-
-### Methods
-
-Use `mlgame.communication.ml` module to communicate with the game process.
-
-* `ml_ready()`: Inform the game process that ml process is ready.
-* `recv_from_game()`: Receive an dictionary object storing the game information from the game process.
-* `send_to_game(dict)`: Send an dictionary object storing the command to the game process.
-
 ### Communication Objects
-
-The dictionary object is used as the communication object transporting between game and ml processes.
 
 #### Scene Information
 
-It's an dictionary object sent from the game process, and also an object to be pickled in the record file.
+A dictionary object sent from the game process.
+
+```
+{
+    'frame': 10,
+    'status': 'GAME_ALIVE',
+    'ball': (30, 332),
+    'platform': (30, 400),
+    'bricks': [(35, 50), (60, 50), (85, 50), (110, 50), (135, 50)],
+    'hard_bricks': []
+}
+```
 
 The keys and values of the scene information:
 
@@ -97,21 +96,22 @@ The keys and values of the scene information:
 * `"platform"`: An `(x, y)` tuple. The position of the platform.
 * `"bricks"`: A list storing the position of remaining normal bricks (including the hard bricks that are hit once). All elements are `(x, y)` tuples.
 * `"hard_bricks"`: A list storing the position of remaining hard bricks. All elements are `(x, y)` tuples.
-* `"command"`: A string. The command decided for this frame. This member is used for recording the game progress
 
 #### Game Command
 
-It's an dictionary object sent to the game process for controlling the movement of the platform.
+A string command sent to the game process for controlling the movement of the platform.
 
-The keys and values of the game command:
+```
+'MOVE_LEFT'
+```
 
-* `"frame"`: An integer. The number of frame that this game command is for. It should be the same as the frame of the scene information received.
-* `"command"`: A string. The command for controlling the platform. It's one of the following value:
-    * `"SERVE_TO_LEFT"`: Serve the ball to the left
-    * `"SERVE_TO_RIGHT"`: Serve the ball to the right
-    * `"MOVE_LEFT"`: Move the platform to the left
-    * `"MOVE_RIGHT"`: Move the platform to the right
-    * `"NONE"`: Do nothing
+Here are the available commands:
+
+* `"SERVE_TO_LEFT"`: Serve the ball to the left
+* `"SERVE_TO_RIGHT"`: Serve the ball to the right
+* `"MOVE_LEFT"`: Move the platform to the left
+* `"MOVE_RIGHT"`: Move the platform to the right
+* `"NONE"`: Do nothing
 
 ## Custom Level Map Files
 

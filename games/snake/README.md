@@ -42,21 +42,21 @@ The same as the game "Arkanoid"
 
 View the example of the ml script in [`ml/ml_play_template.py`](ml/ml_play_template.py).
 
-### Methods
-
-Use `mlgame.communication.ml` module to communicate with the game process
-
-* `ml_ready()`: Inform the game process that ml process is ready
-* `recv_from_game`: Receive an dictionary object storing the scene information from the game process
-* `send_to_game(dict)`: Send an dictionary object storing the game command to the game process
-
 ### Communication Objects
-
-The dictionary object is used as the communication object transporting between game and ml processes.
 
 #### Scene Information
 
-It's an dictionary object sent from the game process, and also an object to be pickled in the record file.
+A dictionary object sent from the game process, and also an object to be pickled in the record file.
+
+```
+{
+    'frame': 12,
+    'status': 'GAME_ALIVE',
+    'snake_head': (160, 40),
+    'snake_body': [(150, 40), (140, 40), (130, 40)],
+    'food': (100, 60)
+}
+```
 
 The keys and values of the scene information:
 
@@ -67,18 +67,19 @@ The keys and values of the scene information:
 * `"snake_head"`: An `(x, y)` tuple. The position of the snake head.
 * `"snake_body"`: A list storing the position of snake bodies, and the storing order is from the head to the tail. Each element in the list is an `(x, y)` tuple.
 * `"food"`: An `(x, y)` tuple. The position of the food.
-* `"command"`: A string. The command decided for this frame. This member is used for recording the game progress.
 
 #### Game Command
 
-It's an dictionary object sent to the game process for controlling the moving direction of the snake.
+A string command sent to the game process for controlling the moving direction of the snake.
 
-The keys and values of the game command:
+```
+'RIGHT'
+```
 
-* `"frame"`: An integer. The number of frame the command is for. It should be the same as the frame of the scene information received.
-* `"command"`: A string. The command for controlling the snake. It's one of the following value:
-    * `"UP"`: Make the snake move upward.
-    * `"DOWN"`: Make the snake move downward.
-    * `"LEFT"`: Make the snake move to left.
-    * `"RIGHT"`: Make the snake move to right.
-    * `"NONE"`: Do not change the moving direction of snake.
+Here are the available commands:
+
+* `"UP"`: Make the snake move upward.
+* `"DOWN"`: Make the snake move downward.
+* `"LEFT"`: Make the snake move to left.
+* `"RIGHT"`: Make the snake move to right.
+* `"NONE"`: Do not change the moving direction of snake.

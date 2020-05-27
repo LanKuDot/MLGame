@@ -74,35 +74,29 @@ The blocker is added on `HARD` difficulty.
 
 ## Communicate with Game
 
-View the example of the ml script in [`ml/ml_play_template.py`](ml/ml_play_template.py).
+The example script is in [`ml_play_template.py`](./ml/ml_play_template.py).
 
-### `ml_loop()`
+### Initial arguments
 
-The `ml_loop()` function must has a `side` parameter. The game will pass `"1P"` or `"2P"` to it to distinguish which side the script is used by. You can write codes for both sides in the same script. For example:
-
-```python
-def ml_loop(side):
-    if side == "1P":
-        ml_loop_for_1P()
-    else:   # "2P"
-        ml_loop_for_2P()
-```
-
-### Methods
-
-Use `mlgame.communication.ml` module to communicate with game process:
-
-* `ml_ready()`: Inform the game process that ml process is ready
-* `recv_from_game()`: Receive a dictionary object storing the scene information from the game process
-* `send_to_game(dict)`: Send a dictionary object storing the game command to the game process
+* `side`: A string which is either `"1P"` or `"2P"` to indicate that the script is used by which side.
 
 ### Communication Objects
 
-The dictionary object are used as communication object transporting between game and ml processes.
-
 #### Scene Information
 
-It is an dictionary object sent from the game process, and also an object to be pickled in the record file.
+A dictionary object sent from the game process.
+
+```
+{
+    'frame': 42,
+    'status': 'GAME_ALIVE',
+    'ball': (189, 128),
+    'ball_speed': (7, -7),
+    'platform_1P': (0, 420),
+    'platform_2P': (0, 50),
+    'blocker': (50, 240)
+}
+```
 
 The keys and values of the scene information:
 
@@ -117,22 +111,22 @@ The keys and values of the scene information:
 * `"platform_1P"`: An `(x, y)` tuple. The position of the 1P platform.
 * `"platform_2P"`: An `(x, y)` tuple. The position of the 2P platform.
 * `"blocker"`: An `(x, y)` tuple. The position of the blocker. If the game is not on `HARD` difficulty, this field is `None`.
-* `"command_1P"`: A string. The command 1P decided according to this frame. Only included in the record file.
-* `"command_2P"`: A string. The command 2P decided according to this frame. Only included in the record file.
 
 #### Game Command
 
-It is an dictionary object sent to the game process for controlling the platform.
+A string command sent to the game process for controlling the platform.
 
-The keys and values of the game command:
+```
+'MOVE_RIGHT'
+```
 
-* `"frame"`: An integer. The number of frame that this game command is for. It should be the same as the frame of the scene information received.
-* `"command"`: A string. It's one of the following commands:
-    * `"SERVE_TO_LEFT"`: Serve the ball to the left.
-    * `"SERVE_TO_RIGHT"`: Serve the ball to the right.
-    * `"MOVE_LEFT"`: Move the platform to the left.
-    * `"MOVE_RIGHT"`: Move the platform to the right.
-    * `"NONE"`: Do nothing.
+Here are available commands:
+
+* `"SERVE_TO_LEFT"`: Serve the ball to the left.
+* `"SERVE_TO_RIGHT"`: Serve the ball to the right.
+* `"MOVE_LEFT"`: Move the platform to the left.
+* `"MOVE_RIGHT"`: Move the platform to the right.
+* `"NONE"`: Do nothing.
 
 ## Input Scripts for ML Mode
 

@@ -73,33 +73,27 @@
 
 程式範例在 [`ml/ml_play_template.py`](ml/ml_play_template.py)。
 
-### `ml_loop()`
+### 初始化參數
 
-因為乒乓球是兩人遊戲，所以 `ml_loop()` 必須有一個參數 `side`。遊戲會傳 `"1P"` 或 `"2P"` 來幫助辨別函式是被哪一方使用。你可以藉此將兩方遊玩的程式碼寫在同一個檔案中。例如；
-
-```python
-def ml_loop(side):
-    if side == "1P":
-        ml_loop_for_1P()
-    else:   # "2P"
-        ml_loop_for_2P()
-```
-
-### 函式
-
-使用 `mlgame.communication.ml` 模組來與遊戲端溝通。
-
-* `ml_ready()`：通知遊戲端已經準備好接收訊息了
-* `recv_from_game()`：從遊戲端接接收存有遊戲場景資訊的字典物件
-* `send_to_game(dict)`：傳送存有指令的字典物件給遊戲端
+* `side`: 字串。其值只會是 `"1P"` 或 `"2P"`，代表這個程式被哪一邊使用。
 
 ### 溝通物件
-
-遊戲端與機器學習端的溝通使用字典物件來傳遞。
 
 #### 遊戲場景資訊
 
 由遊戲端發送的字典物件，同時也是存到紀錄檔的物件。
+
+```
+{
+    'frame': 42,
+    'status': 'GAME_ALIVE',
+    'ball': (189, 128),
+    'ball_speed': (7, -7),
+    'platform_1P': (0, 420),
+    'platform_2P': (0, 50),
+    'blocker': (50, 240)
+}
+```
 
 以下是該字典物件的鍵值對應：
 
@@ -114,22 +108,22 @@ def ml_loop(side):
 * `"platform_1P"`：`(x, y)` tuple。1P 板子的位置。
 * `"platform_2P"`：`(x, y)` tuple。2P 板子的位置。
 * `"blocker"`：`(x, y)` tuple。障礙物的位置。如果選擇的難度不是 `HARD`，則其值為 `None`。
-* `"command_1P"`：字串。1P 根據這個影格的資訊決定的指令，用在產生紀錄檔中，在遊戲中不會有值。
-* `"command_2P"`：字串。同 `command_1P`，但是是 2P 決定的指令。
 
 #### 遊戲指令
 
-傳給遊戲端用來控制板子的指令。
+傳給遊戲端的字串，用來控制板子的指令。
 
-以下是該字典物件的鍵值對應：
+```
+'MOVE_RIGHT'
+```
 
-* `"frame"`：整數。標示這個指令是給第幾影格的指令，需要與接收到的遊戲場景資訊中影格值一樣。
-* `"command"`：字串。控制板子的指令，須為以下值的其中之一：
-    * `"SERVE_TO_LEFT"`：將球發向左邊
-    * `"SERVE_TO_RIGHT"`：將球發向右邊
-    * `"MOVE_LEFT"`：將板子往左移
-    * `"MOVE_RIGHT"`：將板子往右移
-    * `"NONE"`：無動作
+以下是可用的指令：
+
+* `"SERVE_TO_LEFT"`：將球發向左邊
+* `"SERVE_TO_RIGHT"`：將球發向右邊
+* `"MOVE_LEFT"`：將板子往左移
+* `"MOVE_RIGHT"`：將板子往右移
+* `"NONE"`：無動作
 
 ## 機器學習模式的玩家程式
 
