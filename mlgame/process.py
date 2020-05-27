@@ -3,9 +3,7 @@ import traceback
 
 from multiprocessing import Process, Pipe
 from .loops import GameMLModeExecutorProperty, MLExecutorProperty
-from .exceptions import (
-    GameProcessError, MLProcessError,
-)
+from .exceptions import ProcessError
 
 class ProcessManager:
     """
@@ -70,7 +68,14 @@ class ProcessManager:
 
         self._create_pipes()
         self._start_ml_processes()
-        returncode = self._start_game_process()
+
+        returncode = 0
+        try:
+            self._start_game_process()
+        except ProcessError as e:
+            print("Error: Exception occurred in '{}' process:".format(e.process_name))
+            print(e.message)
+            returncode = 2
 
         self._terminate()
 
@@ -106,15 +111,7 @@ class ProcessManager:
         """
         Start the game process
         """
-        returncode = 0
-        try:
-            _game_process_entry_point(self._game_executor_propty)
-        except (MLProcessError, GameProcessError) as e:
-            print("Error: Exception occurred in '{}' process:".format(e.process_name))
-            print(e.message)
-            returncode = 2
-
-        return returncode
+        _game_process_entry_point(self._game_executor_propty)
 
     def _terminate(self):
         """
