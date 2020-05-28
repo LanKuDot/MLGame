@@ -62,9 +62,15 @@ def _get_execution_command() -> ExecutionCommand:
         game_defined_config = importlib.import_module(
             "games.{}.config".format(parsed_args.game))
         game_defined_params = game_defined_config.GAME_PARAMS
-    except ModuleNotFoundError:
-        raise GameConfigError("Game '{}' dosen\'t provide 'config.py'"
-            .format(parsed_args.game))
+    except ModuleNotFoundError as e:
+        failed_module_name = e.__str__().split("'")[1]
+        if failed_module_name == "games." + parsed_args.game:
+            msg = ("Game '{}' dosen't exist or it doesn't provide '__init__.py'"
+                .format(parsed_args.game))
+        else:
+            msg = ("Game '{}' dosen't provide 'config.py'"
+                .format(parsed_args.game))
+        raise GameConfigError(msg)
     except AttributeError:
         # The game doesn't define any game parameters, create a default one
         game_defined_params = {
