@@ -75,7 +75,7 @@ class ProcessManager:
         except ProcessError as e:
             print("Error: Exception occurred in '{}' process:".format(e.process_name))
             print(e.message)
-            returncode = 2
+            returncode = -1
 
         self._terminate()
 

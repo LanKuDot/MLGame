@@ -11,6 +11,7 @@ from .crosslang.exceptions import CompilationError
 from .execution_command import get_command_parser, GameMode, ExecutionCommand
 from .exceptions import ExecutionCommandError, GameConfigError
 from .utils.argparser_generator import get_parser_from_dict
+from . import errno
 
 def execute():
     """
@@ -20,13 +21,13 @@ def execute():
         execution_cmd = _get_execution_command()
     except (ExecutionCommandError, GameConfigError) as e:
         print("Error:", e)
-        sys.exit(1)
+        sys.exit(errno.COMMAND_LINE_ERROR)
 
     try:
         _game_execution(execution_cmd)
     except GameConfigError as e:
         print("Error:", e)
-        sys.exit(1)
+        sys.exit(errno.COMMAND_LINE_ERROR)
 
 def _get_execution_command() -> ExecutionCommand:
     """
@@ -232,7 +233,7 @@ def _run_ml_mode(execution_cmd: ExecutionCommand, game_cls, ml_clients):
                 script_execution_cmd = compile_script(ml_module[1])
             except CompilationError as e:
                 print("Failed\nError: {}".format(e))
-                sys.exit(1)
+                sys.exit(errno.COMPILATION_ERROR)
             print("OK")
 
             ml_module = ml_module[0]
@@ -248,4 +249,5 @@ def _run_ml_mode(execution_cmd: ExecutionCommand, game_cls, ml_clients):
         process_manager.add_ml_process(process_name, ml_module, args, kwargs)
 
     returncode = process_manager.start()
-    sys.exit(returncode)
+    if returncode == -1:
+        sys.exit(errno.GAME_EXECUTION_ERROR)
