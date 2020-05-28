@@ -90,10 +90,10 @@ class ProcessManager:
             recv_pipe_for_game, send_pipe_for_ml = Pipe(False)
             recv_pipe_for_ml, send_pipe_for_game = Pipe(False)
 
-            self._game_executor_propty.add_comm_to_ml(
+            self._game_executor_propty.comm_manager.add_comm_to_ml(
                 ml_executor_propty.name,
                 recv_pipe_for_game, send_pipe_for_game)
-            ml_executor_propty.set_comm_to_game(
+            ml_executor_propty.comm_manager.set_comm_to_game(
                 recv_pipe_for_ml, send_pipe_for_ml)
 
     def _start_ml_processes(self):
