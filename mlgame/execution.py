@@ -191,9 +191,15 @@ def _run_manual_mode(execution_cmd: ExecutionCommand, game_cls):
     @param game_cls The class of the game to be executed
     """
     from .loops import GameManualModeExecutor
+    from .exceptions import GameProcessError
 
-    executor = GameManualModeExecutor(execution_cmd, game_cls)
-    executor.start()
+    try:
+        executor = GameManualModeExecutor(execution_cmd, game_cls)
+        executor.start()
+    except GameProcessError as e:
+        print("Error: Exception occurred in 'game' process:")
+        print(e.message)
+        sys.exit(errno.GAME_EXECUTION_ERROR)
 
 def _run_ml_mode(execution_cmd: ExecutionCommand, game_cls, ml_clients):
     """

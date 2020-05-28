@@ -27,7 +27,10 @@ class GameManualModeExecutor:
         """
         Start the loop for running the game
         """
-        self._loop()
+        try:
+            self._loop()
+        except Exception:
+            raise GameProcessError("game", traceback.format_exc())
 
     def _loop(self):
         """
