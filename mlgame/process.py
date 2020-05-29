@@ -118,7 +118,10 @@ class ProcessManager:
         Stop all spawned ml processes if it exists
         """
         for ml_process in self._ml_procs:
-            ml_process.terminate()
+            # Send stop signal to all alive ml processes
+            if ml_process.is_alive():
+                self._game_executor_propty.comm_manager.send_to_ml(
+                    None, ml_process.name)
 
 def _game_process_entry_point(propty: GameMLModeExecutorProperty):
     """

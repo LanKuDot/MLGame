@@ -187,6 +187,12 @@ class GameCommManager:
         """
         return self._comm_to_ml_set.get_recv_end_names()
 
+    def send_to_ml(self, obj, ml_name):
+        """
+        Send the object to the specified ml process
+        """
+        self._comm_to_ml_set.send(obj, ml_name)
+
     def send_to_all_ml(self, obj):
         """
         Send the object to all ml process
@@ -253,7 +259,10 @@ class MLCommManager:
                     "Drop the oldest object."
                     .format(self._ml_name))
 
-            self._obj_queue.put(self._comm_to_game.recv())
+            obj = self._comm_to_game.recv()
+            self._obj_queue.put(obj)
+            if not obj:
+                break
 
     def recv_from_game(self):
         """

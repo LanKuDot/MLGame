@@ -230,7 +230,10 @@ class MLExecutor:
 
         self._ml_ready()
         while True:
-            command = ml.update(self._comm_manager.recv_from_game())
+            scene_info = self._comm_manager.recv_from_game()
+            if not scene_info:
+                break
+            command = ml.update(scene_info)
 
             if command == "RESET":
                 ml.reset()
