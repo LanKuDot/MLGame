@@ -2,6 +2,23 @@
 
 The format is modified from [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+### [Beta 7.0.1] - 2020.05.29
+
+This update is compatible with Beta 7.0.
+
+**Fixed**
+
+* Hang when the game exits on Linux
+
+**Added**
+
+* Add `errno.py` to define the exit code of errors
+* Handle the exception occurred in manual mode
+
+**Changed**
+
+* Change the exit code of errors
+
 ### [Beta 7.0] - 2020.05.27
 
 **Added**
