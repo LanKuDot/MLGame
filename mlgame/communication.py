@@ -272,10 +272,14 @@ class MLCommManager:
         """
         return self._obj_queue.get()
 
-    def send_to_game(self, obj: MLProcessError):
+    def send_to_game(self, obj):
         """
         Send an object to the game process
 
         @param obj An object to be sent
         """
-        self._comm_to_game.send(obj)
+        try:
+            self._comm_to_game.send(obj)
+        except BrokenPipeError:
+            print("Process '{}': The connection to the game process is closed."
+                .format(self._ml_name))
