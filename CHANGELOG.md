@@ -2,6 +2,16 @@
 
 The format is modified from [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+### [Beta 7.1] - 2020.06.01
+
+**Fixed**
+
+* Handle the exception of `BrokenPipeError`
+
+**Added**
+
+* Add "dynamic_ml_clients" to the "GAME_SETUP" of the game config
+
 ### [Beta 7.0.1] - 2020.05.29
 
 This update is compatible with Beta 7.0.
