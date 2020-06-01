@@ -10,6 +10,7 @@ from .crosslang.main import compile_script
 from .crosslang.exceptions import CompilationError
 from .execution_command import get_command_parser, GameMode, ExecutionCommand
 from .exceptions import ExecutionCommandError, GameConfigError
+from .gameconfig import GameConfig
 from .utils.argparser_generator import get_parser_from_dict
 from . import errno
 
@@ -18,31 +19,24 @@ def execute():
     Parse the execution command and execute the game
     """
     try:
-        execution_cmd = _get_execution_command()
+        execution_cmd, game_config = _parse_command_line()
     except (ExecutionCommandError, GameConfigError) as e:
         print("Error:", e)
         sys.exit(errno.COMMAND_LINE_ERROR)
 
-    try:
-        _game_execution(execution_cmd)
-    except GameConfigError as e:
-        print("Error:", e)
-        sys.exit(errno.COMMAND_LINE_ERROR)
+    if execution_cmd.game_mode == GameMode.MANUAL:
+        _run_manual_mode(execution_cmd, game_config.game_setup)
+    else:
+        _run_ml_mode(execution_cmd, game_config.game_setup)
 
-def _get_execution_command() -> ExecutionCommand:
+def _parse_command_line():
     """
-    Parse the execution command and generate `ExecutionCommand`
+    Parse the command line arguments
 
-    This function will load `GAME_PARAMS` defined in the "config.py" in the game
-    directory to generate a parser for parsing the game parameters specified in the command.
-    If it cannot find `GAME_PARAMS`, it will generate a default parser.
-    Refer `mlgame.utils.argparser_generator` for the format of the `GAME_PARAMS`.
+    If "-h/--help" or "-l/--list" flag is specfied, it will print the related message
+    and exit the program.
 
-    A special case is that specifying "game_usage" to "()" in `GAME_PARAMS`.
-    The program will append the usage of `MLGame.py` to the "game_usage" and
-    assign it to the "usage".
-
-    @return A `ExecutionCommand` object
+    @return A tuple of (`ExecutionCommand` object, `GameConfig` object)
     """
     # Parse the command line arguments
     cmd_parser = get_command_parser()
@@ -58,32 +52,11 @@ def _get_execution_command() -> ExecutionCommand:
         _list_games()
         sys.exit(0)
 
-    # Load the game defined parameters
-    try:
-        game_defined_config = importlib.import_module(
-            "games.{}.config".format(parsed_args.game))
-        game_defined_params = game_defined_config.GAME_PARAMS
-    except ModuleNotFoundError as e:
-        failed_module_name = e.__str__().split("'")[1]
-        if failed_module_name == "games." + parsed_args.game:
-            msg = ("Game '{}' dosen't exist or it doesn't provide '__init__.py'"
-                .format(parsed_args.game))
-        else:
-            msg = ("Game '{}' dosen't provide 'config.py'"
-                .format(parsed_args.game))
-        raise GameConfigError(msg)
-    except AttributeError:
-        # The game doesn't define any game parameters, create a default one
-        game_defined_params = {
-            "()": {
-                "prog": parsed_args.game,
-                "game_usage": "%(prog)s"
-            }
-        }
+    # Load the game defined config
+    game_config = GameConfig(parsed_args.game)
 
     # Create game_param parser
-    _preprocess_game_param_dict(game_defined_params, game_defined_config)
-    param_parser = get_parser_from_dict(game_defined_params)
+    param_parser = get_parser_from_dict(game_config.game_params)
     parsed_game_params = param_parser.parse_args(parsed_args.game_params)
 
     # Replace the input game_params with the parsed one
@@ -91,9 +64,11 @@ def _get_execution_command() -> ExecutionCommand:
 
     # Generate execution command
     try:
-        return ExecutionCommand(parsed_args)
+        exec_cmd = ExecutionCommand(parsed_args)
     except ExecutionCommandError:
         raise
+
+    return exec_cmd, game_config
 
 def _list_games():
     """
@@ -122,77 +97,17 @@ def _list_games():
     for name, version in game_info_list:
         print(name.ljust(max_name_len + 1), version)
 
-def _preprocess_game_param_dict(param_dict, game_defined_config):
-    """
-    Preprocess the game defined `GAME_PARAMS`
-    """
-    # Append the command of MLGame to the `game_usage`
-    # and set it to the `usage`
-    if (param_dict.get("()") and
-        param_dict["()"].get("game_usage")):
-        game_usage = str(param_dict["()"].pop("game_usage"))
-        param_dict["()"]["usage"] = (
-            "python MLGame.py [options] " + game_usage)
-
-    # If the game not specify "--version" flag,
-    # try to convert `GAME_VERSION` to a flag
-    if not param_dict.get("--version"):
-        try:
-            game_version = str(game_defined_config.GAME_VERSION)
-        except AttributeError:
-            game_version = ""
-
-        param_dict["--version"] = {
-            "action": "version",
-            "version": game_version
-        }
-
-def _game_execution(execution_cmd: ExecutionCommand):
-    """
-    Execute the game
-
-    This function will load the `GAME_SETUP` which specifies how to start the game
-    from the "config.py" in the game directory. The `GAME_SETUP` is a dictionary which
-    has several keys:
-    - "game": Specify the class of the game to be execute
-    - "ml_clients": A list containing the information of the ml client.
-      Each element in the list is a dictionary in which members are:
-      - "name": A string which is the name of the ml client.
-      - "args": (Optional) A tuple which contains the initial positional arguments
-        to be passed to the ml client.
-      - "kwargs": (Optional) A dictionary which contains the initial keyword arguments
-        to be passed to the ml client.
-
-    @param execution_cmd The execution command
-    """
-    try:
-        game_defined_config = importlib.import_module(
-            "games.{}.config".format(execution_cmd.game_name))
-        game_setup_config = game_defined_config.GAME_SETUP
-
-        game_cls = game_setup_config["game"]
-        ml_clients = game_setup_config["ml_clients"]
-    except AttributeError:
-        raise GameConfigError("'GAME_SETUP' is not defined in '{}'"
-            .format(game_defined_config.__name__))
-    except KeyError as e:
-        raise GameConfigError("{} is not found in 'GAME_SETUP'".format(e))
-
-    if execution_cmd.game_mode == GameMode.MANUAL:
-        _run_manual_mode(execution_cmd, game_cls)
-    else:
-        _run_ml_mode(execution_cmd, game_cls, ml_clients)
-
-def _run_manual_mode(execution_cmd: ExecutionCommand, game_cls):
+def _run_manual_mode(execution_cmd: ExecutionCommand, game_setup):
     """
     Execute the game specified in manual mode
 
     @param execution_cmd The `ExecutionCommand` object
-    @param game_cls The class of the game to be executed
+    @param game_setup The `GAME_SETUP` defined in the game config
     """
     from .loops import GameManualModeExecutor
     from .exceptions import GameProcessError
 
+    game_cls = game_setup["game"]
     try:
         executor = GameManualModeExecutor(execution_cmd, game_cls)
         executor.start()
@@ -201,17 +116,18 @@ def _run_manual_mode(execution_cmd: ExecutionCommand, game_cls):
         print(e.message)
         sys.exit(errno.GAME_EXECUTION_ERROR)
 
-def _run_ml_mode(execution_cmd: ExecutionCommand, game_cls, ml_clients):
+def _run_ml_mode(execution_cmd: ExecutionCommand, game_setup):
     """
     Execute the game specified in ml mode
 
     @param execution_cmd The `ExecutionCommand` object
-    @param game_cls The class of the game to be executed
-    @param ml_clients A list of configs of the ml clients
+    @param game_setup The `GAME_SETUP` defined in the game config
     """
     from .process import ProcessManager
 
     process_manager = ProcessManager()
+    game_cls = game_setup["game"]
+    ml_clients = game_setup["ml_clients"]
 
     # Set game process
     process_manager.set_game_process(execution_cmd, game_cls)
