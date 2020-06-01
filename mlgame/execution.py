@@ -126,11 +126,13 @@ def _run_ml_mode(execution_cmd: ExecutionCommand, game_setup):
     from .process import ProcessManager
 
     process_manager = ProcessManager()
+
     game_cls = game_setup["game"]
     ml_clients = game_setup["ml_clients"]
+    dynamic_ml_clients = game_setup["dynamic_ml_clients"]
 
     # Set game process
-    process_manager.set_game_process(execution_cmd, game_cls)
+    process_manager.set_game_process(execution_cmd, game_cls, dynamic_ml_clients)
 
     # Set ml processes
     for i in range(len(ml_clients)):
@@ -141,11 +143,16 @@ def _run_ml_mode(execution_cmd: ExecutionCommand, game_setup):
         kwargs = ml_client.get("kwargs", {})
 
         # Assign the input modules to the ml processes
-        # If the number of provided modules is less than the number of processes,
-        # the last module is assigned to the rest processes.
-        module_id = (i if i < len(execution_cmd.input_modules)
-            else len(execution_cmd.input_modules) - 1)
-        ml_module = execution_cmd.input_modules[module_id]
+        if dynamic_ml_clients and i == len(execution_cmd.input_modules):
+            # If 'dynamic_ml_client' is set, then the number of ml clients
+            # is decided by the number of input modules.
+            break
+        else:
+            # If the number of provided modules is less than the number of processes,
+            # the last module is assigned to the rest processes.
+            module_id = (i if i < len(execution_cmd.input_modules)
+                else len(execution_cmd.input_modules) - 1)
+            ml_module = execution_cmd.input_modules[module_id]
 
         # Compile the non-python script
         # It is stored as a (crosslang ml client module, non-python script) tuple.

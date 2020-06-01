@@ -60,17 +60,19 @@ class GameMLModeExecutorProperty:
     """
     The data class that helps build `GameMLModeExecutor`
     """
-    def __init__(self, proc_name, execution_cmd, game_cls):
+    def __init__(self, proc_name, execution_cmd, game_cls, dynamic_ml_clients):
         """
         Constructor
 
         @param proc_name The name of the process
         @param execution_cmd A `ExecutionCommand` object that contains execution config
         @param game_cls The class of the game to be executed
+        @param dynamic_ml_clients Whether the number of ml clients is dynamic
         """
         self.proc_name = proc_name
         self.execution_cmd = execution_cmd
         self.game_cls = game_cls
+        self.dynamic_ml_clients = dynamic_ml_clients
         self.comm_manager = GameCommManager()
 
 class GameMLModeExecutor:
@@ -81,6 +83,7 @@ class GameMLModeExecutor:
         self._proc_name = propty.proc_name
         self._execution_cmd = propty.execution_cmd
         self._game_cls = propty.game_cls
+        self._dynamic_ml_clients = propty.dynamic_ml_clients
         self._comm_manager = propty.comm_manager
 
         self._ml_names = self._comm_manager.get_ml_names()
@@ -164,7 +167,11 @@ class GameMLModeExecutor:
             else:
                 cmd_list.append(None)
 
-        return cmd_list if len(cmd_list) > 1 else cmd_list[0]
+        # If the game has dynamic ml clients, do not trim the command list
+        if self._dynamic_ml_clients:
+            return cmd_list
+        else:
+            return cmd_list if len(cmd_list) > 1 else cmd_list[0]
 
     def _check_delay(self, ml_name, scene_info_frame, cmd_frame):
         """

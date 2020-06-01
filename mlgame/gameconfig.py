@@ -78,6 +78,8 @@ class GameConfig:
 
         The `GAME_SETUP` is a dictionary which has several keys:
         - "game": Specify the class of the game to be execute
+        - "dynamic_ml_clients": (Optional) Whether the number of ml clients is decided by
+          the number of input scripts.
         - "ml_clients": A list containing the information of the ml client.
             Each element in the list is a dictionary in which members are:
             - "name": A string which is the name of the ml client.
@@ -92,3 +94,11 @@ class GameConfig:
         except KeyError as e:
             raise GameConfigError("Missing '{}' in the 'GAME_SETUP' of the game config"
                 .format(e))
+
+        if not self.game_setup.get("dynamic_ml_clients"):
+            self.game_setup["dynamic_ml_clients"] = False
+
+        if self.game_setup["dynamic_ml_clients"] and len(ml_clients) == 1:
+            print("Warning: 'dynamic_ml_clients' in the 'GAME_SETUP' of the game config "
+                "is invalid for just one ml client. Set to False.")
+            self.game_setup["dynamic_ml_clients"] = False
