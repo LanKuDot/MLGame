@@ -2,6 +2,12 @@
 
 The format is modified from [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+### [Beta 7.1.1] - 2020.06.15
+
+**Changed**
+
+* ML process doesn't send the command only when the returned value of `MLPlay.update()` is `None`.
+
 ### [Beta 7.1] - 2020.06.01
 
 **Fixed**
