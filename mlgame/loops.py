@@ -248,7 +248,7 @@ class MLExecutor:
                 self._ml_ready()
                 continue
 
-            if command:
+            if command is not None:
                 self._comm_manager.send_to_game({
                     "frame": self._frame_count,
                     "command": command
