@@ -2,6 +2,17 @@
 
 The format is modified from [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+### [Beta 7.1.2] - 2020.06.19
+
+**Fixed**
+
+* Use wrong value to chack frame delay
+
+**Changed**
+
+* Modify the game "snake" for the game development tutorial
+  * The `ml_play_template.py` of the game "snake" contains simple rule-based algorithm.
+
 ### [Beta 7.1.1] - 2020.06.15
 
 **Changed**
