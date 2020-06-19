@@ -162,7 +162,7 @@ class GameMLModeExecutor:
         for ml_name in self._ml_names:
             cmd_received = game_cmd_dict[ml_name]
             if cmd_received:
-                self._check_delay(ml_name, scene_info["frame"], cmd_received["frame"])
+                self._check_delay(ml_name, cmd_received["frame"])
                 cmd_list.append(cmd_received["command"])
             else:
                 cmd_list.append(None)
@@ -173,11 +173,11 @@ class GameMLModeExecutor:
         else:
             return cmd_list if len(cmd_list) > 1 else cmd_list[0]
 
-    def _check_delay(self, ml_name, scene_info_frame, cmd_frame):
+    def _check_delay(self, ml_name, cmd_frame):
         """
         Check if the timestamp of the received command is delayed
         """
-        delayed_frame = scene_info_frame - cmd_frame
+        delayed_frame = self._frame_count - cmd_frame
         if delayed_frame > self._ml_delayed_frames[ml_name]:
             self._ml_delayed_frames[ml_name] = delayed_frame
             print("The client '{}' delayed {} frame(s)".format(ml_name, delayed_frame))
