@@ -1,7 +1,3 @@
-"""
-The game execution for the manual mode
-"""
-
 import pygame
 
 from .gamecore import Scene, GameStatus
@@ -24,8 +20,6 @@ class Snake:
         self._screen = pygame.display.set_mode(
             (Scene.area_rect.width, Scene.area_rect.height + 25))
 
-        self._clock = pygame.time.Clock()
-
         pygame.font.init()
         self._font = pygame.font.Font(None, 22)
         self._font_pos = (1, Scene.area_rect.width + 5)
@@ -40,12 +34,13 @@ class Snake:
 
         # Pass the command to the scene and get the status
         game_status = self._scene.update(command)
-        self._draw_screen()
 
         # If the game is over, send the reset signal
         if game_status == GameStatus.GAME_OVER:
             print("Score: {}".format(self._scene.score))
             return "RESET"
+
+        self._draw_screen()
 
     def _draw_screen(self):
         """

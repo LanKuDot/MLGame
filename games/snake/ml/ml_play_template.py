@@ -16,7 +16,17 @@ class MLPlay:
         if scene_info["status"] == "GAME_OVER":
             return "RESET"
 
-        return "RIGHT"
+        snake_head = scene_info["snake_head"]
+        food = scene_info["food"]
+
+        if snake_head[0] > food[0]:
+            return "LEFT"
+        elif snake_head[0] < food[0]:
+            return "RIGHT"
+        elif snake_head[1] > food[1]:
+            return "UP"
+        elif snake_head[1] < food[1]:
+            return "DOWN"
 
     def reset(self):
         """

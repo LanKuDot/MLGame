@@ -46,12 +46,12 @@ class Scene:
         """
         while True:
             candidate_pos = (
-                (random.randrange(0, Scene.area_rect.width, 10),
-                 random.randrange(0, Scene.area_rect.height, 10)))
+                random.randrange(0, Scene.area_rect.width, 10),
+                random.randrange(0, Scene.area_rect.height, 10))
 
             if (candidate_pos != self._snake.head_pos and
-               not self._snake.is_body_pos(candidate_pos)):
-                   break
+                not self._snake.is_body_pos(candidate_pos)):
+                break
 
         self._food.pos = candidate_pos
 
@@ -87,7 +87,7 @@ class Scene:
             self._draw_group.add(new_body)
 
         if (not Scene.area_rect.collidepoint(self._snake.head_pos) or
-           self._snake.is_body_pos(self._snake.head_pos)):
+            self._snake.is_body_pos(self._snake.head_pos)):
             self._status = GameStatus.GAME_OVER
 
         return self._status
