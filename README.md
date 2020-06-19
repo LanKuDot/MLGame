@@ -4,6 +4,8 @@ A platform for applying machine learning algorithm to play pixel games
 
 MLGame separates the machine learning part from the game core, which makes users easily apply codes to play the game. (Support non-python script as the client. Check [here](mlgame/crosslang/README.md) for more information.)
 
+For the concept and the API of the MLGame, visit the [wiki page](https://github.com/LanKuDot/MLGame/wiki) of this repo (written in Traditional Chinese).
+
 ## Requirements
 
 * Python 3.6+
@@ -86,6 +88,9 @@ class Game:
 
     def get_player_scene_info(self):
         ...
+
+    def get_keyboard_command(self):
+        ...
 ```
 
 * `__init__(game_param_1, game_param_2, ...)`: The initialization of the game class. The game parameters specified in the command line will be passed to it.
@@ -93,7 +98,9 @@ class Game:
   * If it's a multiplayer game, commands received from different players will be collected into a list and pass the list to `command` parameter.
   * If there is no returned value from `update()`, the game keeps going. If a string `"RESET"` is returned, the executor will invoke `reset()` to reset the game for the next round. If a string `"QUIT"` is returned, the game will be exited.
 * `reset()`: Reset the game.
-* `get_player_scene_info`: Get the scene information to be sent to the machine learning process.
+* `get_player_scene_info()`: Get the scene information to be sent to the machine learning process.
+* `get_keyboard_command()`: Get commands according to pressed keys. This function is used in the manual mode.
+  * Its return value will be passed to `update()` directly, therefore, the format of the returned commands should be the same as the machine learning mode.
 
 #### `MLPlay` class
 
