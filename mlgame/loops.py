@@ -226,6 +226,11 @@ class MLExecutor:
         except Exception as e:
             exception = MLProcessError(self._name, traceback.format_exc())
             self._comm_manager.send_to_game(exception)
+        except SystemExit:  # Catch the exception made by 'sys.exit()'
+            exception = MLProcessError(self._name,
+                "The process '{}' is exited by itself. {}"
+                .format(self._name, traceback.format_exc()))
+            self._comm_manager.send_to_game(exception)
 
     def _loop(self):
         """
