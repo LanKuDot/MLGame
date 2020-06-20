@@ -2,6 +2,18 @@
 
 The format is modified from [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+### [Beta 7.1.3] - 2020.06.20
+
+**Fixed**
+
+* Handle the exception of `SystemExit`
+* Handle the situation of reseting the ml executor before the game ends
+  * The game executor will ignore the ready command.
+
+**Changed**
+
+* Optimize the checking of the received object from either side
+
 ### [Beta 7.1.2] - 2020.06.19
 
 **Fixed**
