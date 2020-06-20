@@ -261,7 +261,7 @@ class MLCommManager:
 
             obj = self._comm_to_game.recv()
             self._obj_queue.put(obj)
-            if not obj:
+            if obj is None: # Received `None` from the game, quit the loop.
                 break
 
     def recv_from_game(self):

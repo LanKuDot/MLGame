@@ -238,7 +238,7 @@ class MLExecutor:
         self._ml_ready()
         while True:
             scene_info = self._comm_manager.recv_from_game()
-            if not scene_info:
+            if scene_info is None:
                 break
             command = ml.update(scene_info)
 
