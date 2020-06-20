@@ -161,7 +161,7 @@ class GameMLModeExecutor:
         cmd_list = []
         for ml_name in self._ml_names:
             cmd_received = game_cmd_dict[ml_name]
-            if cmd_received:
+            if isinstance(cmd_received, dict):
                 self._check_delay(ml_name, cmd_received["frame"])
                 cmd_list.append(cmd_received["command"])
             else:
