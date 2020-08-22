@@ -30,7 +30,8 @@ $ python MLGame.py [options] <game> [game_params]
   * `-m`: Play the game in the manual mode (as a normal game)
   * `-1`: Quit the game when the game is over or is passed. Otherwise, the game will restart automatically.
   * `-r`: Pickle the game progress (a list of "SceneInfo") to log files.
-  * `-i SCRIPT [-i SCRIPT ...]`: Specify the script used in the machine learning mode. For multiple scripts, use this flag multiple times. The script must have class `MLPlay` and be put in the `games/<game>/ml/` directory.
+  * `-i SCRIPT [-i SCRIPT ...]`: Specify the script used in the machine learning mode. For multiple scripts, use this flag multiple times.
+    The script path starts from `games/<game_name>/ml/` direcotry. `-i ml_play.py` means the file is at `games/<game_name>/ml/ml_play.py`, and `-i foo/ml_play.py` means the file is at `games/<game_name>/ml/foo/ml_play.py`. If the file is in the subdirectory of the `ml` directory, make sure that the subdirectory has a `__init__.py` file.
 
 **Game execution options must be specified before &lt;game&gt; arguments.** Use `python MLGame.py -h` for more information.
 
