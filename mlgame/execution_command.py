@@ -1,6 +1,7 @@
 from argparse import ArgumentParser, REMAINDER
 from enum import Enum, auto
-import os.path
+from pathlib import Path
+import re
 
 from ._version import version
 from .exceptions import ExecutionCommandError
@@ -116,14 +117,14 @@ class ExecutionCommand:
         if not input_scripts:
             return []
 
-        top_dir_path = os.path.dirname(os.path.dirname(__file__))
+        top_dir_path = Path(__file__).parent.parent
         module_list = []
 
         for script_name in input_scripts:
-            local_script_path = os.path.join("games", self.game_name, "ml", script_name)
-            full_script_path = os.path.join(top_dir_path, local_script_path)
+            local_script_path = Path("games", self.game_name, "ml", script_name)
+            full_script_path = top_dir_path / local_script_path
 
-            if not os.path.exists(full_script_path):
+            if not full_script_path.exists():
                 raise ExecutionCommandError(
                     "The script '{}' does not exist. "
                     "Cannot start the game in the machine learning mode."
@@ -131,12 +132,13 @@ class ExecutionCommand:
 
             # If the assigned script is not a python file,
             # pack the crosslang client and the script into a tuple for futher handling.
-            path_no_ext, extension = os.path.splitext(script_name)
-            if extension != ".py":
-                module_list.append(("mlgame.crosslang.ml_play", full_script_path))
+            if full_script_path.suffix != ".py":
+                module_list.append(("mlgame.crosslang.ml_play", full_script_path.__str__()))
             else:
+                # Replace the file path seperator with the dot
+                sub_module = re.sub(r'[\\/]', r'.', script_name)
                 module_list.append("games.{}.ml.{}"
-                    .format(self.game_name, script_name.split('.py')[0]))
+                    .format(self.game_name, sub_module.split('.py')[0]))
 
         return module_list
 
