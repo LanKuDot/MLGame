@@ -1,7 +1,4 @@
-# The mapping of file extension to the supported language
-EXTESION_LANG_MAP = {
-    ".cpp": "cpp"
-}
+from .ext_lang_map import EXTESION_LANG_MAP
 
 import importlib
 import os.path
