@@ -209,7 +209,7 @@ def ml_loop():
 
 View [CHANGELOG.md](./CHANGELOG.md)
 
-## README of the Game
+## README of Games
 
 * [arkanoid](games/arkanoid/README.md)
 * [pingpong](games/pingpong/README.md)
