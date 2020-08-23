@@ -2,6 +2,21 @@
 
 The format is modified from [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+### [Beta 7.2] - 2020.08.23
+
+**Fixed**
+
+* The game could not be closed when running non-python client
+
+**Changed**
+
+* `-i/--input-script` supports specifying the file in the subdirectory
+  * For example, `-i foo/ml_play.py` means the file is at `games/<game_name>/ml/foo/ml_play.py`
+
+**Removed**
+
+* Remove `--input-module` flag
+
 ### [Beta 7.1.3] - 2020.06.20
 
 **Fixed**
