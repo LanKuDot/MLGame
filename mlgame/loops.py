@@ -261,6 +261,10 @@ class MLExecutor:
 
             self._frame_count += 1
 
+        # Stop the client of the crosslang module
+        if self._target_module == "mlgame.crosslang.ml_play":
+            ml.stop_client()
+
     def _ml_ready(self):
         """
         Send a "READY" command to the game process

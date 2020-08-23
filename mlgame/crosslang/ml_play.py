@@ -42,3 +42,9 @@ class MLPlay:
             raise command
 
         return command
+
+    def stop_client(self):
+        """
+        Stop the client
+        """
+        self._client.terminate()
