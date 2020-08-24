@@ -41,7 +41,7 @@ from pathlib import Path
 from mlgame.crosslang.exceptions import CompilationError
 
 def compile_script(script_full_path):
-    
+
     # Code for handling the source code #
 
     # Raise CompilationError if an error occurred
