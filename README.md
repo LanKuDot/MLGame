@@ -10,6 +10,7 @@ For the concept and the API of the MLGame, visit the [wiki page](https://github.
 
 * Python 3.6+
 * pygame==1.9.6
+  * pygame==2.0.0 if installs on mac
 * Other machine learning libraries you needed
 
 ## Usage
