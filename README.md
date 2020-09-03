@@ -9,7 +9,7 @@ For the concept and the API of the MLGame, visit the [wiki page](https://github.
 ## Requirements
 
 * Python 3.6+
-* pygame==1.9.6
+* pygame==1.9.6+
   * pygame==2.0.0 if installs on mac
 * Other machine learning libraries you needed
 
@@ -53,60 +53,37 @@ For example:
   $ python MLGame.py -m -f 45 arkanoid EASY 3
   ```
 
-* Play the game arkanoid level 2 on normal difficulty, record the game progress, and specify the script ml_play_template.py
+* Play the game arkanoid level 2 on normal difficulty, record the game progress, and specify the script `ml_play_template.py`
 
   ```
   $ python MLGame.py -r -i ml_play_template.py arkanoid NORMAL 2
   ```
 
-## Machine Learning Mode
+## Play the Game
 
-If `-m` flag is **not** specified, the game will execute in the machine learning mode. In the machine learning mode, the main process will generate two new processes, one is for executing the game core (called game process), the other one is for executing the machine learning code (called ml process). They use pipes to communicate with each other.
+In default, the game is executed in the machine learning mode. You could play the game in the manual mode by specifying `-m` flag.
 
-![Imgur](https://i.imgur.com/xrkYm46.png)
+In the machine learning mode, you have to provide the script to play the game, which is put in the `games/<game_name>/ml` directory. For example, if there is a file `ml_play.py` in the `games/arkanoid/ml` directory, by specifying the `-i ml_play.py` in the command to use that file to play the game `arkanoid`.
 
-Scene information is an object (such as dictionary) that stores the game status and the position of gameobjects in the scene. Game command is an object that stores the command for controlling the gameobject (such as a platform). The format of the scene information and the command are defined by game.
+The games in this repository provide `ml_play_template.py` in their `ml` directory, which contains simple code for playing the game. You could duplicate the script and modify it, or use this file for the first time execution.
 
-Below is an overview of the relationship between executor and class.
+### Read Instruction
 
-### Executor and Class
+The game provides README files for detailed information, such as:
 
-The executor runs a loop for executing the game or the machine learning code, and invokes member functions of the game class or the `MLPlay` class for passing the received object to the function or sending the object returned from the function.
+* How to execute and play the game
+* The information of game objects
+* The format of the scene information and the game command
 
-#### Game class
+Here are README of games:
 
-Here is a template of the game class:
+* [arkanoid](games/arkanoid/README.md)
+* [pingpong](games/pingpong/README.md)
+* [snake](games/snake/README.md)
 
-```python
-class Game:
-    def __init__(self, game_param_1, game_param_2, ...):
-        ...
+### `MLPlay` class
 
-    def update(self, command):
-        ...
-
-    def reset(self):
-        ...
-
-    def get_player_scene_info(self):
-        ...
-
-    def get_keyboard_command(self):
-        ...
-```
-
-* `__init__(game_param_1, game_param_2, ...)`: The initialization of the game class. The game parameters specified in the command line will be passed to it.
-* `update(command)`: Update the game according to the received command.
-  * If it's a multiplayer game, commands received from different players will be collected into a list and pass the list to `command` parameter.
-  * If there is no returned value from `update()`, the game keeps going. If a string `"RESET"` is returned, the executor will invoke `reset()` to reset the game for the next round. If a string `"QUIT"` is returned, the game will be exited.
-* `reset()`: Reset the game.
-* `get_player_scene_info()`: Get the scene information to be sent to the machine learning process.
-* `get_keyboard_command()`: Get commands according to pressed keys. This function is used in the manual mode.
-  * Its return value will be passed to `update()` directly, therefore, the format of the returned commands should be the same as the machine learning mode.
-
-#### `MLPlay` class
-
-Here is a template of the game class:
+The scripts for playing the game must have a `MLPlay` class and provide the corresponding functions. Here is a template of the `MLPlay` class:
 
 ```python
 class MLPlay:
@@ -116,23 +93,17 @@ class MLPlay:
     def update(self, scene_info):
         ...
 
-    def reset():
+    def reset(self):
         ...
 ```
 
-* `__init__(init_arg_1, init_arg_2, ...)`: The initialization of `MLPlay` class. The initial arguments sent from the game will be passed to it.
-* `update(scene_info)`: Generate the game command according to the received scene information.
-  * The format of game command is defined by the game.
-  * If the returned value is a string `"RESET"`, `reset()` will be invoked.
-* `reset()`: Do reset stuffs.
-
-#### Execution Order
-
-![Imgur](https://i.imgur.com/Ye3llUy.png)
-
-The yellow blocks are the member functions of the game class or the `MLPlay` class which are invoked by the executor. Note that the game executor won't wait for the ml executor (except for the initialization or the resetting). Therefore, if the ml executor cannot send a game command in time, the command will be consumed in the next frame in the game executor, which is "delayed". Futhermore, when the game is over, the returned scene information must contain the game over status for the `MLPlay` class to inform the ml executor to reset.
-
-The example script for the `MLPlay` class is in the file `games/<game>/ml/ml_play_template.py`, which is a class that simply returns the same command in `update()`.
+* `__init__(self, init_arg_1, init_arg_2, ...)`: The initialization of `MLPlay` class, such as loading trained module or initializing the member variables
+  * `init_arg_x`: The initial arguments sent from the game.
+* `update(self, scene_info) -> command or "RESET"`: Handle the received scene information and generate the game command
+  * `scene_info`: The scene information sent from the game.
+  * `command`: The game command sent back to the game.
+  * If the `scene_info` contains a game over message, return `"RESET"` instead to make MLGame invoke `reset()`.
+* `reset(self)`: Do some reset stuffs for the next game round
 
 ### Non-python Client Support
 
@@ -140,11 +111,11 @@ MLGame supports that a non-python script runs as a ml client. For the supported 
 
 ## Log Game Progress
 
-If `-r` flag is specified, the game progress will be logged into a file. When a game round is ended, the game progress is dumped to a file `<prefix>_<timestamp>.pickle` by using `pickle.dump()`. The prefix of the filename contains the game mode and game parameters, such as `ml_EASY_2_<timestamp>.pickle`. The file is saved in `games/<game>/log/` directory. These log files can be used to train the model.
+If `-r` flag is specified, the game progress will be logged into a file, which is saved in `games/<game_name>/log/` directory. When a game round is ended, a file `<prefix>_<timestamp>.pickle` is generated. The prefix of the filename contains the game mode and game parameters, such as `ml_EASY_2_2020-09-03_08-05-23.pickle`. These log files can be used to train the model.
 
 ### Format
 
-The dumped game progress is a dictionary with two keys. The first key is `"scene_info"` whose value is a list of scene informations sent from the game process. The second key is `"command"` whose value is a list of commands sent from the ml process, but the last element of it is always `None` (Because there is no command to be sent when the game is over). If the game is a multiplayer game, each element in the list of the `"command"` is a list storing the commands returned by different players.
+The dumped game progress is a dictionary with two members - `"scene_info"` and `"command"`. The scene information received from the game will be stored in a list which is the value of `"scene_info"`. The command sent to the game will be also stored in a list which is the value of `"command"`, but the last element of the list is always `None` (Because there is no command to be sent when the game is over). If the game is a multiplayer game, each element in the list of the `"command"` is a list storing the commands returned by different players.
 
 The game progress of the single player game will be like:
 
@@ -186,7 +157,7 @@ if __name__ == "__main__":
     print_log()
 ```
 
-For the non-python client, it may need to write a python script to read the record file and convert the game progess to other format (such as plain text) for the non-python client to read.
+> For the non-python client, it may need to write a python script to read the record file and convert the game progess to other format (such as plain text) for the non-python client to read.
 
 ### Access Trained Data
 
@@ -198,20 +169,16 @@ For example, there are two files `ml_play.py` and `trained_data.sav` in the same
 import os.path
 import pickle
 
-def ml_loop():
-    dir_path = os.path.dirname(__file__)  # Get the absolute path of the directory of this file in
-    data_file_path = os.path.join(dir_path, "trained_data.sav")
+class MLPlay:
+    def __init__(self):
+        # Get the absolute path of the directory where this file is in
+        dir_path = os.path.dirname(__file__)
+        data_file_path = os.path.join(dir_path, "trained_data.sav")
 
-    with open(data_file_path, "rb") as f:
-        data = pickle.load(f)
+        with open(data_file_path, "rb") as f:
+            data = pickle.load(f)
 ```
 
 ## Change Log
 
 View [CHANGELOG.md](./CHANGELOG.md)
-
-## README of Games
-
-* [arkanoid](games/arkanoid/README.md)
-* [pingpong](games/pingpong/README.md)
-* [snake](games/snake/README.md)
