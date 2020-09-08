@@ -39,7 +39,7 @@ public:
         cout << init_args << endl;
     }
 
-    json update(json scene_info)
+    json update(json scene_info) override
     {
         json command;
 
@@ -58,7 +58,7 @@ public:
         return command;
     }
 
-    void reset()
+    void reset() override
     {
         this -> is_ball_served = false;
     }
