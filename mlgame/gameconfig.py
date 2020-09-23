@@ -95,6 +95,12 @@ class GameConfig:
             raise GameConfigError("Missing '{}' in the 'GAME_SETUP' of the game config"
                 .format(e))
 
+        for client in ml_clients:
+            client_name = client.get("name", "")
+            if not client_name:
+                raise GameConfigError("Missing 'name' in the 'ml_clients' of the 'GAME_SETUP' "
+                    "of the game config")
+
         if not self.game_setup.get("dynamic_ml_clients"):
             self.game_setup["dynamic_ml_clients"] = False
 
