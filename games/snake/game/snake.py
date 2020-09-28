@@ -28,9 +28,9 @@ class Snake:
         """
         Update the game
         """
-        # Get the command from the cmd_list
-        command = (SnakeAction(command)
-            if command in SnakeAction.__members__ else SnakeAction.NONE)
+        # Convert the command
+        command = (SnakeAction(command["ml"])
+            if command["ml"] in SnakeAction.__members__ else SnakeAction.NONE)
 
         # Pass the command to the scene and get the status
         game_status = self._scene.update(command)
@@ -69,7 +69,7 @@ class Snake:
         """
         Get the scene information to be sent to the player
         """
-        return self._scene.get_scene_info()
+        return {"ml": self._scene.get_scene_info()}
 
     def get_keyboard_command(self):
         """
@@ -77,12 +77,13 @@ class Snake:
         """
         key_pressed_list = pygame.key.get_pressed()
 
-        if key_pressed_list[pygame.K_UP]:     return "UP"
-        if key_pressed_list[pygame.K_DOWN]:   return "DOWN"
-        if key_pressed_list[pygame.K_LEFT]:   return "LEFT"
-        if key_pressed_list[pygame.K_RIGHT]:  return "RIGHT"
+        if   key_pressed_list[pygame.K_UP]:     command = "UP"
+        elif key_pressed_list[pygame.K_DOWN]:   command = "DOWN"
+        elif key_pressed_list[pygame.K_LEFT]:   command = "LEFT"
+        elif key_pressed_list[pygame.K_RIGHT]:  command = "RIGHT"
+        else: command = "NONE"
 
-        return "NONE"
+        return {"ml": command}
 
     def get_game_info(self):
         return {

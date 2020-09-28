@@ -22,11 +22,11 @@ class PingPong:
         self._font_pos_speed = (self._surface.get_width() - 120,
             self._surface.get_height() - 21)
 
-    def update(self, cmd_list):
-        command_1P = (PlatformAction(cmd_list[0])
-            if cmd_list[0] in PlatformAction.__members__ else PlatformAction.NONE)
-        command_2P = (PlatformAction(cmd_list[1])
-            if cmd_list[1] in PlatformAction.__members__ else PlatformAction.NONE)
+    def update(self, command):
+        command_1P = (PlatformAction(command["ml_1P"])
+            if command["ml_1P"] in PlatformAction.__members__ else PlatformAction.NONE)
+        command_2P = (PlatformAction(command["ml_2P"])
+            if command["ml_2P"] in PlatformAction.__members__ else PlatformAction.NONE)
 
         game_status = self._scene.update(command_1P, command_2P)
         self._draw_screen()
@@ -98,7 +98,8 @@ class PingPong:
         """
         Get the scene information to be sent to the player
         """
-        return self._scene.get_scene_info()
+        scene_info = self._scene.get_scene_info()
+        return {"ml_1P": scene_info, "ml_2P": scene_info}
 
     def get_keyboard_command(self):
         """
@@ -118,7 +119,7 @@ class PingPong:
         elif key_pressed_list[pygame.K_d]:  cmd_2P = "MOVE_RIGHT"
         else: cmd_2P = "NONE"
 
-        return [cmd_1P, cmd_2P]
+        return {"ml_1P": cmd_1P, "ml_2P": cmd_2P}
 
     def get_game_info(self):
         return {

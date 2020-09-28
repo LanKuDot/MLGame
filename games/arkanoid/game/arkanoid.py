@@ -23,8 +23,8 @@ class Arkanoid:
         """
         Update the game
         """
-        command = (PlatformAction(command)
-            if command in PlatformAction.__members__ else PlatformAction.NONE)
+        command = (PlatformAction(command["ml"])
+            if command["ml"] in PlatformAction.__members__ else PlatformAction.NONE)
 
         game_status = self._scene.update(command)
         self._draw_screen()
@@ -58,7 +58,7 @@ class Arkanoid:
         """
         Get the scene information to be sent to the player
         """
-        return self._scene.get_scene_info()
+        return {"ml": self._scene.get_scene_info()}
 
     def get_keyboard_command(self):
         """
@@ -66,12 +66,13 @@ class Arkanoid:
         """
         key_pressed_list = pygame.key.get_pressed()
 
-        if key_pressed_list[pygame.K_a]:     return "SERVE_TO_LEFT"
-        if key_pressed_list[pygame.K_d]:     return "SERVE_TO_RIGHT"
-        if key_pressed_list[pygame.K_LEFT]:  return "MOVE_LEFT"
-        if key_pressed_list[pygame.K_RIGHT]: return "MOVE_RIGHT"
+        if   key_pressed_list[pygame.K_a]:     command = "SERVE_TO_LEFT"
+        elif key_pressed_list[pygame.K_d]:     command = "SERVE_TO_RIGHT"
+        elif key_pressed_list[pygame.K_LEFT]:  command = "MOVE_LEFT"
+        elif key_pressed_list[pygame.K_RIGHT]: command = "MOVE_RIGHT"
+        else: command = "NONE"
 
-        return "NONE"
+        return {"ml": command}
 
     def get_game_info(self):
         """

@@ -149,10 +149,9 @@ def _get_game_executor_propty(
     ml_names = []
     for client in ml_clients:
         ml_names.append(client["name"])
-    dynamic_ml_clients = game_setup["dynamic_ml_clients"]
 
     return GameMLModeExecutorProperty(
-        "game", execution_cmd, game_cls, ml_names, dynamic_ml_clients)
+        "game", execution_cmd, game_cls, ml_names)
 
 def _get_ml_executor_propties(execution_cmd: ExecutionCommand, game_setup) -> list:
     """
