@@ -1,7 +1,7 @@
 import pickle
 import time
-import os
 
+from pathlib import Path
 from .execution_command import GameMode
 
 RECORD_FORMAT_VERSION = 2
@@ -13,9 +13,9 @@ def get_recorder(execution_cmd, ml_names):
     if not execution_cmd.record_progress:
         return DummyRecorder()
 
-    root_dir_path = os.path.dirname(os.path.dirname(__file__))
-    log_dir_path = os.path.join(
-        root_dir_path, "games", execution_cmd.game_name, "log")
+    root_dir_path = Path(__file__).parent.parent
+    log_dir_path = root_dir_path.joinpath(
+        "games", execution_cmd.game_name, "log")
 
     game_params_str = [str(p) for p in execution_cmd.game_params]
     filename_prefix = (
@@ -29,7 +29,9 @@ class Recorder:
     """
     Record the scene information and the game command to the file
     """
-    def __init__(self, ml_names: list, saving_directory: str, filename_prefix: str = ""):
+    def __init__(
+            self, ml_names: list, saving_directory: Path,
+            filename_prefix: str = ""):
         """
         Constructor
 
@@ -39,7 +41,9 @@ class Recorder:
                The filename will be "<prefix>_YYYY-MM-DD_hh-mm-ss.pickle".
         """
         self._saving_directory = saving_directory
-        self._create_directory()
+        if not self._saving_directory.exists():
+            self._saving_directory.mkdir()
+
         if not isinstance(filename_prefix, str):
             raise TypeError("'filename_prefix' should be the type of 'str'")
         self._filename_prefix = filename_prefix
@@ -55,10 +59,6 @@ class Recorder:
             }
         self._game_progress = game_progress
         self._ml_names = ml_names
-
-    def _create_directory(self):
-        if not os.path.exists(self._saving_directory):
-            os.mkdir(self._saving_directory)
 
     def record(self, scene_info_dict: dict, cmd_dict: dict):
         """
@@ -83,7 +83,7 @@ class Recorder:
         if self._filename_prefix:
             filename = self._filename_prefix + "_" + filename
 
-        filepath = os.path.join(self._saving_directory, filename)
+        filepath = self._saving_directory.joinpath(filename)
         with open(filepath, "wb") as f:
             pickle.dump(self._game_progress, f)
 
