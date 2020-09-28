@@ -54,9 +54,8 @@ def compile_script(script_full_path):
     if error_occurred:
         raise CompilationError(Path(script_full_path).name, reason)
 
-    # Generate the execution command stored in a list object #
-    # A word is an element. For example, ["command", "path/to/file", "--foo", "--bar"] #
-    return [excution_cmd]
+    # Generate the command segments stored in a list object #
+    return ["commnd", "path/to/file", "--foo", "--bar"]
 ```
 The method `compile_script` is used for handling the source code, and `script_full_path` is a string storing the full path to the code. If it will generate additional files, it is recommended that put them in the same directory as the source code. The returned object is a list storing the execution command.
 

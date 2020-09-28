@@ -11,7 +11,7 @@ def compile_script(script_full_path):
     `EXTENSION_LANG_MAP` for compiling the script.
 
     @param script_full_path The full path of the target script
-    @return The execution command of the executable
+    @return A list of command segments for executing the executable
     """
     path_no_ext, extension = os.path.splitext(script_full_path)
     compilation_module = importlib.import_module(

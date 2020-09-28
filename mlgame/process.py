@@ -7,50 +7,25 @@ from .exceptions import ProcessError
 
 class ProcessManager:
     """
-    Create and manage the processes, and set up communication channels between them
+    Create and manage processes for executing the game and the ml clients
 
     @var _game_proc_helper The helper object for the game process
     @var _ml_proc_helpers A list storing helper objects for all ml processes
     @var _ml_proces A list storing process objects running ml processes
     """
 
-    def __init__(self):
-        self._game_executor_propty = None
-        self._ml_executor_propties = []
+    def __init__(
+            self, game_executor_propty: GameMLModeExecutorProperty,
+            ml_executor_propties: list):
+        """
+        Constructor
+
+        @param game_executor_propty The property for the game executor
+        @param ml_executor_proties A list of `MLExecutorProperty` for the ml executors
+        """
+        self._game_executor_propty = game_executor_propty
+        self._ml_executor_propties = ml_executor_propties
         self._ml_procs = []
-
-    def set_game_process(self, execution_cmd, game_cls, ml_names, dynamic_ml_clients):
-        """
-        Set the game process
-
-        @param execution_cmd A `ExecutionCommand` object that contains execution config
-        @param game_cls The class of the game to be executed
-        @param ml_names The name of all ml clients
-        @param dynamic_ml_clients Whether the number of ml clients is dynamic
-        """
-        self._game_executor_propty = GameMLModeExecutorProperty(
-            "game", execution_cmd, game_cls, ml_names, dynamic_ml_clients)
-
-    def add_ml_process(self, name, target_module, init_args = (), init_kwargs = {}):
-        """
-        Add a ml process
-
-        @param name The name of the ml process
-               If it is not specified, it will be "ml_0", "ml_1", and so on.
-        @param target_module The full name of the module
-               to be executed in the ml process. The module must have `MLPlay` class.
-        @param init_args The positional arguments to be passed to the `MLPlay.__init__()`
-        @param init_kwargs The keyword arguments to be passed to the `MLPlay.__init__()`
-        """
-        if name == "":
-            name = "ml_" + str(len(self._ml_executor_propties))
-
-        for propty in self._ml_executor_propties:
-            if name == propty.name:
-                raise ValueError("The name '{}' has been used.".format(name))
-
-        propty = MLExecutorProperty(name, target_module, init_args, init_kwargs)
-        self._ml_executor_propties.append(propty)
 
     def start(self):
         """
