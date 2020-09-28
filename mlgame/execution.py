@@ -107,9 +107,14 @@ def _run_manual_mode(execution_cmd: ExecutionCommand, game_setup):
     from .loops import GameManualModeExecutor
     from .exceptions import GameProcessError
 
+    # Collect ml names
+    ml_names = []
+    for client in game_setup["ml_clients"]:
+        ml_names.append(client["name"])
+
     game_cls = game_setup["game"]
     try:
-        executor = GameManualModeExecutor(execution_cmd, game_cls)
+        executor = GameManualModeExecutor(execution_cmd, game_cls, ml_names)
         executor.start()
     except GameProcessError as e:
         print("Error: Exception occurred in 'game' process:")
@@ -129,10 +134,13 @@ def _run_ml_mode(execution_cmd: ExecutionCommand, game_setup):
 
     game_cls = game_setup["game"]
     ml_clients = game_setup["ml_clients"]
+    ml_names = []
+    for client in ml_clients:
+        ml_names.append(client["name"])
     dynamic_ml_clients = game_setup["dynamic_ml_clients"]
 
     # Set game process
-    process_manager.set_game_process(execution_cmd, game_cls, dynamic_ml_clients)
+    process_manager.set_game_process(execution_cmd, game_cls, ml_names, dynamic_ml_clients)
 
     # Set ml processes
     for i in range(len(ml_clients)):

@@ -15,9 +15,10 @@ class GameManualModeExecutor:
     """
     The loop executor for the game process running in manual mode
     """
-    def __init__(self, execution_cmd, game_cls):
+    def __init__(self, execution_cmd, game_cls, ml_names):
         self._execution_cmd = execution_cmd
         self._game_cls = game_cls
+        self._ml_names = ml_names
         self._frame_interval = 1 / self._execution_cmd.fps
         self._recorder = get_recorder(execution_cmd.game_name,
             execution_cmd.game_params, execution_cmd.game_mode,
@@ -60,18 +61,20 @@ class GameMLModeExecutorProperty:
     """
     The data class that helps build `GameMLModeExecutor`
     """
-    def __init__(self, proc_name, execution_cmd, game_cls, dynamic_ml_clients):
+    def __init__(self, proc_name, execution_cmd, game_cls, ml_names, dynamic_ml_clients):
         """
         Constructor
 
         @param proc_name The name of the process
         @param execution_cmd A `ExecutionCommand` object that contains execution config
         @param game_cls The class of the game to be executed
+        @param ml_names The name of all ml clients
         @param dynamic_ml_clients Whether the number of ml clients is dynamic
         """
         self.proc_name = proc_name
         self.execution_cmd = execution_cmd
         self.game_cls = game_cls
+        self.ml_names = ml_names
         self.dynamic_ml_clients = dynamic_ml_clients
         self.comm_manager = GameCommManager()
 
@@ -83,18 +86,22 @@ class GameMLModeExecutor:
         self._proc_name = propty.proc_name
         self._execution_cmd = propty.execution_cmd
         self._game_cls = propty.game_cls
+        self._ml_names = propty.ml_names
         self._dynamic_ml_clients = propty.dynamic_ml_clients
         self._comm_manager = propty.comm_manager
 
-        self._ml_names = self._comm_manager.get_ml_names()
+        # Get the active ml names from the created ml processes
+        self._active_ml_names = self._comm_manager.get_ml_names()
         self._ml_execution_time = 1 / self._execution_cmd.fps
         self._ml_delayed_frames = {}
-        for name in self._ml_names:
+        for name in self._active_ml_names:
             self._ml_delayed_frames[name] = 0
         self._recorder = get_recorder(self._execution_cmd.game_name,
             self._execution_cmd.game_params, self._execution_cmd.game_mode,
             self._execution_cmd.record_progress)
         self._frame_count = 0
+
+        print(self._ml_names)
 
     def start(self):
         """
@@ -137,7 +144,7 @@ class GameMLModeExecutor:
 
                 game.reset()
                 self._frame_count = 0
-                for name in self._ml_names:
+                for name in self._active_ml_names:
                     self._ml_delayed_frames[name] = 0
                 self._wait_all_ml_ready()
 
@@ -146,7 +153,7 @@ class GameMLModeExecutor:
         Wait until receiving "READY" commands from all ml processes
         """
         # Wait the ready command one by one
-        for ml_name in self._ml_names:
+        for ml_name in self._active_ml_names:
             while self._comm_manager.recv_from_ml(ml_name) != "READY":
                 pass
 
@@ -159,7 +166,7 @@ class GameMLModeExecutor:
         game_cmd_dict = self._comm_manager.recv_from_all_ml()
 
         cmd_list = []
-        for ml_name in self._ml_names:
+        for ml_name in self._active_ml_names:
             cmd_received = game_cmd_dict[ml_name]
             if isinstance(cmd_received, dict):
                 self._check_delay(ml_name, cmd_received["frame"])

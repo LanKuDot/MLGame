@@ -19,16 +19,17 @@ class ProcessManager:
         self._ml_executor_propties = []
         self._ml_procs = []
 
-    def set_game_process(self, execution_cmd, game_cls, dynamic_ml_clients):
+    def set_game_process(self, execution_cmd, game_cls, ml_names, dynamic_ml_clients):
         """
         Set the game process
 
         @param execution_cmd A `ExecutionCommand` object that contains execution config
         @param game_cls The class of the game to be executed
+        @param ml_names The name of all ml clients
         @param dynamic_ml_clients Whether the number of ml clients is dynamic
         """
         self._game_executor_propty = GameMLModeExecutorProperty(
-            "game", execution_cmd, game_cls, dynamic_ml_clients)
+            "game", execution_cmd, game_cls, ml_names, dynamic_ml_clients)
 
     def add_ml_process(self, name, target_module, init_args = (), init_kwargs = {}):
         """
