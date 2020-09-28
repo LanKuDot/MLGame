@@ -156,8 +156,14 @@ class GameMLModeExecutor:
         @return A dict of the recevied command from the ml clients
                 If the client didn't send the command, it will be `None`.
         """
-        for ml_name in self._active_ml_names:
-            self._comm_manager.send_to_ml(scene_info_dict[ml_name], ml_name)
+        try:
+            for ml_name in self._active_ml_names:
+                self._comm_manager.send_to_ml(scene_info_dict[ml_name], ml_name)
+        except KeyError as e:
+            raise KeyError(
+                "The game doesn't provide scene information "
+                f"for the client '{ml_name}'")
+
         time.sleep(self._ml_execution_time)
         response_dict = self._comm_manager.recv_from_all_ml()
 
