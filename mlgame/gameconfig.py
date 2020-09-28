@@ -92,19 +92,27 @@ class GameConfig:
             game_cls = self.game_setup["game"]
             ml_clients = self.game_setup["ml_clients"]
         except KeyError as e:
-            raise GameConfigError("Missing '{}' in the 'GAME_SETUP' of the game config"
-                .format(e))
+            raise GameConfigError(
+                f"Missing '{e}' in 'GAME_SETUP' in 'config.py'")
 
+        # Check if the specified name is existing or duplicated
+        ml_names = []
         for client in ml_clients:
             client_name = client.get("name", "")
             if not client_name:
-                raise GameConfigError("Missing 'name' in the 'ml_clients' of the 'GAME_SETUP' "
-                    "of the game config")
+                raise GameConfigError(
+                    "'name' in 'ml_clients' of 'GAME_SETUP' "
+                    "in 'config.py' is empty or not existing")
+            if client_name in ml_names:
+                raise GameConfigError(
+                    f"Duplicated name '{client_name}' in 'ml_clients' of 'GAME_SETUP' "
+                    "in 'config.py'")
+            ml_names.append(client_name)
 
         if not self.game_setup.get("dynamic_ml_clients"):
             self.game_setup["dynamic_ml_clients"] = False
 
         if self.game_setup["dynamic_ml_clients"] and len(ml_clients) == 1:
-            print("Warning: 'dynamic_ml_clients' in the 'GAME_SETUP' of the game config "
+            print("Warning: 'dynamic_ml_clients' in 'GAME_SETUP' in 'config.py' "
                 "is invalid for just one ml client. Set to False.")
             self.game_setup["dynamic_ml_clients"] = False
