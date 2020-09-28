@@ -20,9 +20,7 @@ class GameManualModeExecutor:
         self._game_cls = game_cls
         self._ml_names = ml_names
         self._frame_interval = 1 / self._execution_cmd.fps
-        self._recorder = get_recorder(execution_cmd.game_name,
-            execution_cmd.game_params, execution_cmd.game_mode,
-            execution_cmd.record_progress)
+        self._recorder = get_recorder(execution_cmd, ml_names)
 
     def start(self):
         """
@@ -49,7 +47,7 @@ class GameManualModeExecutor:
 
             if result == "RESET" or result == "QUIT":
                 scene_info_dict = game.get_player_scene_info()
-                self._recorder.record(scene_info_dict, None)
+                self._recorder.record(scene_info_dict, {})
                 self._recorder.flush_to_file()
 
                 if self._execution_cmd.one_shot_mode or result == "QUIT":
@@ -93,12 +91,8 @@ class GameMLModeExecutor:
         self._ml_delayed_frames = {}
         for name in self._active_ml_names:
             self._ml_delayed_frames[name] = 0
-        self._recorder = get_recorder(self._execution_cmd.game_name,
-            self._execution_cmd.game_params, self._execution_cmd.game_mode,
-            self._execution_cmd.record_progress)
+        self._recorder = get_recorder(self._execution_cmd, self._ml_names)
         self._frame_count = 0
-
-        print(self._ml_names)
 
     def start(self):
         """
@@ -134,7 +128,7 @@ class GameMLModeExecutor:
                 scene_info_dict = game.get_player_scene_info()
                 for ml_name in self._active_ml_names:
                     self._comm_manager.send_to_ml(scene_info_dict[ml_name], ml_name)
-                self._recorder.record(scene_info_dict, None)
+                self._recorder.record(scene_info_dict, {})
                 self._recorder.flush_to_file()
 
                 if self._execution_cmd.one_shot_mode or result == "QUIT":
