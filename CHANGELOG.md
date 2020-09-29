@@ -2,6 +2,42 @@
 
 The format is modified from [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+### [Beta 8.0] - 2020.09.29
+
+**Added**
+
+* Add `"record_format_version"` field to the log file
+
+**Changed**
+
+* Change the data structure received from or sent to the game class: use a dict to store the information of each ml client. For example, the game has two players and defines the name of them as `"ml_1P"` and `"ml_2P"` in the `config.py`.
+  * The scene information returned from `get_player_scene_info()` will be:
+    ```
+    {
+        "ml_1P": scene_info_for_ml_1P,
+        "ml_2P": scene_info_for_ml_2P
+    }
+    ```
+  * The command sent to the `update()` will be:
+    ```
+    {
+        "ml_1P": command_sent_from_ml_1P,
+        "ml_2P": command_sent_from_ml_2P
+    }
+    ```
+  * And the command returned from `get_keyboard_command()` should also be:
+    ```
+    {
+        "ml_1P": command_for_ml_1P,
+        "ml_2P": command_for_ml_2P
+    }
+    ```
+* Record the scene information and command individually for each ml client in the log file
+* Update the version of built-in games
+  * arkanoid: 1.0 -> 1.1
+  * pingpong: 1.1 -> 1.2
+  * snake: 1.0 -> 1.1
+
 ### [Beta 7.2] - 2020.08.23
 
 **Fixed**
