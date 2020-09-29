@@ -109,29 +109,27 @@ class MLPlay:
 
 MLGame supports that a non-python script runs as a ml client. For the supported programming languages and how to use it, please view the [README](mlgame/crosslang/README.md) of the `mlgame.crosslang` module.
 
-## Log Game Progress
+## Record Game Progress
 
-If `-r` flag is specified, the game progress will be logged into a file, which is saved in `games/<game_name>/log/` directory. When a game round is ended, a file `<prefix>_<timestamp>.pickle` is generated. The prefix of the filename contains the game mode and game parameters, such as `ml_EASY_2_2020-09-03_08-05-23.pickle`. These log files can be used to train the model.
+If `-r` flag is specified, the game progress will be recorded into a file, which is saved in `games/<game_name>/log/` directory. When a game round is ended, a file `<prefix>_<timestamp>.pickle` is generated. The prefix of the filename contains the game mode and game parameters, such as `ml_EASY_2_2020-09-03_08-05-23.pickle`. These log files can be used to train the model.
 
 ### Format
 
-The dumped game progress is a dictionary with two members - `"scene_info"` and `"command"`. The scene information received from the game will be stored in a list which is the value of `"scene_info"`. The command sent to the game will be also stored in a list which is the value of `"command"`, but the last element of the list is always `None` (Because there is no command to be sent when the game is over). If the game is a multiplayer game, each element in the list of the `"command"` is a list storing the commands returned by different players.
+The dumped game progress is a dictionary. The first key is `"record_format_version"` which indicates the format version of the record file, and its value is 2 for the current mlgame version. The other keys are the name of ml clients which are defined by the game. Its value is also a dictionary which has two keys - `"scene_info"` and `"command"`. They sequentially stores the scene information and the command received or sent from that ml client. Note that the last element of `"command"` is always `None`, because there is no command to be sent when the game is over.
 
-The game progress of the single player game will be like:
-
-```
-{
-    "scene_info": [scene_info_0, scene_info_1, ... , scene_info_n-1, scene_info_n],
-    "command": [command_0, command_1, ... , command_n-1, None]
-}
-```
-
-And the multiplayer game:
+The game progress will be like:
 
 ```
 {
-    "scene_info": [scene_info_0, scene_info_1, ... , scene_info_n-1, scene_info_n],
-    "command": [[command_1P_0, command_2P_0], ... , [command_1P_n-1, command_2P_n-1], None]
+    "record_format_version": 2,
+    "ml_1P": {
+        "scene_info": [scene_info_0, scene_info_1, ... , scene_info_n-1, scene_info_n],
+        "command": [command_0, command_1, ... , command_n-1, None]
+    },
+    "ml_2P": {
+        "scene_info": [scene_info_0, scene_info_1, ... , scene_info_n-1, scene_info_n],
+        "command": [command_0, command_1, ... , command_n-1, None]
+    }
 }
 ```
 
@@ -149,9 +147,15 @@ def print_log():
     with open("path/to/log/file", "rb") as f:
         p = pickle.load(f)
 
-    random_id = random.randrange(len(p))
-    print("Scene information:", p["scene_info"][p])
-    print("Command:", p["command"][p])
+    print("Record format version:", p["record_format_version"])
+    for ml_name in p.keys():
+        if ml_name == "record_format_version":
+            continue
+
+        target_record = p[ml_name]
+        random_id = random.randrange(len(target_record["scene_info"]))
+        print("Scene information:", target_record["scene_info"][random_id])
+        print("Command:", target_record["command"][random_id])
 
 if __name__ == "__main__":
     print_log()
@@ -166,14 +170,14 @@ The ml script needs to load the trained data from external files. It is recommen
 For example, there are two files `ml_play.py` and `trained_data.sav` in the same ml directory:
 
 ```python
-import os.path
+from pathlib import Path
 import pickle
 
 class MLPlay:
     def __init__(self):
-        # Get the absolute path of the directory where this file is in
-        dir_path = os.path.dirname(__file__)
-        data_file_path = os.path.join(dir_path, "trained_data.sav")
+        # Get the absolute path of the directory in where this file is
+        dir_path = Path(__file__).parent
+        data_file_path = dir_path.joinpath("trained_data.sav")
 
         with open(data_file_path, "rb") as f:
             data = pickle.load(f)

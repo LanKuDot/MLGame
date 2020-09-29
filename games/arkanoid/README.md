@@ -113,6 +113,10 @@ Here are the available commands:
 * `"MOVE_RIGHT"`: Move the platform to the right
 * `"NONE"`: Do nothing
 
+### Log File
+
+The name of the ml client in the log flie is `"ml"`.
+
 ## Custom Level Map Files
 
 You can define your own map file, put it in the `game/level_data/` directory, and give it an unique filename  `<level_id>.dat`.

@@ -128,6 +128,10 @@ Here are available commands:
 * `"MOVE_RIGHT"`: Move the platform to the right.
 * `"NONE"`: Do nothing.
 
+### Log File
+
+The name of the ml client in the log flie is `"ml_1P"` for 1P player and `"ml_2P"` for 2P player.
+
 ## Input Scripts for ML Mode
 
 The pingpong game is a 2P game, so it can accept two different ml scripts by specifying `-i <script_for_1P> -i <script_for_2P>`. If there is only one script specified, 1P and 2P will use the same script.

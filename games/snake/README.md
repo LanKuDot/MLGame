@@ -83,3 +83,7 @@ Here are the available commands:
 * `"LEFT"`: Make the snake move to left.
 * `"RIGHT"`: Make the snake move to right.
 * `"NONE"`: Do not change the moving direction of snake.
+
+### Log File
+
+The name of the ml client in the log flie is `"ml"`.
