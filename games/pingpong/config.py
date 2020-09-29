@@ -1,4 +1,4 @@
-GAME_VERSION = "1.1"
+GAME_VERSION = "1.2"
 
 from argparse import ArgumentTypeError
 
