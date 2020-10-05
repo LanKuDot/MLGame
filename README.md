@@ -129,9 +129,15 @@ The game progress will be like:
     "ml_2P": {
         "scene_info": [scene_info_0, scene_info_1, ... , scene_info_n-1, scene_info_n],
         "command": [command_0, command_1, ... , command_n-1, None]
+    },
+    "ml_3P": {
+        "scene_info": [],
+        "command": []
     }
 }
 ```
+
+If the scene information is not privided for the certain ml client, which the game runs with dynamic ml clients, it's value will be an empty list like "ml_3P" in the above example.
 
 ### Read Game Progress
 

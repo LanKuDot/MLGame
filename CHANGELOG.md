@@ -2,6 +2,12 @@
 
 The format is modified from [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+### [Beta 8.0.1] - 2020.10.05
+
+**Changed**
+
+* The recorded game progress for the inactivated ml client will be an empty list.
+
 ### [Beta 8.0] - 2020.09.29
 
 **Added**
