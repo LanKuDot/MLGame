@@ -71,8 +71,10 @@ class Recorder:
         """
         for name in self._ml_names:
             target_slot = self._game_progress[name]
-            target_slot["scene_info"].append(scene_info_dict.get(name, None))
-            target_slot["command"].append(cmd_dict.get(name, None))
+            scene_info = scene_info_dict.get(name, None)
+            if scene_info:
+                target_slot["scene_info"].append(scene_info)
+                target_slot["command"].append(cmd_dict.get(name, None))
 
     def flush_to_file(self):
         """
